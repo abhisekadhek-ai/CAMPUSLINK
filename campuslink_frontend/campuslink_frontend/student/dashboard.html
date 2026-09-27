@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student — CampusLink</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="nav">
+    <div class="brand">Campus<span>Link</span></div>
+    <div>
+      <label style="color:#9AA0B4;font-size:12px;margin:0 0 4px;">Viewing as</label>
+      <select id="studentSelect" class="role-select"></select>
+    </div>
+    <div class="nav-links">
+      <a class="active" href="dashboard.html">Readiness & Matches</a>
+      <a href="../recruiter/dashboard.html">Recruiter view</a>
+      <a href="../admin/dashboard.html">Admin view</a>
+    </div>
+    <div class="nav-footer">Live data from your FastAPI backend</div>
+  </nav>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <h1 id="studentName">Loading…</h1>
+        <p id="studentMeta"></p>
+      </div>
+    </div>
+
+    <div id="errorBox"></div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Readiness score</div>
+        <div class="score-hero">
+          <div class="score-ring">
+            <div class="val" id="scoreVal">–</div>
+            <div class="max">/ 100</div>
+          </div>
+          <div>
+            <span class="badge" id="scoreBadge">–</span>
+            <p class="muted" style="font-size:13px;margin-top:8px;">CGPA, certifications, mock-interview score, minus any backlog penalty.</p>
+          </div>
+        </div>
+        <div id="breakdown" style="margin-top:18px;"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Profile</div>
+        <div id="profileBox" style="font-size:13.5px;"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Matched roles <span class="muted" style="font-size:12.5px;font-weight:400;">ranked by fit score</span></div>
+      <table>
+        <thead><tr><th>Role</th><th>Match score</th><th>Status</th><th>Skill gap</th><th>Why</th></tr></thead>
+        <tbody id="matchesBody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+async function init() {
+  try {
+    const students = await getStudents();
+    const sel = document.getElementById("studentSelect");
+    sel.innerHTML = students.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("");
+    sel.addEventListener("change", () => loadStudent(sel.value));
+    loadStudent(students[0].id);
+  } catch (err) {
+    showError(err);
+  }
+}
+
+function showError(err) {
+  document.getElementById("errorBox").innerHTML =
+    `<div class="alert">Couldn't reach the backend: ${escapeHtml(err.message)}. Make sure "uvicorn main:app --reload" is running.</div>`;
+}
+
+async function loadStudent(id) {
+  try {
+    const s = await getStudent(id);
+    document.getElementById("studentName").textContent = s.name;
+    document.getElementById("studentMeta").textContent = `${s.branch} · CGPA ${s.cgpa} · ${s.backlogs} backlog(s)`;
+
+    const r = await getReadiness(id);
+    document.getElementById("scoreVal").textContent = r.score;
+    const badge = document.getElementById("scoreBadge");
+    badge.textContent = r.label;
+    badge.className = "badge " + badgeClass(r.label);
+
+    const b = r.breakdown;
+    const rows = [["CGPA", b.cgpa, 40], ["Certifications", b.certifications, 20], ["Mock interview", b.mock_interview, 30]];
+    document.getElementById("breakdown").innerHTML = rows.map(([label, val, max]) => `
+      <div class="bar-row">
+        <div class="bar-label">${label}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(0, val / max * 100)}%"></div></div>
+        <div class="bar-val">${val}</div>
+      </div>
+    `).join("") + (b.backlog_penalty ? `<div class="alert" style="margin-top:10px;">Backlog penalty: ${b.backlog_penalty} points</div>` : "");
+
+    document.getElementById("profileBox").innerHTML = `
+      <div style="margin-bottom:10px;">${csv(s.skills)}</div>
+      <table>
+        <tr><td class="muted">Certifications</td><td>${s.certifications.length ? escapeHtml(s.certifications.join(", ")) : "—"}</td></tr>
+        <tr><td class="muted">Mock interview</td><td>${s.mock_interview_score ?? "—"}/100</td></tr>
+      </table>
+    `;
+
+    const matches = await getStudentMatches(id);
+    document.getElementById("matchesBody").innerHTML = matches.map(m => `
+      <tr>
+        <td><strong>${escapeHtml(m.role)}</strong><div class="muted" style="font-size:12px;">${escapeHtml(m.company)}</div></td>
+        <td class="mono">${m.match_score}</td>
+        <td><span class="badge ${badgeClass(m.status)}">${m.status}</span></td>
+        <td>${m.missing_skills.length ? m.missing_skills.map(sk => `<span class="tag missing">${escapeHtml(sk)}</span>`).join("") : '<span class="muted">none</span>'}</td>
+        <td class="muted" style="max-width:280px;">${escapeHtml(m.explanation)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="5" class="empty">No roles posted yet.</td></tr>`;
+  } catch (err) {
+    showError(err);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

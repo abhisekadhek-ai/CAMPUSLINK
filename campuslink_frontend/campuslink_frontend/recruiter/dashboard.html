@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recruiter — CampusLink</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="nav">
+    <div class="brand">Campus<span>Link</span></div>
+    <div class="nav-links">
+      <a href="../student/dashboard.html">Student view</a>
+      <a class="active" href="dashboard.html">Jobs & Candidates</a>
+      <a href="../admin/dashboard.html">Admin view</a>
+    </div>
+    <div class="nav-footer">Live data from your FastAPI backend</div>
+  </nav>
+
+  <main class="main">
+    <div class="page-head">
+      <div><h1>Open roles</h1><p>Select a role to see a ranked, explained candidate pool.</p></div>
+      <button onclick="document.getElementById('newJobPanel').scrollIntoView({behavior:'smooth'})">+ Post a role</button>
+    </div>
+
+    <div id="errorBox"></div>
+
+    <div class="panel">
+      <table>
+        <thead><tr><th>Role</th><th>Company</th><th>Required skills</th><th>Min CGPA</th><th>Branches</th><th></th></tr></thead>
+        <tbody id="jobsBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel" id="candidatesPanel" style="display:none;">
+      <div class="panel-title">Candidates for <span id="jobTitleLabel" style="color:var(--indigo);"></span></div>
+      <table>
+        <thead><tr><th>Student</th><th>Match score</th><th>Status</th><th>Coverage</th><th>Explanation</th><th></th></tr></thead>
+        <tbody id="candidatesBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel" id="newJobPanel">
+      <div class="panel-title">Post a new role</div>
+      <form id="jobForm">
+        <label>Company</label>
+        <input name="company" required placeholder="e.g. NimbusCloud Technologies">
+        <label>Role title</label>
+        <input name="role" required placeholder="e.g. Backend Engineer">
+        <label>Required skills (comma-separated)</label>
+        <input name="required_skills" required placeholder="Python, AWS, Docker">
+        <label>Minimum CGPA</label>
+        <input name="min_cgpa" type="number" step="0.1" required value="7.0">
+        <label>Eligible branches (comma-separated)</label>
+        <input name="eligible_branches" required placeholder="CSE, IT, ECE">
+        <button type="submit">Post role & generate matches</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+let currentRecruiterId = null;
+
+function showError(err) {
+  document.getElementById("errorBox").innerHTML =
+    `<div class="alert">Couldn't reach the backend: ${escapeHtml(err.message)}. Make sure "uvicorn main:app --reload" is running.</div>`;
+}
+
+async function loadJobs() {
+  try {
+    const recruiters = await getRecruiters();
+    document.getElementById("jobsBody").innerHTML = recruiters.map(r => `
+      <tr>
+        <td><strong>${escapeHtml(r.role)}</strong></td>
+        <td class="muted">${escapeHtml(r.company)}</td>
+        <td>${csv(r.required_skills)}</td>
+        <td class="mono">${r.min_cgpa}</td>
+        <td class="muted">${r.eligible_branches.join(", ")}</td>
+        <td><button class="secondary small" onclick="viewCandidates(${r.id}, '${escapeHtml(r.role)}')">View candidates</button></td>
+      </tr>
+    `).join("") || `<tr><td colspan="6" class="empty">No roles posted yet — post one below.</td></tr>`;
+  } catch (err) {
+    showError(err);
+  }
+}
+
+async function viewCandidates(recruiterId, title) {
+  currentRecruiterId = recruiterId;
+  const candidates = await getCandidates(recruiterId);
+  document.getElementById("candidatesPanel").style.display = "block";
+  document.getElementById("jobTitleLabel").textContent = title;
+  document.getElementById("candidatesBody").innerHTML = candidates.map(c => `
+    <tr>
+      <td><strong>${escapeHtml(c.student_name)}</strong></td>
+      <td class="mono">${c.match_score}</td>
+      <td><span class="badge ${badgeClass(c.status)}">${c.status}</span></td>
+      <td>${c.coverage_percent}%</td>
+      <td class="muted" style="max-width:280px;">${escapeHtml(c.explanation)}</td>
+      <td>
+        ${c.status === "Shortlisted"
+          ? `<button class="secondary small" onclick="doShortlist(${c.student_id}, this)">Shortlist</button>`
+          : `<span class="muted" style="font-size:12px;">not eligible</span>`}
+      </td>
+    </tr>
+  `).join("");
+  document.getElementById("candidatesPanel").scrollIntoView({behavior:"smooth"});
+}
+
+async function doShortlist(studentId, btn) {
+  btn.disabled = true;
+  btn.textContent = "Notifying…";
+  await shortlistStudent(currentRecruiterId, studentId);
+  btn.textContent = "Notified ✓";
+}
+
+document.getElementById("jobForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const body = {
+    company: f.get("company"),
+    role: f.get("role"),
+    required_skills: f.get("required_skills").split(",").map(s => s.trim()).filter(Boolean),
+    min_cgpa: parseFloat(f.get("min_cgpa")),
+    eligible_branches: f.get("eligible_branches").split(",").map(s => s.trim()).filter(Boolean),
+  };
+  try {
+    const recruiter = await createRecruiter(body);
+    e.target.reset();
+    await loadJobs();
+    viewCandidates(recruiter.id, recruiter.role);
+  } catch (err) {
+    showError(err);
+  }
+});
+
+loadJobs();
+</script>
+</body>
+</html>

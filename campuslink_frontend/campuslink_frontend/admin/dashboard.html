@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — CampusLink</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="shell">
+  <nav class="nav">
+    <div class="brand">Campus<span>Link</span></div>
+    <div class="nav-links">
+      <a href="../student/dashboard.html">Student view</a>
+      <a href="../recruiter/dashboard.html">Recruiter view</a>
+      <a class="active" href="dashboard.html">Placement cell</a>
+    </div>
+    <div class="nav-footer">Live data from your FastAPI backend</div>
+  </nav>
+
+  <main class="main">
+    <div class="page-head">
+      <div><h1>Placement command dashboard</h1><p>Conflicts, offers and conversion analytics in one view.</p></div>
+    </div>
+
+    <div id="errorBox"></div>
+
+    <div class="stat-row" id="statRow"></div>
+
+    <div class="panel">
+      <div class="panel-title">Drive schedule <span class="muted" style="font-size:12.5px;font-weight:400;">conflicts flagged automatically</span></div>
+      <div id="conflictsBox"></div>
+      <table>
+        <thead><tr><th>Company</th><th>Date</th><th>Time slot</th><th>Venue</th><th>Status</th></tr></thead>
+        <tbody id="drivesBody"></tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Branch-wise conversion</div>
+        <table>
+          <thead><tr><th>Branch</th><th>Total</th><th>Placed</th><th>Rate</th></tr></thead>
+          <tbody id="branchBody"></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">CTC</div>
+        <div id="ctcBox" style="font-size:13.5px;"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Offers</div>
+      <table>
+        <thead><tr><th>Student</th><th>Company / Role</th><th>Status</th><th>CTC (LPA)</th><th>Update</th></tr></thead>
+        <tbody id="offersBody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+function showError(err) {
+  document.getElementById("errorBox").innerHTML =
+    `<div class="alert">Couldn't reach the backend: ${escapeHtml(err.message)}. Make sure "uvicorn main:app --reload" is running.</div>`;
+}
+
+async function loadDashboard() {
+  try {
+    const analytics = await getAnalytics();
+
+    document.getElementById("statRow").innerHTML = `
+      <div class="stat"><div class="num">${analytics.total_students}</div><div class="label">Total students</div></div>
+      <div class="stat"><div class="num">${analytics.offers_made}</div><div class="label">Offers made</div></div>
+      <div class="stat"><div class="num">${analytics.offers_accepted}</div><div class="label">Offers accepted</div></div>
+      <div class="stat"><div class="num">${analytics.offers_pending}</div><div class="label">Offers pending</div></div>
+    `;
+
+    document.getElementById("branchBody").innerHTML = Object.entries(analytics.branch_wise_conversion).map(([branch, v]) => `
+      <tr>
+        <td><strong>${escapeHtml(branch)}</strong></td>
+        <td>${v.total}</td>
+        <td>${v.placed}</td>
+        <td class="mono">${v.total ? Math.round(v.placed / v.total * 100) : 0}%</td>
+      </tr>
+    `).join("") || `<tr><td colspan="4" class="empty">No students yet.</td></tr>`;
+
+    document.getElementById("ctcBox").innerHTML = `
+      <table>
+        <tr><td class="muted">Average CTC (accepted offers)</td><td>${analytics.average_ctc_lpa ?? "—"} LPA</td></tr>
+        <tr><td class="muted">Highest CTC (accepted offers)</td><td>${analytics.highest_ctc_lpa ?? "—"} LPA</td></tr>
+      </table>
+    `;
+
+    // Drives + conflicts
+    const drives = await getDrives();
+    const conflicts = await getDriveConflicts();
+
+    document.getElementById("conflictsBox").innerHTML = conflicts.length
+      ? conflicts.map(c => `<div class="alert">⚠ ${escapeHtml(c.reason)}</div>`).join("")
+      : `<div class="alert ok">No scheduling conflicts detected.</div>`;
+
+    document.getElementById("drivesBody").innerHTML = drives.map(d => `
+      <tr>
+        <td><strong>${escapeHtml(d.company)}</strong></td>
+        <td class="mono">${d.date}</td>
+        <td class="mono">${d.time_slot}</td>
+        <td>${escapeHtml(d.venue)}</td>
+        <td><span class="badge ${badgeClass(d.status)}">${d.status}</span></td>
+      </tr>
+    `).join("") || `<tr><td colspan="5" class="empty">No drives scheduled yet.</td></tr>`;
+
+    // Offers
+    const offers = await getOffers();
+    const students = await getStudents();
+    const recruiters = await getRecruiters();
+    const studentMap = Object.fromEntries(students.map(s => [s.id, s]));
+    const recruiterMap = Object.fromEntries(recruiters.map(r => [r.id, r]));
+
+    const statuses = ["Issued", "Accepted", "Deferred", "Withdrawn", "Joined"];
+
+    document.getElementById("offersBody").innerHTML = offers.map(o => {
+      const student = studentMap[o.student_id];
+      const recruiter = recruiterMap[o.recruiter_id];
+      return `
+        <tr>
+          <td><strong>${student ? escapeHtml(student.name) : o.student_id}</strong></td>
+          <td class="muted">${recruiter ? `${escapeHtml(recruiter.company)} — ${escapeHtml(recruiter.role)}` : o.recruiter_id}</td>
+          <td><span class="badge ${badgeClass(o.status)}">${o.status}</span></td>
+          <td class="mono">${o.ctc_lpa ?? "—"}</td>
+          <td>
+            <select onchange="changeStatus(${o.id}, this.value)" style="width:auto;display:inline-block;padding:5px 8px;">
+              <option value="">Change to…</option>
+              ${statuses.map(s => `<option value="${s}">${s}</option>`).join("")}
+            </select>
+          </td>
+        </tr>
+      `;
+    }).join("") || `<tr><td colspan="5" class="empty">No offers yet.</td></tr>`;
+
+  } catch (err) {
+    showError(err);
+  }
+}
+
+async function changeStatus(offerId, status) {
+  if (!status) return;
+  await updateOfferStatus(offerId, { status });
+  loadDashboard();
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
