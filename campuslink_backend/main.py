@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from database import Base, engine, get_db
 from models import Student, Recruiter, Drive, Offer
 from notifications import notify_shortlist, notify_drive_announcement, notify_offer_status
+from ml_matching import match_student_to_recruiter, rank_recruiters_for_student, rank_students_for_recruiter
 
 # Creates campuslink.db and all four tables on first run, if they don't exist yet
 Base.metadata.create_all(bind=engine)
@@ -125,7 +126,7 @@ def readiness_score(student: Student):
     return total, label, breakdown
 
 
-def match_student_to_recruiter(student: Student, recruiter: Recruiter):
+def old_match_student_to_recruiter(student: Student, recruiter: Recruiter):
     required = set(s.lower() for s in recruiter.required_skills)
     have = set(s.lower() for s in student.skills)
     missing = sorted(required - have)
