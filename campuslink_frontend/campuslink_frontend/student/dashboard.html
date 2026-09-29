@@ -16,8 +16,8 @@
     </div>
     <div class="nav-links">
       <a class="active" href="dashboard.html">Readiness & Matches</a>
-      <a href="../recruiter/dashboard.html">Recruiter view</a>
-      <a href="../admin/dashboard.html">Admin view</a>
+      
+      
     </div>
     <div class="nav-footer">Live data from your FastAPI backend</div>
   </nav>
@@ -75,13 +75,30 @@
 
 <script src="../js/api.js"></script>
 <script>
+
 async function init() {
   try {
-    const students = await getStudents();
+    // Get the logged-in student's session
+    const session = JSON.parse(
+      sessionStorage.getItem("campuslink_session") || "null"
+    );
+
+    if (!session || !session.studentId) {
+      throw new Error("Please log in again as a student.");
+    }
+
+    // Fetch only this student's data
+    const student = await getStudent(session.studentId);
+
     const sel = document.getElementById("studentSelect");
-    sel.innerHTML = students.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("");
-    sel.addEventListener("change", () => loadStudent(sel.value));
-    loadStudent(students[0].id);
+
+    // Show the logged-in student in the dropdown
+    sel.innerHTML = `<option value="${student.id}">${escapeHtml(student.name)}</option>`;
+    sel.value = String(student.id);
+
+    // Load the student's dashboard
+    await loadStudent(student.id);
+
   } catch (err) {
     showError(err);
   }

@@ -112,3 +112,31 @@ class Offer(Base):
         ),
         UniqueConstraint("student_id", "recruiter_id", name="uq_offer_student_recruiter"),
     )
+class UserAccount(Base):
+    __tablename__ = "user_accounts"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    email = Column(String, nullable=False, unique=True, index=True)
+    password_hash = Column(String, nullable=False)
+
+    # Supported roles: student, recruiter, admin
+    role = Column(String, nullable=False, default="student")
+
+    # Link an account to an existing student record.
+    # Nullable so recruiter/admin accounts can be supported later.
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id", ondelete="CASCADE"),
+        nullable=True,
+        unique=True,
+    )
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        CheckConstraint(
+            "role IN ('student', 'recruiter', 'admin')",
+            name="ck_user_account_role",
+        ),
+    )

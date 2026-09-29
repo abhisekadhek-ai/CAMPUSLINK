@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — CampusLink</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+</head>
+<body>
+<div class="landing">
+  <div style="color:var(--indigo);font-size:13px;font-weight:500;margin-bottom:10px;">CAMPUSLINK</div>
+  <h1 id="title">Login</h1>
+  <p class="tag-line" id="subtitle"></p>
+
+  <div class="panel" style="width:340px;text-align:left;">
+    <div id="msg"></div>
+    <div id="studentRow" style="display:none;">
+      <label for="studentSelect">Your name</label>
+      <select id="studentSelect"></select>
+    </div>
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Enter password" autocomplete="off">
+    <button id="loginBtn" style="width:100%;">Log in</button>
+  </div>
+
+  <p style="margin-top:18px;"><a href="index.html" class="muted" style="font-size:13.5px;">&larr; Back to all portals</a></p>
+</div>
+
+<script>
+const CONFIG = {
+  student:   { title: "Student login",   subtitle: "See your readiness score, AI role matches and skill gaps." },
+  recruiter: { title: "Recruiter login", subtitle: "Post roles and review your ranked candidate pool." },
+  admin:     { title: "Admin login",     subtitle: "Placement cell: drives, offers and analytics." },
+};
+
+const role = new URLSearchParams(location.search).get("role");
+if (!CONFIG[role]) location.replace("index.html");
+
+document.getElementById("title").textContent = CONFIG[role].title;
+document.getElementById("subtitle").textContent = CONFIG[role].subtitle;
+document.title = CONFIG[role].title + " — CampusLink";
+
+const msg = document.getElementById("msg");
+const sel = document.getElementById("studentSelect");
+let students = [];
+
+async function loadStudents() {
+  document.getElementById("studentRow").style.display = "block";
+  try {
+    students = await apiGet("/auth/students");
+    sel.innerHTML = students.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("");
+    if (!students.length) msg.innerHTML = '<div class="alert">No students in the database yet. Run seeddata.py.</div>';
+  } catch (err) {
+    msg.innerHTML = '<div class="alert">Couldn\'t reach the backend. Start it with start.bat, then refresh this page.</div>';
+  }
+}
+if (role === "student") loadStudents();
+
+async function doLogin() {
+  const body = { role, password: document.getElementById("password").value };
+  if (role === "student") {
+    if (!sel.value) { msg.innerHTML = '<div class="alert">Pick your name first.</div>'; return; }
+    body.student_id = Number(sel.value);
+  }
+  try {
+    const res = await apiPost("/auth/login", body);
+    saveSession({ role: res.role, token: res.token, studentId: res.student_id, studentName: res.name });
+    location.href = ROLE_HOME[role];
+  } catch (err) {
+    msg.innerHTML = String(err.message).includes("401")
+      ? '<div class="alert">Wrong password.</div>'
+      : '<div class="alert">Couldn\'t reach the backend. Start it with start.bat, then try again.</div>';
+  }
+}
+
+document.getElementById("loginBtn").addEventListener("click", doLogin);
+document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+</script>
+</body>
+</html>

@@ -13,12 +13,21 @@ from typing import List, Optional
 
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from auth import (
+    check_password,
+    create_token,
+    verify_token,
+    hash_account_password,
+    verify_account_password,
+)
 from database import Base, engine, get_db
-from models import Student, Recruiter, Drive, Offer
+from models import Student, Recruiter, Drive, Offer, UserAccount
 from notifications import notify_shortlist, notify_drive_announcement, notify_offer_status
+from sqlalchemy.exc import IntegrityError
 
 # AI matching engine (needs scikit-learn). If it isn't installed the rest of the
 # API still runs; only /students/{id}/ai-matches returns a 503 with a hint.
@@ -53,6 +62,9 @@ class StudentIn(BaseModel):
     certifications: List[str] = []
     mock_interview_score: Optional[int] = None
 
+class StudentRegister(StudentIn):
+    email: str
+    password: str
 
 class StudentOut(StudentIn):
     id: int
@@ -190,10 +202,138 @@ def _slots_overlap(a: str, b: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Routes — Students
+# Login + role protection
+#   student   -> only their OWN student pages
+#   recruiter -> recruiter pages (roles, candidates, shortlisting)
+#   admin     -> everything
 # ---------------------------------------------------------------------------
 
-@app.post("/students", response_model=StudentOut)
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+class LoginIn(BaseModel):
+    role: str
+    password: str
+    student_id: Optional[int] = None
+
+
+def current_user(creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)) -> dict:
+    """Reads 'Authorization: Bearer <token>' and returns the logged-in user's claims."""
+    if creds is None:
+        raise HTTPException(401, "Not logged in")
+    user = verify_token(creds.credentials)
+    if user is None:
+        raise HTTPException(401, "Session expired or invalid. Please log in again.")
+    return user
+
+
+def require_roles(*roles: str):
+    def checker(user: dict = Depends(current_user)) -> dict:
+        if user.get("role") not in roles:
+            raise HTTPException(403, f"A {user.get('role')} account cannot access this.")
+        return user
+    return checker
+
+
+def require_student_access(student_id: int, user: dict = Depends(current_user)) -> dict:
+    """A student may only open their own pages; admin may open any."""
+    if user.get("role") == "admin":
+        return user
+    if user.get("role") == "student" and user.get("student_id") == student_id:
+        return user
+    raise HTTPException(403, "You can only view your own student profile.")
+
+
+ADMIN_ONLY = [Depends(require_roles("admin"))]
+RECRUITER_OR_ADMIN = [Depends(require_roles("recruiter", "admin"))]
+ANY_USER = [Depends(current_user)]
+STUDENT_SELF_OR_ADMIN = [Depends(require_student_access)]
+
+
+@app.post("/auth/login")
+def login(payload: LoginIn, db: Session = Depends(get_db)):
+    role = payload.role.lower()
+    if role not in ("student", "recruiter", "admin"):
+        raise HTTPException(400, "Unknown role")
+    if not check_password(role, payload.password):
+        raise HTTPException(401, "Wrong password")
+
+    claims = {"role": role}
+    name = role.title()
+    if role == "student":
+        if payload.student_id is None:
+            raise HTTPException(400, "student_id is required for student login")
+        student = db.get(Student, payload.student_id)
+        if not student:
+            raise HTTPException(404, "Student not found")
+        claims["student_id"] = student.id
+        name = student.name
+    return {"token": create_token(claims), "role": role,
+            "student_id": claims.get("student_id"), "name": name}
+
+
+@app.get("/auth/students")
+def login_student_list(db: Session = Depends(get_db)):
+    """Public on purpose: only ids + names, so the login page can show a 'pick your name' list."""
+    return [{"id": s.id, "name": s.name} for s in db.query(Student).order_by(Student.name).all()]
+
+
+# ---------------------------------------------------------------------------
+# Routes — Students
+# ---------------------------------------------------------------------------
+@app.post("/auth/register/student", response_model=StudentOut, status_code=201)
+def register_student(
+    payload: StudentRegister,
+    db: Session = Depends(get_db),
+):
+    email = payload.email.strip().lower()
+
+    if "@" not in email or email.startswith("@") or email.endswith("@"):
+        raise HTTPException(status_code=400, detail="Enter a valid email address")
+
+    if len(payload.password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="Password must contain at least 8 characters",
+        )
+
+    existing = db.query(UserAccount).filter(
+        UserAccount.email == email
+    ).first()
+
+    if existing:
+        raise HTTPException(status_code=409, detail="Email already registered")
+
+    student_data = payload.model_dump(exclude={"email", "password"})
+    student = Student(**student_data)
+
+    try:
+        db.add(student)
+        db.flush()  # Assign the new student ID without committing yet.
+
+        account = UserAccount(
+            email=email,
+            password_hash=hash_account_password(payload.password),
+            role="student",
+            student_id=student.id,
+        )
+        db.add(account)
+        db.commit()
+        db.refresh(student)
+
+        return student
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Registration conflicts with an existing record",
+        )
+    except Exception:
+        db.rollback()
+        raise
+
+@app.post("/students", response_model=StudentOut, dependencies=ADMIN_ONLY)
 def create_student(payload: StudentIn, db: Session = Depends(get_db)):
     student = Student(**payload.model_dump())
     db.add(student)
@@ -202,12 +342,12 @@ def create_student(payload: StudentIn, db: Session = Depends(get_db)):
     return student
 
 
-@app.get("/students", response_model=List[StudentOut])
+@app.get("/students", response_model=List[StudentOut], dependencies=ADMIN_ONLY)
 def list_students(db: Session = Depends(get_db)):
     return db.query(Student).all()
 
 
-@app.get("/students/{student_id}", response_model=StudentOut)
+@app.get("/students/{student_id}", response_model=StudentOut, dependencies=STUDENT_SELF_OR_ADMIN)
 def get_student(student_id: int, db: Session = Depends(get_db)):
     student = db.get(Student, student_id)
     if not student:
@@ -215,7 +355,7 @@ def get_student(student_id: int, db: Session = Depends(get_db)):
     return student
 
 
-@app.get("/students/{student_id}/readiness")
+@app.get("/students/{student_id}/readiness", dependencies=STUDENT_SELF_OR_ADMIN)
 def get_readiness(student_id: int, db: Session = Depends(get_db)):
     student = db.get(Student, student_id)
     if not student:
@@ -224,7 +364,7 @@ def get_readiness(student_id: int, db: Session = Depends(get_db)):
     return {"score": score, "label": label, "breakdown": breakdown}
 
 
-@app.get("/students/{student_id}/matches")
+@app.get("/students/{student_id}/matches", dependencies=STUDENT_SELF_OR_ADMIN)
 def get_student_matches(student_id: int, db: Session = Depends(get_db)):
     student = db.get(Student, student_id)
     if not student:
@@ -234,7 +374,7 @@ def get_student_matches(student_id: int, db: Session = Depends(get_db)):
     return sorted(results, key=lambda r: r["match_score"], reverse=True)
 
 
-@app.get("/students/{student_id}/ai-matches")
+@app.get("/students/{student_id}/ai-matches", dependencies=STUDENT_SELF_OR_ADMIN)
 def get_student_ai_matches(
     student_id: int,
     top_n: Optional[int] = Query(None, ge=1, description="Return only the best N roles"),
@@ -294,7 +434,7 @@ def get_student_ai_matches(
 # Routes — Recruiters
 # ---------------------------------------------------------------------------
 
-@app.post("/recruiters", response_model=RecruiterOut)
+@app.post("/recruiters", response_model=RecruiterOut, dependencies=RECRUITER_OR_ADMIN)
 def create_recruiter(payload: RecruiterIn, db: Session = Depends(get_db)):
     recruiter = Recruiter(**payload.model_dump())
     db.add(recruiter)
@@ -303,12 +443,12 @@ def create_recruiter(payload: RecruiterIn, db: Session = Depends(get_db)):
     return recruiter
 
 
-@app.get("/recruiters", response_model=List[RecruiterOut])
+@app.get("/recruiters", response_model=List[RecruiterOut], dependencies=RECRUITER_OR_ADMIN)
 def list_recruiters(db: Session = Depends(get_db)):
     return db.query(Recruiter).all()
 
 
-@app.get("/recruiters/{recruiter_id}/candidates")
+@app.get("/recruiters/{recruiter_id}/candidates", dependencies=RECRUITER_OR_ADMIN)
 def get_candidates(recruiter_id: int, db: Session = Depends(get_db)):
     recruiter = db.get(Recruiter, recruiter_id)
     if not recruiter:
@@ -318,7 +458,7 @@ def get_candidates(recruiter_id: int, db: Session = Depends(get_db)):
     return sorted(results, key=lambda r: r["match_score"], reverse=True)
 
 
-@app.post("/recruiters/{recruiter_id}/shortlist/{student_id}")
+@app.post("/recruiters/{recruiter_id}/shortlist/{student_id}", dependencies=RECRUITER_OR_ADMIN)
 def shortlist_student(recruiter_id: int, student_id: int, db: Session = Depends(get_db)):
     """Finalizes a shortlist decision for one student against one role,
     and triggers a shortlist notification if they qualify."""
@@ -338,7 +478,7 @@ def shortlist_student(recruiter_id: int, student_id: int, db: Session = Depends(
 # Routes — Drives
 # ---------------------------------------------------------------------------
 
-@app.post("/drives", response_model=DriveOut)
+@app.post("/drives", response_model=DriveOut, dependencies=ADMIN_ONLY)
 def create_drive(payload: DriveIn, db: Session = Depends(get_db)):
     drive = Drive(**payload.model_dump())
     db.add(drive)
@@ -355,12 +495,12 @@ def create_drive(payload: DriveIn, db: Session = Depends(get_db)):
     return drive
 
 
-@app.get("/drives", response_model=List[DriveOut])
+@app.get("/drives", response_model=List[DriveOut], dependencies=ANY_USER)
 def list_drives(db: Session = Depends(get_db)):
     return db.query(Drive).all()
 
 
-@app.get("/drives/conflicts")
+@app.get("/drives/conflicts", dependencies=ADMIN_ONLY)
 def drive_conflicts(db: Session = Depends(get_db)):
     drives = db.query(Drive).all()
     conflicts = []
@@ -380,7 +520,7 @@ def drive_conflicts(db: Session = Depends(get_db)):
 # Routes — Offers
 # ---------------------------------------------------------------------------
 
-@app.post("/offers", response_model=OfferOut)
+@app.post("/offers", response_model=OfferOut, dependencies=ADMIN_ONLY)
 def create_offer(payload: OfferIn, db: Session = Depends(get_db)):
     offer = Offer(**payload.model_dump(), status="Issued")
     db.add(offer)
@@ -395,12 +535,12 @@ def create_offer(payload: OfferIn, db: Session = Depends(get_db)):
     return offer
 
 
-@app.get("/offers", response_model=List[OfferOut])
+@app.get("/offers", response_model=List[OfferOut], dependencies=ADMIN_ONLY)
 def list_offers(db: Session = Depends(get_db)):
     return db.query(Offer).all()
 
 
-@app.put("/offers/{offer_id}/status", response_model=OfferOut)
+@app.put("/offers/{offer_id}/status", response_model=OfferOut, dependencies=ADMIN_ONLY)
 def update_offer_status(offer_id: int, payload: OfferStatusUpdate, db: Session = Depends(get_db)):
     offer = db.get(Offer, offer_id)
     if not offer:
@@ -423,7 +563,7 @@ def update_offer_status(offer_id: int, payload: OfferStatusUpdate, db: Session =
 # Routes — Analytics
 # ---------------------------------------------------------------------------
 
-@app.get("/analytics/dashboard")
+@app.get("/analytics/dashboard", dependencies=ADMIN_ONLY)
 def analytics_dashboard(db: Session = Depends(get_db)):
     students = db.query(Student).all()
     offers = db.query(Offer).all()

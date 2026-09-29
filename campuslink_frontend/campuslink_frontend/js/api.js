@@ -1,28 +1,56 @@
 // api.js — matches the routes actually exposed by main.py
 const BASE_URL = "http://127.0.0.1:8000";
 
+// Sends the login token (if any) with every request so the backend knows who is asking.
+function authHeaders(extra = {}) {
+    const headers = { ...extra };
+
+    try {
+        const session = JSON.parse(
+            sessionStorage.getItem("campuslink_session") || "null"
+        );
+
+        if (session && session.token) {
+            headers["Authorization"] = `Bearer ${session.token}`;
+        }
+    } catch (error) {
+        console.error("Could not read login session:", error);
+    }
+
+    return headers;
+}
+
+
+async function handleResponse(res, path) {
+  if (res.ok) return res.json();
+  // Token expired or invalid while logged in -> back to that role's login page
+  if (res.status === 401 && typeof getSession === "function" && getSession()) {
+    const role = getSession().role;
+    sessionStorage.removeItem(AUTH_KEY);
+    location.replace("../login.html?role=" + role);
+  }
+  throw new Error(`${path} failed: ${res.status}`);
+}
+
 async function apiGet(path) {
-  const res = await fetch(BASE_URL + path);
-  if (!res.ok) throw new Error(`${path} failed: ${res.status}`);
-  return res.json();
+  const res = await fetch(BASE_URL + path, { headers: authHeaders() });
+  return handleResponse(res, path);
 }
 async function apiPost(path, body) {
   const res = await fetch(BASE_URL + path, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`${path} failed: ${res.status}`);
-  return res.json();
+  return handleResponse(res, path);
 }
 async function apiPut(path, body) {
   const res = await fetch(BASE_URL + path, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`${path} failed: ${res.status}`);
-  return res.json();
+  return handleResponse(res, path);
 }
 
 // Students
