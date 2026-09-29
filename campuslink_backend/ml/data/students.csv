@@ -1,0 +1,51 @@
+name,branch,cgpa,backlogs,skills,certifications,mock_interview_score
+Deepika Iyer,ECE,6.18,0,"NumPy,JavaScript,REST APIs,Linux",,84
+Priya Khan,IT,7.43,0,"Linux,Azure,Pandas","CCNA,Scrum Master Certified",58
+Simran Patel,CSE,8.64,0,"Pandas,Machine Learning,Node.js,Kubernetes",,57
+Preeti Chatterjee,EEE,5.46,0,"CSS,Kubernetes,PowerBI,Java,NumPy",CCNA,45
+Sanya Nair,CIVIL,7.97,0,"HTML,Azure,Pandas,C++,Java","Azure Fundamentals,ML Specialization",40
+Sneha Iyer,EEE,8.05,0,"AWS,Django,Azure,REST APIs,Kubernetes","AWS Solutions Architect,Google Cloud Associate",61
+Meera Rao,CIVIL,8.3,0,"REST APIs,Node.js,Figma,Excel",,59
+Priya Chatterjee,CSE,6.01,0,"Azure,MongoDB,Data Structures,Spring Boot,TensorFlow",,63
+Ishita Gupta,MECH,6.26,1,"HTML,Spring Boot,Django,Docker,SQL,Git",AWS Solutions Architect,36
+Arjun Verma,CIVIL,7.03,1,"Spring Boot,CSS,TensorFlow","ML Specialization,AWS Cloud Practitioner",44
+Rajat Chowdhury,CIVIL,6.63,1,"Machine Learning,AWS,TensorFlow,Python,NumPy","ML Specialization,Google Cloud Associate",94
+Ananya Das,MECH,7.92,2,"Django,Excel,AWS,Linux","AWS Cloud Practitioner,Docker Essentials",92
+Rohan Iyer,ECE,6.15,3,"HTML,C++,NumPy,Data Structures",,46
+Ishita Bose,IT,6.27,3,"Azure,Linux,Excel,NumPy,Pandas,Figma","ML Specialization,Scrum Master Certified",77
+Simran Kulkarni,IT,6.08,0,"Python,HTML,Linux,Docker,C++","AWS Cloud Practitioner,Azure Fundamentals",38
+Neha Kulkarni,CIVIL,7.33,0,"NumPy,HTML,Data Structures,Docker",Scrum Master Certified,54
+Ananya Iyer,ECE,7.03,1,"NumPy,Java,REST APIs,MongoDB,Figma,JavaScript",,81
+Komal Chatterjee,CSE,6.19,2,"Linux,TensorFlow,SQL,Machine Learning",,65
+Harsh Gupta,CSE,7.13,2,"Java,MongoDB,Linux",,41
+Preeti Gupta,EEE,7.31,0,"Java,AWS,Spring Boot,Python,Excel,Kubernetes",ML Specialization,84
+Bhavna Chowdhury,EEE,5.74,1,"Azure,Java,HTML,NumPy,Linux",,70
+Sameer Mehta,MECH,9.41,0,"Java,Git,C++,AWS",,38
+Rajat Gupta,MECH,6.18,0,"CSS,C++,Machine Learning","CCNA,Docker Essentials",63
+Karan Chatterjee,EEE,5.63,0,"TensorFlow,Node.js,Excel,C++,Python",AWS Solutions Architect,39
+Nisha Sharma,IT,9.48,0,"Docker,Django,React",,86
+Nisha Das,CIVIL,7.54,1,"REST APIs,JavaScript,SQL,Kubernetes,NumPy","Google Cloud Associate,ML Specialization",66
+Payal Sharma,IT,8.3,1,"Git,Data Structures,Kubernetes,Java,C++","Scrum Master Certified,ML Specialization",35
+Aisha Chatterjee,CIVIL,9.7,1,"NumPy,TensorFlow,Linux,Pandas",CCNA,31
+Arjun Nair,CIVIL,9.34,3,"Figma,Django,HTML","Google Cloud Associate,Scrum Master Certified",46
+Priya Das,CSE,9.31,0,"REST APIs,Docker,JavaScript,Django","Scrum Master Certified,Google Cloud Associate",60
+Meera Singh,CSE,5.86,2,"PowerBI,Machine Learning,REST APIs,NumPy,Docker",Google Cloud Associate,43
+Sanya Mehta,IT,5.96,2,"Django,React,Docker,Excel,Python,REST APIs",,81
+Yash Reddy,ECE,6.69,2,"REST APIs,Linux,Node.js,Python,JavaScript,Kubernetes",,63
+Priya Iyer,ECE,8.5,0,"Machine Learning,CSS,Git,JavaScript,Spring Boot","Azure Fundamentals,ML Specialization",35
+Siddharth Malhotra,MECH,8.3,0,"Django,Machine Learning,C++,REST APIs",Docker Essentials,45
+Komal Das,CIVIL,6.96,0,"Pandas,React,Linux,SQL,Azure,Machine Learning","Scrum Master Certified,Google Cloud Associate",68
+Dev Chowdhury,ECE,6.38,2,"PowerBI,HTML,CSS,MongoDB,Node.js,TensorFlow",Data Science Professional,57
+Tara Bose,CIVIL,5.81,1,"React,Git,REST APIs","Docker Essentials,AWS Solutions Architect",60
+Rajat Das,IT,5.71,0,"Docker,Data Structures,CSS",,88
+Ritu Patel,CIVIL,6.84,0,"Docker,SQL,MongoDB,Pandas,Python,JavaScript",Azure Fundamentals,52
+Bhavna Kulkarni,MECH,6.2,0,"TensorFlow,SQL,PowerBI",CCNA,70
+Preeti Rao,CIVIL,9.28,1,"Figma,Linux,TensorFlow,AWS,Data Structures,Excel",Azure Fundamentals,65
+Naveen Kulkarni,IT,6.32,0,"Pandas,React,Docker",Docker Essentials,70
+Nisha Nair,IT,6.84,0,"Pandas,Azure,C++,Machine Learning",Docker Essentials,89
+Ritu Mehta,EEE,6.87,0,"Excel,HTML,Spring Boot",AWS Cloud Practitioner,75
+Nikhil Kapoor,EEE,7.58,2,"Data Structures,Docker,Kubernetes,Machine Learning",AWS Cloud Practitioner,79
+Yash Kapoor,EEE,9.41,1,"Spring Boot,HTML,REST APIs",,40
+Manoj Malhotra,EEE,5.87,0,"Spring Boot,Node.js,Azure,TensorFlow,Excel",ML Specialization,83
+Divya Nair,CIVIL,7.59,0,"Docker,MongoDB,C++,Excel,Java",,61
+Riya Khan,IT,5.61,1,"HTML,Azure,TensorFlow","ML Specialization,Docker Essentials",51

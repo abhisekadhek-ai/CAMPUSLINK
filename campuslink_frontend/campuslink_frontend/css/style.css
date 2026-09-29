@@ -102,3 +102,13 @@ button.small{padding:6px 12px;font-size:12.5px;margin-top:0;}
 .role-card p{font-size:12.5px;color:var(--ink-soft);margin:0;}
 
 .empty{color:var(--ink-soft);font-size:13.5px;padding:16px 0;}
+/* Fix student dropdown text visibility */
+select.role-select {
+    color: #222 !important;
+    background-color: #ffffff !important;
+}
+
+select.role-select option {
+    color: #222 !important;
+    background-color: #ffffff !important;
+}

@@ -1,0 +1,11 @@
+company,role,required_skills,min_cgpa,eligible_branches
+NimbusCloud Technologies,Product Engineer,"Pandas,JavaScript,Excel,Figma",6.4,"ECE,CSE,MECH"
+ByteForge Systems,Product Engineer,"Spring Boot,Pandas,Azure,C++",7.5,"CIVIL,IT"
+Vertex Analytics,Backend Engineer,"CSS,PowerBI,JavaScript,HTML",8.0,ECE
+Quantum Retail Labs,Frontend Developer,"Django,C++,Git,MongoDB",6.9,"EEE,CIVIL,CSE"
+GreenGrid Energy,DevOps Engineer,"Figma,TensorFlow,Pandas,SQL",7.1,"CIVIL,MECH"
+Skyline Fintech,Backend Engineer,"PowerBI,Linux,Excel,Data Structures",7.2,"CIVIL,MECH,ECE"
+Orbit Health Systems,Data Analyst,"Kubernetes,TensorFlow",6.6,"EEE,MECH"
+Pixelworks Studio,Frontend Developer,"Python,Data Structures,Node.js",6.5,"IT,ECE,MECH"
+CoreStack Solutions,Backend Engineer,"Pandas,Kubernetes,Linux,Python",7.3,"IT,CSE"
+Northwind Logistics,Frontend Developer,"Linux,Excel,Docker",7.7,CIVIL
