@@ -11,7 +11,7 @@ Then open:
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -19,6 +19,13 @@ from sqlalchemy.orm import Session
 from database import Base, engine, get_db
 from models import Student, Recruiter, Drive, Offer
 from notifications import notify_shortlist, notify_drive_announcement, notify_offer_status
+
+# AI matching engine (needs scikit-learn). If it isn't installed the rest of the
+# API still runs; only /students/{id}/ai-matches returns a 503 with a hint.
+try:
+    from ml.tfidf_match import TfidfMatcher
+except ImportError:
+    TfidfMatcher = None
 
 # Creates campuslink.db and all four tables on first run, if they don't exist yet
 Base.metadata.create_all(bind=engine)
@@ -166,6 +173,16 @@ def match_student_to_recruiter(student: Student, recruiter: Recruiter):
     }
 
 
+def _student_to_ml(s: Student) -> dict:
+    return {"id": s.id, "name": s.name, "branch": s.branch,
+            "skills": s.skills, "certifications": s.certifications}
+
+
+def _recruiter_to_ml(r: Recruiter) -> dict:
+    return {"id": r.id, "company": r.company, "role": r.role,
+            "required_skills": r.required_skills}
+
+
 def _slots_overlap(a: str, b: str) -> bool:
     a_start, a_end = [x.strip() for x in a.split("-")]
     b_start, b_end = [x.strip() for x in b.split("-")]
@@ -215,6 +232,62 @@ def get_student_matches(student_id: int, db: Session = Depends(get_db)):
     recruiters = db.query(Recruiter).all()
     results = [match_student_to_recruiter(student, r) for r in recruiters]
     return sorted(results, key=lambda r: r["match_score"], reverse=True)
+
+
+@app.get("/students/{student_id}/ai-matches")
+def get_student_ai_matches(
+    student_id: int,
+    top_n: Optional[int] = Query(None, ge=1, description="Return only the best N roles"),
+    db: Session = Depends(get_db),
+):
+    """AI match scores for one student across all recruiters/roles.
+
+    fit_score (0-1000) comes from TF-IDF + cosine similarity between the
+    student's skills/certifications and each role's title/required skills
+    (ml/tfidf_match.py). The rule-based fields (status, missing_skills,
+    coverage_percent, explanation) come from the same eligibility check the
+    existing /matches endpoint uses, so both views stay consistent.
+    """
+    if TfidfMatcher is None:
+        raise HTTPException(
+            503, "AI matching is unavailable: run 'pip install scikit-learn' and restart the server."
+        )
+
+    student = db.get(Student, student_id)
+    if not student:
+        raise HTTPException(404, "Student not found")
+
+    students = db.query(Student).all()
+    recruiters = db.query(Recruiter).all()
+    if not recruiters:
+        return []
+
+    # TF-IDF is fitted on ALL students + roles so the term weights (IDF) reflect
+    # the whole campus, not just this one student.
+    matcher = TfidfMatcher(
+        [_student_to_ml(s) for s in students],
+        [_recruiter_to_ml(r) for r in recruiters],
+    )
+    s_idx = next(i for i, s in enumerate(students) if s.id == student_id)
+    ranked = matcher.top_recruiters_for_student(s_idx, top_n=top_n or len(recruiters))
+
+    by_id = {r.id: r for r in recruiters}
+    results = []
+    for row in ranked:
+        rule = match_student_to_recruiter(student, by_id[row["recruiter_id"]])
+        results.append({
+            "student_id": student.id,
+            "student_name": student.name,
+            "recruiter_id": row["recruiter_id"],
+            "company": row["company"],
+            "role": row["role"],
+            "fit_score": row["fit_score"],
+            "status": rule["status"],
+            "coverage_percent": rule["coverage_percent"],
+            "missing_skills": rule["missing_skills"],
+            "explanation": rule["explanation"],
+        })
+    return results
 
 
 # ---------------------------------------------------------------------------

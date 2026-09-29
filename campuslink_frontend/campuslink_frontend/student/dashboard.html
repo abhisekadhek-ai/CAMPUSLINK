@@ -54,6 +54,15 @@
       </div>
     </div>
 
+    <div class="panel" id="aiPanel">
+      <div class="panel-title">
+        <span>Recommended for you <span class="ai-chip">AI</span></span>
+        <span class="muted" style="font-size:12.5px;font-weight:400;">top roles by skill fit, best first</span>
+      </div>
+      <div id="aiLearn"></div>
+      <div id="aiCards" class="ai-cards"><div class="empty">Loading AI recommendations…</div></div>
+    </div>
+
     <div class="panel">
       <div class="panel-title">Matched roles <span class="muted" style="font-size:12.5px;font-weight:400;">ranked by fit score</span></div>
       <table>
@@ -81,6 +90,66 @@ async function init() {
 function showError(err) {
   document.getElementById("errorBox").innerHTML =
     `<div class="alert">Couldn't reach the backend: ${escapeHtml(err.message)}. Make sure "uvicorn main:app --reload" is running.</div>`;
+}
+
+async function loadAiMatches(id) {
+  const box = document.getElementById("aiCards");
+  const learn = document.getElementById("aiLearn");
+  box.innerHTML = '<div class="empty">Loading AI recommendations…</div>';
+  learn.innerHTML = "";
+  try {
+    const matches = await getStudentAiMatches(id, 5);
+    if (!matches.length) {
+      box.innerHTML = '<div class="empty">No roles posted yet.</div>';
+      return;
+    }
+
+    // "Learn next": skills missing most often across the roles this student is eligible for
+    const counts = {};
+    matches.filter(m => m.status !== "Not Eligible")
+           .forEach(m => m.missing_skills.forEach(sk => { counts[sk] = (counts[sk] || 0) + 1; }));
+    const learnNext = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    learn.innerHTML = learnNext.length
+      ? `<div class="ai-learn"><strong>Skills to learn next</strong>
+           <span class="muted">— they unlock the most of these roles:</span>
+           ${learnNext.map(([sk, n]) => `<span class="tag missing">${escapeHtml(sk)} <span class="muted">(${n} role${n > 1 ? "s" : ""})</span></span>`).join("")}
+         </div>`
+      : `<div class="ai-learn ok">You already cover the required skills for your top matches.</div>`;
+
+    box.innerHTML = matches.map((m, i) => {
+      const pct = Math.max(2, Math.min(100, m.fit_score / 10));
+      const eligible = m.status !== "Not Eligible";
+      return `
+        <div class="ai-card ${eligible ? "" : "dim"}">
+          <div class="ai-rank">${i + 1}</div>
+          <div class="ai-body">
+            <div class="ai-top">
+              <div>
+                <strong>${escapeHtml(m.role)}</strong>
+                <div class="muted" style="font-size:12.5px;">${escapeHtml(m.company)}</div>
+              </div>
+              <span class="badge ${badgeClass(m.status)}">${escapeHtml(m.status)}</span>
+            </div>
+            <div class="bar-row" style="margin:10px 0 6px;">
+              <div class="bar-label" style="width:96px;">AI fit score</div>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+              <div class="bar-val" style="width:72px;">${m.fit_score} / 1000</div>
+            </div>
+            <div style="font-size:12.5px;">
+              ${m.missing_skills.length
+                ? 'Missing: ' + m.missing_skills.map(sk => `<span class="tag missing">${escapeHtml(sk)}</span>`).join("")
+                : '<span class="tag">All required skills covered</span>'}
+            </div>
+            <div class="muted" style="font-size:12.5px;margin-top:6px;">${escapeHtml(m.explanation)}</div>
+          </div>
+        </div>`;
+    }).join("");
+  } catch (err) {
+    const msg = String(err.message || err);
+    box.innerHTML = msg.includes("503")
+      ? '<div class="alert">AI matching is switched off on the server. Run <code>pip install scikit-learn</code> and restart the backend.</div>'
+      : `<div class="alert">Couldn't load AI recommendations: ${escapeHtml(msg)}</div>`;
+  }
 }
 
 async function loadStudent(id) {
@@ -112,6 +181,8 @@ async function loadStudent(id) {
         <tr><td class="muted">Mock interview</td><td>${s.mock_interview_score ?? "—"}/100</td></tr>
       </table>
     `;
+
+    loadAiMatches(id);
 
     const matches = await getStudentMatches(id);
     document.getElementById("matchesBody").innerHTML = matches.map(m => `

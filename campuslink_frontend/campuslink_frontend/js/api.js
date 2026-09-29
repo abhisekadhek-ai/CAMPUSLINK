@@ -30,6 +30,7 @@ const getStudents        = () => apiGet("/students");
 const getStudent         = (id) => apiGet(`/students/${id}`);
 const getReadiness       = (id) => apiGet(`/students/${id}/readiness`);
 const getStudentMatches  = (id) => apiGet(`/students/${id}/matches`);
+const getStudentAiMatches = (id, topN) => apiGet(`/students/${id}/ai-matches` + (topN ? `?top_n=${topN}` : ""));
 const createStudent      = (data) => apiPost("/students", data);
 
 // Recruiters (each row = one open role)

@@ -38,15 +38,25 @@ def load_data(db_path="campuslink_seed.db"):
     return students, recruiters
 
 
+def _as_list(value):
+    """Accepts a real list (from SQLAlchemy models) or a JSON string
+    (from raw sqlite rows) and always returns a list."""
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return json.loads(value) if value else []
+    return list(value)
+
+
 def build_student_doc(student):
-    skills = json.loads(student["skills"])
-    certs = json.loads(student["certifications"])
+    skills = _as_list(student["skills"])
+    certs = _as_list(student["certifications"])
     # repeat skills once more so they weigh slightly more than certifications
     return " ".join(skills + skills + certs)
 
 
 def build_recruiter_doc(recruiter):
-    required = json.loads(recruiter["required_skills"])
+    required = _as_list(recruiter["required_skills"])
     return " ".join([recruiter["role"]] + required + required)  # role once, skills doubled
 
 

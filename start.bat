@@ -1,13 +1,20 @@
 @echo off
-REM start.bat — launches CampusLink backend + frontend together.
-REM Place this file directly inside the "campuslink" folder,
-REM as a sibling of campuslink_backend and campuslink_frontend.
+cd /d "%~dp0"
+
+REM Use the virtual environment if there is one (this folder or the parent folder)
+if exist ".venv\Scripts\python.exe"    set "PATH=%~dp0.venv\Scripts;%PATH%"
+if exist "venv\Scripts\python.exe"     set "PATH=%~dp0venv\Scripts;%PATH%"
+if exist "..\.venv\Scripts\python.exe" set "PATH=%~dp0..\.venv\Scripts;%PATH%"
+if exist "..\venv\Scripts\python.exe"  set "PATH=%~dp0..\venv\Scripts;%PATH%"
+
+REM Install scikit-learn (needed for AI matching) only if it is missing
+python -m pip show scikit-learn >nul 2>&1 || python -m pip install -r campuslink_backend\requirements.txt
 
 echo Starting CampusLink backend...
-start "CampusLink Backend" cmd /k "cd /d %~dp0campuslink_backend && python -m uvicorn main:app --reload"
+start "CampusLink Backend" /D "%~dp0campuslink_backend" cmd /k python -m uvicorn main:app --reload
 
 echo Waiting for the server to be ready...
-timeout /t 4 /nobreak > nul
+timeout /t 5 /nobreak > nul
 
 echo Opening CampusLink frontend...
 start "" "%~dp0campuslink_frontend\campuslink_frontend\index.html"
