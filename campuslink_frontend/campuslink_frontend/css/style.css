@@ -124,3 +124,51 @@ select.role-select option {
 .ai-rank{width:30px;height:30px;flex-shrink:0;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:13px;}
 .ai-body{flex:1;min-width:0;}
 .ai-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+/* New Student Registration Section */
+.registration-section {
+    max-width: 600px;
+    width: 90%;
+    margin: 35px auto 20px;
+    padding: 28px 24px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+}
+
+.registration-section h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 26px;
+    color: #1e293b;
+}
+
+.registration-section p {
+    margin-bottom: 22px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.register-btn {
+    display: inline-block;
+    padding: 13px 24px;
+    background: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.register-btn:hover {
+    background: #1d4ed8;
+}
+
+@media (max-width: 600px) {
+    .registration-section {
+        margin-top: 25px;
+        padding: 22px 16px;
+    }
+}

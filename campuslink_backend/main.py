@@ -7,7 +7,7 @@ Run with:
 Then open:
     http://127.0.0.1:8000/docs   (interactive Swagger UI)
 """
-
+import logging
 from datetime import datetime
 from typing import List, Optional
 
@@ -28,6 +28,7 @@ from database import Base, engine, get_db
 from models import Student, Recruiter, Drive, Offer, UserAccount
 from notifications import notify_shortlist, notify_drive_announcement, notify_offer_status
 from sqlalchemy.exc import IntegrityError
+from notifications import send_welcome_email
 
 # AI matching engine (needs scikit-learn). If it isn't installed the rest of the
 # API still runs; only /students/{id}/ai-matches returns a 503 with a hint.
@@ -250,26 +251,75 @@ ANY_USER = [Depends(current_user)]
 STUDENT_SELF_OR_ADMIN = [Depends(require_student_access)]
 
 
+
 @app.post("/auth/login")
 def login(payload: LoginIn, db: Session = Depends(get_db)):
     role = payload.role.lower()
+
     if role not in ("student", "recruiter", "admin"):
-        raise HTTPException(400, "Unknown role")
-    if not check_password(role, payload.password):
-        raise HTTPException(401, "Wrong password")
+        raise HTTPException(status_code=400, detail="Unknown role")
 
     claims = {"role": role}
     name = role.title()
+
     if role == "student":
+        # A student must select their own student ID.
         if payload.student_id is None:
-            raise HTTPException(400, "student_id is required for student login")
+            raise HTTPException(
+                status_code=400,
+                detail="student_id is required for student login"
+            )
+
         student = db.get(Student, payload.student_id)
+
         if not student:
-            raise HTTPException(404, "Student not found")
+            raise HTTPException(
+                status_code=404,
+                detail="Student not found"
+            )
+
+        # Look for an individual account belonging to this student.
+        account = (
+            db.query(UserAccount)
+            .filter(UserAccount.student_id == student.id)
+            .first()
+        )
+
+        if account:
+            # Newly registered students use their own password.
+            password_ok = verify_account_password(
+                payload.password,
+                account.password_hash
+            )
+        else:
+            # Preserve the common password for demo students
+            # who do not have an individual account.
+            password_ok = check_password(role, payload.password)
+
+        if not password_ok:
+            raise HTTPException(
+                status_code=401,
+                detail="Wrong password"
+            )
+
         claims["student_id"] = student.id
         name = student.name
-    return {"token": create_token(claims), "role": role,
-            "student_id": claims.get("student_id"), "name": name}
+
+    else:
+        # Keep the existing common-password behavior for
+        # recruiter and admin accounts.
+        if not check_password(role, payload.password):
+            raise HTTPException(
+                status_code=401,
+                detail="Wrong password"
+            )
+
+    return {
+        "token": create_token(claims),
+        "role": role,
+        "student_id": claims.get("student_id"),
+        "name": name
+    }
 
 
 @app.get("/auth/students")
@@ -320,6 +370,22 @@ def register_student(
         db.add(account)
         db.commit()
         db.refresh(student)
+        
+        
+
+
+        # Send welcome email
+        email_sent = send_welcome_email(
+            recipient_email=email,
+            student_name=student.name,
+            student_id=student.id,
+        )
+
+        if not email_sent:
+            logging.warning(
+                "Welcome email failed for student ID %s",
+                student.id,
+            )
 
         return student
 

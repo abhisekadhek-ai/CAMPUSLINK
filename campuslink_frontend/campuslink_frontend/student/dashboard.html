@@ -123,8 +123,14 @@ async function loadAiMatches(id) {
 
     // "Learn next": skills missing most often across the roles this student is eligible for
     const counts = {};
-    matches.filter(m => m.status !== "Not Eligible")
-           .forEach(m => m.missing_skills.forEach(sk => { counts[sk] = (counts[sk] || 0) + 1; }));
+    matches
+    .filter(m => m.status !== "Not eligible")
+    .forEach(m => {
+        (m.missing_skills || []).forEach(sk => {
+            counts[sk] = (counts[sk] || 0) + 1;
+        });
+    });
+    
     const learnNext = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
     learn.innerHTML = learnNext.length
       ? `<div class="ai-learn"><strong>Skills to learn next</strong>
@@ -134,7 +140,8 @@ async function loadAiMatches(id) {
       : `<div class="ai-learn ok">You already cover the required skills for your top matches.</div>`;
 
     box.innerHTML = matches.map((m, i) => {
-      const pct = Math.max(2, Math.min(100, m.fit_score / 10));
+      const rawScore = Number(m.fit_score) || 0;
+const pct = Math.max(2, Math.min(100, rawScore));
       const eligible = m.status !== "Not Eligible";
       return `
         <div class="ai-card ${eligible ? "" : "dim"}">

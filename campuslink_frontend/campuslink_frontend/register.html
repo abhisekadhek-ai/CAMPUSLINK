@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration | Campus Link</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px 16px;
+      font-family: Arial, sans-serif;
+      background: #f3f5f9;
+      color: #202938;
+    }
+
+    .register-page {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .register-card {
+      background: #ffffff;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 10px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #657084;
+      margin: 0 0 28px;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 19px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #d4dbe5;
+      border-radius: 8px;
+      font-size: 16px;
+      background: #fff;
+      color: #202938;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #1677e8;
+      box-shadow: 0 0 0 3px rgba(22, 119, 232, 0.12);
+    }
+
+    .help-text {
+      display: block;
+      color: #687386;
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .register-button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 9px;
+      background: #0878e8;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .register-button:hover {
+      background: #0564c5;
+    }
+
+    .register-button:disabled {
+      background: #7baee8;
+      cursor: wait;
+    }
+
+    .message {
+      display: none;
+      padding: 15px;
+      border-radius: 9px;
+      margin-top: 18px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .message.success {
+      display: block;
+      background: #e1f5e8;
+      border: 1px solid #b5e3c4;
+      color: #176534;
+    }
+
+    .message.error {
+      display: block;
+      background: #fde8e8;
+      border: 1px solid #f3baba;
+      color: #a52121;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 22px;
+      color: #2766a5;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 10px;
+      }
+
+      .register-card {
+        padding: 22px 17px;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="register-page">
+    <section class="register-card">
+      <h1>Student Registration</h1>
+
+      <p class="subtitle">
+        Create your Campus Link account and complete your student profile.
+      </p>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="branch">Branch</label>
+          <input
+            type="text"
+            id="branch"
+            name="branch"
+            placeholder="e.g. Computer Science"
+            required
+          >
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cgpa">CGPA</label>
+            <input
+              type="number"
+              id="cgpa"
+              name="cgpa"
+              placeholder="e.g. 8.5"
+              min="0"
+              max="10"
+              step="0.01"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="backlogs">Number of Backlogs</label>
+            <input
+              type="number"
+              id="backlogs"
+              name="backlogs"
+              min="0"
+              step="1"
+              value="0"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="skills">Skills</label>
+          <textarea
+            id="skills"
+            name="skills"
+            rows="3"
+            placeholder="Python, SQL, HTML, Machine Learning"
+          ></textarea>
+          <small class="help-text">
+            Separate each skill with a comma.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="certifications">Certifications</label>
+          <textarea
+            id="certifications"
+            name="certifications"
+            rows="3"
+            placeholder="Python Programming, AWS Cloud Practitioner"
+          ></textarea>
+          <small class="help-text">
+            Enter certificates you have actually completed, separated by commas.
+            Leave blank if you do not have any.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="mockInterviewScore">
+            Mock Interview Score (0–100)
+          </label>
+          <input
+            type="number"
+            id="mockInterviewScore"
+            name="mock_interview_score"
+            min="0"
+            max="100"
+            step="1"
+            placeholder="Enter score if available"
+          >
+          <small class="help-text">
+            Leave blank if you have not taken a mock interview yet.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email address"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Create Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="At least 8 characters"
+            minlength="8"
+            autocomplete="new-password"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Enter your password again"
+            minlength="8"
+            autocomplete="new-password"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          id="registerButton"
+          class="register-button"
+        >
+          Register as a Student
+        </button>
+
+        <div
+          id="formMessage"
+          class="message"
+          role="status"
+          aria-live="polite"
+        ></div>
+      </form>
+
+      <a class="back-link" href="index.html">
+        Back to Campus Link
+      </a>
+    </section>
+  </main>
+
+  <script>
+    // Your existing FastAPI registration endpoint.
+    const API_URL = "http://127.0.0.1:8000/auth/register/student";
+
+    const form = document.getElementById("registerForm");
+    const messageBox = document.getElementById("formMessage");
+    const registerButton = document.getElementById("registerButton");
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = "message " + type;
+    }
+
+    function commaSeparatedList(value) {
+      return value
+        .split(",")
+        .map(item => item.trim())
+        .filter(item => item.length > 0);
+    }
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      messageBox.className = "message";
+      messageBox.textContent = "";
+
+      const name = document.getElementById("name").value.trim();
+      const branch = document.getElementById("branch").value.trim();
+      const cgpaValue = document.getElementById("cgpa").value;
+      const backlogsValue = document.getElementById("backlogs").value;
+      const skillsValue = document.getElementById("skills").value;
+      const certificationsValue =
+        document.getElementById("certifications").value;
+      const scoreValue =
+        document.getElementById("mockInterviewScore").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword =
+        document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        showMessage("The passwords do not match. Please try again.", "error");
+        return;
+      }
+
+      const cgpa = Number(cgpaValue);
+      const backlogs = Number(backlogsValue);
+      const mockInterviewScore =
+        scoreValue.trim() === "" ? null : Number(scoreValue);
+
+      if (!Number.isFinite(cgpa) || cgpa < 0 || cgpa > 10) {
+        showMessage("Please enter a valid CGPA between 0 and 10.", "error");
+        return;
+      }
+
+      if (
+        !Number.isInteger(backlogs) ||
+        backlogs < 0
+      ) {
+        showMessage("Backlogs must be a whole number of 0 or more.", "error");
+        return;
+      }
+
+      if (
+        mockInterviewScore !== null &&
+        (
+          !Number.isInteger(mockInterviewScore) ||
+          mockInterviewScore < 0 ||
+          mockInterviewScore > 100
+        )
+      ) {
+        showMessage(
+          "Mock interview score must be a whole number from 0 to 100.",
+          "error"
+        );
+        return;
+      }
+
+      const payload = {
+        name: name,
+        branch: branch,
+        cgpa: cgpa,
+        backlogs: backlogs,
+        skills: commaSeparatedList(skillsValue),
+        certifications: commaSeparatedList(certificationsValue),
+        mock_interview_score: mockInterviewScore,
+        email: email,
+        password: password
+      };
+
+      registerButton.disabled = true;
+      registerButton.textContent = "Registering...";
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          let errorText = data.detail || data.message ||
+            "Registration failed. Please check your details.";
+
+          if (Array.isArray(errorText)) {
+            errorText = errorText
+              .map(item => item.msg || JSON.stringify(item))
+              .join("; ");
+          }
+
+          if (typeof errorText !== "string") {
+            errorText = JSON.stringify(errorText);
+          }
+
+          throw new Error(errorText);
+        }
+
+        // Support common Student ID response formats.
+        const studentId =
+          data.id ??
+          data.student_id ??
+          data.student?.id ??
+          data.student?.student_id;
+
+        if (studentId === undefined || studentId === null) {
+          showMessage(
+            "Registration request succeeded, but the Student ID was not " +
+            "included in the response. Check the API response in Swagger.",
+            "success"
+          );
+          return;
+        }
+
+        showMessage(
+          "Welcome to Campus Link, " + name +
+          "! Registration successful. Your Student ID is: " +
+          studentId +
+          ". Please check your email for your welcome message. " +
+          "Keep your Student ID safe for future login.",
+          "success"
+        );
+
+        form.reset();
+
+      } catch (error) {
+        console.error("Student registration error:", error);
+
+        if (error instanceof TypeError) {
+          showMessage(
+            "Cannot connect to the Campus Link backend. Make sure " +
+            "FastAPI is running at http://127.0.0.1:8000.",
+            "error"
+          );
+        } else {
+          showMessage(error.message, "error");
+        }
+      } finally {
+        registerButton.disabled = false;
+        registerButton.textContent = "Register as a Student";
+      }
+    });
+  </script>
+</body>
+</html>

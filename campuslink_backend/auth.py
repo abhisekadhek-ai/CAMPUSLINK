@@ -104,9 +104,15 @@ def verify_token(token: str):
         payload, signature = token.split(".")
         if not hmac.compare_digest(signature, _sign(payload)):
             return None
+
         claims = json.loads(_unb64(payload))
-        if claims.get("exp", 0) < time.time():
+
+        if not isinstance(claims.get("exp"), (int, float)):
             return None
+
+        if claims["exp"] <= time.time():
+            return None
+
         return claims
     except Exception:
         return None
