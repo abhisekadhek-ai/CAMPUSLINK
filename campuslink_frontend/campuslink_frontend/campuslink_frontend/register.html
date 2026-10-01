@@ -5,164 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Registration | Campus Link</title>
 
+  <link rel="stylesheet" href="css/style.css">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 30px 16px;
-      font-family: Arial, sans-serif;
-      background: #f3f5f9;
-      color: #202938;
-    }
-
-    .register-page {
-      width: 100%;
-      max-width: 760px;
-      margin: 0 auto;
-    }
-
-    .register-card {
-      background: #ffffff;
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
-    }
-
-    h1 {
-      text-align: center;
-      margin: 0 0 10px;
-      font-size: 30px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #657084;
-      margin: 0 0 28px;
-      line-height: 1.6;
-    }
-
-    .form-group {
-      margin-bottom: 19px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 16px;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1px solid #d4dbe5;
-      border-radius: 8px;
-      font-size: 16px;
-      background: #fff;
-      color: #202938;
-    }
-
-    input:focus,
-    textarea:focus {
-      outline: none;
-      border-color: #1677e8;
-      box-shadow: 0 0 0 3px rgba(22, 119, 232, 0.12);
-    }
-
-    .help-text {
-      display: block;
-      color: #687386;
-      font-size: 13px;
-      margin-top: 6px;
-      line-height: 1.5;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .register-button {
-      display: block;
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 9px;
-      background: #0878e8;
-      color: #fff;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    .register-button:hover {
-      background: #0564c5;
-    }
-
-    .register-button:disabled {
-      background: #7baee8;
-      cursor: wait;
-    }
-
-    .message {
-      display: none;
-      padding: 15px;
-      border-radius: 9px;
-      margin-top: 18px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-    }
-
-    .message.success {
-      display: block;
-      background: #e1f5e8;
-      border: 1px solid #b5e3c4;
-      color: #176534;
-    }
-
-    .message.error {
-      display: block;
-      background: #fde8e8;
-      border: 1px solid #f3baba;
-      color: #a52121;
-    }
-
-    .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 22px;
-      color: #2766a5;
-      text-decoration: none;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 16px 10px;
-      }
-
-      .register-card {
-        padding: 22px 17px;
-      }
-
-      h1 {
-        font-size: 25px;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-        gap: 0;
-      }
-    }
+    .register-page{width:100%;max-width:780px;margin:0 auto;padding:18px 0 30px}
+    .register-card{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);padding:36px;border-radius:22px;border:1px solid var(--line);box-shadow:0 30px 60px -28px rgba(75,75,224,.4);animation:rise .7s var(--ease) both}
+    body{padding:30px 16px}
+    h1{text-align:center;margin:0 0 8px;font-size:34px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .subtitle{text-align:center;color:var(--ink-soft);margin:0 0 28px;line-height:1.6}
+    .form-group,.form-row{margin-bottom:19px;animation:rise .55s var(--ease) both}
+    .form-row .form-group{margin-bottom:0;animation:none}
+    form>:nth-child(1){animation-delay:.10s}form>:nth-child(2){animation-delay:.16s}form>:nth-child(3){animation-delay:.22s}
+    form>:nth-child(4){animation-delay:.28s}form>:nth-child(5){animation-delay:.34s}form>:nth-child(n+6){animation-delay:.4s}
+    label{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--ink)}
+    input,textarea{width:100%;padding:13px 14px;border:1px solid var(--line-strong);border-radius:12px;font-size:15px;background:#fff;color:var(--ink)}
+    .help-text{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:6px;line-height:1.5}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .register-button{display:block;width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:700;margin-top:8px}
+    .message{display:none;padding:15px;border-radius:12px;margin-top:18px;line-height:1.7;overflow-wrap:anywhere}
+    .message.success{display:block;background:var(--green-dim);border:1px solid #A9E0C6;color:#146846;animation:pop .45s var(--ease) both}
+    .message.error{display:block;background:var(--rust-dim);border:1px solid #F0B8A9;color:#9A2F18;animation:pop .45s var(--ease) both}
+    .back-link{display:block;text-align:center;margin-top:22px;color:var(--indigo);font-weight:500}
+    .back-link:hover{text-decoration:underline}
+    @media(max-width:600px){body{padding:16px 10px}.register-card{padding:24px 17px}h1{font-size:27px}.form-row{grid-template-columns:1fr;gap:0}.form-row .form-group{margin-bottom:19px}}
   </style>
 </head>
 
@@ -499,5 +363,6 @@
       }
     });
   </script>
+<script src="js/fx.js" defer></script>
 </body>
 </html>

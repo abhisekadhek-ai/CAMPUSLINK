@@ -17,6 +17,6 @@ echo Waiting for the server to be ready...
 timeout /t 5 /nobreak > nul
 
 echo Opening CampusLink frontend...
-start "" "%~dp0campuslink_frontend\campuslink_frontend\index.html"
+start "" "%~dp0campuslink_frontend\campuslink_frontend\campuslink_frontend\index.html"
 
 echo Done. Leave the "CampusLink Backend" window open while you use the app.
