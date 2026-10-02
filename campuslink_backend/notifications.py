@@ -103,3 +103,57 @@ Campus Link Team
     except (OSError, smtplib.SMTPException) as exc:
         logging.exception("Could not send welcome email: %s", exc)
         return False
+
+def send_password_reset_otp(
+    recipient_email: str,
+    otp: str,
+) -> bool:
+    """Send a password-reset OTP to the student's registered email."""
+
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+
+    if not all([smtp_host, smtp_user, smtp_password]):
+        logging.error("Email settings are missing from .env")
+        return False
+
+    msg = EmailMessage()
+    msg["Subject"] = "Campus Link Password Reset OTP"
+    msg["From"] = smtp_user
+    msg["To"] = recipient_email
+
+    msg.set_content(
+        f"""Hello,
+
+We received a request to reset your Campus Link password.
+
+Your OTP is:
+
+{otp}
+
+This OTP is valid for 10 minutes.
+
+If you did not request a password reset, please ignore this email.
+
+Thank you,
+Campus Link Team
+"""
+    )
+
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.send_message(msg)
+
+        logging.info("Password reset OTP sent to %s", recipient_email)
+        return True
+
+    except (OSError, smtplib.SMTPException) as exc:
+        logging.exception(
+            "Could not send password reset OTP: %s",
+            exc,
+        )
+        return False

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Portal — CampusLink</title>
+  <link rel="stylesheet" href="../css/style.css">
+
+  <style>
+    .job-tools {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+    }
+
+    .job-tools input {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px;
+      border: 1px solid #d7dbea;
+      border-radius: 8px;
+    }
+
+    .job-tools button,
+    .apply-btn {
+      display: inline-block;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 18px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .job-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .job-card {
+      background: white;
+      border: 1px solid #e3e7f0;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(20, 30, 60, 0.05);
+    }
+
+    .job-card h3 {
+      margin: 0 0 8px;
+    }
+
+    .job-company {
+      color: #526079;
+      font-weight: 600;
+    }
+
+    .job-meta {
+      color: #64748b;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+
+    .job-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 12px 0 18px;
+    }
+
+    .job-tag {
+      background: #eef2ff;
+      color: #3730a3;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .job-message {
+      padding: 16px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      margin: 16px 0;
+    }
+
+    .job-message.error {
+      background: #fff1f2;
+      color: #9f1239;
+    }
+
+    .job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="shell">
+
+  <nav class="nav">
+    <div class="brand">Campus<span>Link</span></div>
+
+    <div class="nav-links">
+      <a href="dashboard.html">Readiness &amp; Matches</a>
+      <a class="active" href="job-portal.html">Job Portal</a>
+    </div>
+
+    <div class="nav-footer">Explore external job opportunities</div>
+  </nav>
+
+  <main class="main">
+
+    <div class="page-head">
+      <div>
+        <h1>Job Portal</h1>
+        <p>Discover opportunities and apply through the original job website.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="job-header">
+        <div class="panel-title">Find your next opportunity</div>
+        <span class="badge" id="jobCount">Ready to search</span>
+      </div>
+
+      <form class="job-tools" id="searchForm">
+        <input
+          id="jobQuery"
+          type="search"
+          maxlength="100"
+          placeholder="Search Python, AI/ML, developer, remote..."
+          aria-label="Search jobs"
+        >
+
+        <button type="submit" id="searchButton">Search Jobs</button>
+        <button type="button" id="allJobsButton">Show All</button>
+      </form>
+
+      <p class="muted" style="font-size:13px;">
+        Jobs are fetched from the external Arbeitnow job feed.
+        Availability and application requirements depend on the employer.
+      </p>
+    </div>
+
+    <div id="jobMessage" class="job-message" role="status">
+      Loading jobs...
+    </div>
+
+    <div id="jobResults" class="job-grid"></div>
+
+  </main>
+</div>
+
+<script>
+  const API_BASE = "http://127.0.0.1:8000";
+
+  const resultsBox = document.getElementById("jobResults");
+  const messageBox = document.getElementById("jobMessage");
+  const countBox = document.getElementById("jobCount");
+  const queryInput = document.getElementById("jobQuery");
+  const searchButton = document.getElementById("searchButton");
+
+  function safeText(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+
+  function showMessage(message, isError = false) {
+    messageBox.textContent = message;
+    messageBox.className = isError
+      ? "job-message error"
+      : "job-message";
+    messageBox.hidden = false;
+  }
+
+  function renderJobs(jobs) {
+    if (!Array.isArray(jobs) || jobs.length === 0) {
+      resultsBox.innerHTML = "";
+      countBox.textContent = "0 jobs";
+      showMessage("No jobs found. Try another search term.");
+      return;
+    }
+
+    countBox.textContent = `${jobs.length} jobs`;
+    messageBox.hidden = true;
+
+    resultsBox.innerHTML = jobs.map(job => {
+      const title = safeText(job.title || "Untitled position");
+      const company = safeText(job.company || "Company not specified");
+      const location = safeText(job.location || "Location not specified");
+      const tags = Array.isArray(job.tags) ? job.tags : [];
+      const remote = job.remote
+        ? '<span class="job-tag">Remote</span>'
+        : "";
+
+      const validUrl = typeof job.url === "string" &&
+        /^https?:\/\//i.test(job.url);
+
+      const applyButton = validUrl
+        ? `<a class="apply-btn"
+              href="${safeText(job.url)}"
+              target="_blank"
+              rel="noopener noreferrer">
+              View / Apply
+           </a>`
+        : '<span class="muted">Application link unavailable</span>';
+
+      return `
+        <article class="job-card">
+          <h3>${title}</h3>
+          <div class="job-company">${company}</div>
+          <div class="job-meta">📍 ${location}</div>
+
+          <div class="job-tags">
+            ${remote}
+            ${tags.slice(0, 8).map(tag =>
+              `<span class="job-tag">${safeText(tag)}</span>`
+            ).join("")}
+          </div>
+
+          ${job.created_at
+            ? `<p class="job-meta">Posted: ${safeText(job.created_at)}</p>`
+            : ""}
+
+          ${applyButton}
+          <p class="job-meta">Source: ${safeText(job.source || "External job feed")}</p>
+        </article>
+      `;
+    }).join("");
+  }
+
+  async function loadJobs(query = "") {
+    searchButton.disabled = true;
+    resultsBox.innerHTML = "";
+    countBox.textContent = "Searching...";
+    showMessage("Fetching jobs from the backend...");
+
+    try {
+      const params = new URLSearchParams({
+        q: query.trim(),
+        limit: "20"
+      });
+
+      const response = await fetch(
+        `${API_BASE}/integrations/jobs?${params.toString()}`
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Backend returned HTTP ${response.status}.`
+        );
+      }
+
+      const data = await response.json();
+
+      // Support either a direct array or a wrapped API response.
+      const jobs = Array.isArray(data)
+        ? data
+        : Array.isArray(data.jobs)
+          ? data.jobs
+          : Array.isArray(data.data)
+            ? data.data
+            : [];
+
+      renderJobs(jobs);
+
+    } catch (error) {
+      countBox.textContent = "Unavailable";
+      showMessage(
+        `${error.message} Check that FastAPI is running and that GET /integrations/jobs works in Swagger.`,
+        true
+      );
+    } finally {
+      searchButton.disabled = false;
+    }
+  }
+
+  document.getElementById("searchForm").addEventListener("submit", event => {
+    event.preventDefault();
+    loadJobs(queryInput.value);
+  });
+
+  document.getElementById("allJobsButton").addEventListener("click", () => {
+    queryInput.value = "";
+    loadJobs("");
+  });
+
+  loadJobs();
+</script>
+
+<script src="../js/fx.js" defer></script>
+</body>
+</html>

@@ -77,6 +77,13 @@ const getOffers          = () => apiGet("/offers");
 const createOffer        = (data) => apiPost("/offers", data);
 const updateOfferStatus  = (id, data) => apiPut(`/offers/${id}/status`, data);
 
+// Job Application Tracking
+const getJobApplications = (studentId) =>
+    apiGet(`/students/${studentId}/job-applications`);
+
+const createJobApplication = (studentId, data) =>
+    apiPost(`/students/${studentId}/job-applications`, data);
+
 // Analytics
 const getAnalytics       = () => apiGet("/analytics/dashboard");
 

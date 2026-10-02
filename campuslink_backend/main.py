@@ -8,14 +8,89 @@ Then open:
     http://127.0.0.1:8000/docs   (interactive Swagger UI)
 """
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
-
+from integrations.job_portal import fetch_external_jobs
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from urllib.parse import urlparse
+import json
+import hashlib
+import secrets
+from urllib.request import Request, urlopen
+OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
+OLLAMA_MODEL = "qwen2.5:3b"
+
+def ask_local_ai(question: str, jobs: list) -> str:
+    job_text = json.dumps(jobs, ensure_ascii=False)
+
+    system_prompt = """
+You are CampusLink AI Assistant.
+
+You help students with:
+- job searching
+- career guidance
+- job skill analysis
+- interview preparation
+- understanding job listings
+
+Use the provided job data when answering job-related questions.
+
+Do not invent companies, jobs, locations, URLs, salaries,
+or other job details that are not present in the provided data.
+
+Give clear and beginner-friendly answers.
+"""
+
+    user_prompt = f"""
+Student question:
+{question}
+
+Real job data retrieved by CampusLink:
+{job_text}
+
+Answer the student's question using the available information.
+"""
+
+    payload = {
+        "model": OLLAMA_MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": system_prompt
+            },
+            {
+                "role": "user",
+                "content": user_prompt
+            }
+        ],
+        "stream": False
+    }
+
+    request = Request(
+        OLLAMA_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json"
+        },
+        method="POST"
+    )
+
+    try:
+        with urlopen(request, timeout=120) as response:
+            result = json.loads(
+                response.read().decode("utf-8")
+            )
+
+        return result["message"]["content"]
+
+    except Exception as exc:
+        raise RuntimeError(
+            f"Ollama AI service unavailable: {exc}"
+        ) from exc
 
 from auth import (
     check_password,
@@ -25,10 +100,18 @@ from auth import (
     verify_account_password,
 )
 from database import Base, engine, get_db
-from models import Student, Recruiter, Drive, Offer, UserAccount
+from models import (
+    Student,
+    Recruiter,
+    Drive,
+    Offer,
+    UserAccount,
+    JobApplication,
+    PasswordResetOTP,
+)
 from notifications import notify_shortlist, notify_drive_announcement, notify_offer_status
 from sqlalchemy.exc import IntegrityError
-from notifications import send_welcome_email
+from notifications import send_welcome_email, send_password_reset_otp
 
 # AI matching engine (needs scikit-learn). If it isn't installed the rest of the
 # API still runs; only /students/{id}/ai-matches returns a 503 with a hint.
@@ -41,6 +124,25 @@ except ImportError:
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="CampusLink API")
+
+@app.get("/integrations/jobs")
+def get_external_jobs(
+    q: str = Query(default="", max_length=100),
+    limit: int = Query(default=20, ge=1, le=50),
+):
+    try:
+        jobs = fetch_external_jobs(query=q, limit=limit)
+        return {
+            "success": True,
+            "source": "Arbeitnow",
+            "count": len(jobs),
+            "jobs": jobs,
+        }
+    except RuntimeError:
+        raise HTTPException(
+            status_code=502,
+            detail="External job service is temporarily unavailable.",
+        )
 
 app.add_middleware(
     CORSMiddleware,
@@ -120,8 +222,55 @@ class OfferOut(BaseModel):
     status: str
     ctc_lpa: Optional[float]
     joining_date: Optional[str]
+
     class Config:
         from_attributes = True
+
+
+class JobApplicationCreate(BaseModel):
+    job_title: str
+    company: str
+    job_url: str
+    source: str = "External"
+
+
+class JobApplicationStatusUpdate(BaseModel):
+    status: str
+
+
+class JobApplicationOut(BaseModel):
+    id: int
+    student_id: int
+    job_title: str
+    company: str
+    job_url: str
+    source: str
+    status: str
+    applied_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+class JobApplicationStatusUpdate(BaseModel):
+    status: str
+
+
+class JobApplicationOut(BaseModel):
+    id: int
+    student_id: int
+    job_title: str
+    company: str
+    job_url: str
+    source: str
+    status: str
+    applied_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class JobAssistantRequest(BaseModel):
+    question: str        
 
 
 # ---------------------------------------------------------------------------
@@ -321,6 +470,147 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
         "name": name
     }
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+@app.post("/auth/forgot-password")
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    email = payload.email.strip().lower()
+
+    # Find the registered account using the email
+    account = (
+        db.query(UserAccount)
+        .filter(UserAccount.email == email)
+        .first()
+    )
+
+    if not account:
+        raise HTTPException(
+            status_code=404,
+            detail="No registered account found with this email.",
+        )
+
+    # Generate a secure 6-digit OTP
+    otp = secrets.randbelow(900000) + 100000
+
+    # Hash the OTP before storing it in the database
+    otp_hash = hashlib.sha256(
+    str(otp).encode("utf-8")
+).hexdigest()
+
+    # Remove previous unused OTPs for this email
+    db.query(PasswordResetOTP).filter(
+        PasswordResetOTP.email == email,
+        PasswordResetOTP.used == False,
+    ).delete(synchronize_session=False)
+
+    # Create a new OTP valid for 10 minutes
+    reset_otp = PasswordResetOTP(
+        email=email,
+        otp_hash=otp_hash,
+        expires_at=datetime.utcnow() + timedelta(minutes=10),
+        attempts=0,
+        used=False,
+    )
+
+    db.add(reset_otp)
+    db.commit()
+
+    # Send OTP to the registered email
+    email_sent = send_password_reset_otp(
+        recipient_email=email,
+        otp=str(otp),
+    )
+
+    if not email_sent:
+        raise HTTPException(
+            status_code=500,
+            detail="Could not send OTP email.",
+        )
+
+    return {
+        "success": True,
+        "message": "OTP sent to your registered email.",
+    }
+
+class VerifyResetOTPRequest(BaseModel):
+    email: str
+    otp: int
+    new_password: str
+
+@app.post("/auth/verify-reset-otp")
+def verify_reset_otp(
+    payload: VerifyResetOTPRequest,
+    db: Session = Depends(get_db),
+):
+    email = payload.email.strip().lower()
+
+    reset_record = (
+        db.query(PasswordResetOTP)
+        .filter(
+            PasswordResetOTP.email == email,
+            PasswordResetOTP.used == False,
+        )
+        .order_by(PasswordResetOTP.created_at.desc())
+        .first()
+    )
+
+    if not reset_record:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or expired OTP.",
+        )
+
+    if datetime.utcnow() > reset_record.expires_at:
+        raise HTTPException(
+            status_code=400,
+            detail="OTP has expired. Please request a new OTP.",
+        )
+
+    if reset_record.attempts >= 5:
+        raise HTTPException(
+            status_code=400,
+            detail="Too many OTP attempts. Please request a new OTP.",
+        )
+
+    reset_record.attempts += 1
+
+    otp_hash = hashlib.sha256(
+    str(payload.otp).encode("utf-8")
+).hexdigest()
+
+    if otp_hash != reset_record.otp_hash:
+        db.commit()
+        raise HTTPException(
+        status_code=400,
+        detail="Invalid OTP.",
+    )
+
+    account = (
+        db.query(UserAccount)
+        .filter(UserAccount.email == email)
+        .first()
+    )
+
+    if not account:
+        raise HTTPException(
+            status_code=404,
+            detail="Student account not found.",
+        )
+
+    account.password_hash = hash_account_password(payload.new_password)
+    reset_record.used = True
+
+    db.commit()
+
+    return {
+        "success": True,
+        "message": "Password reset successfully. You can now login.",
+    }
 
 @app.get("/auth/students")
 def login_student_list(db: Session = Depends(get_db)):
@@ -655,3 +945,175 @@ def analytics_dashboard(db: Session = Depends(get_db)):
         "average_ctc_lpa": round(sum(accepted_ctcs) / len(accepted_ctcs), 2) if accepted_ctcs else None,
         "highest_ctc_lpa": max(accepted_ctcs) if accepted_ctcs else None,
     }
+
+
+# ---------------------------------------------------------------------------
+# Routes — Student Job Application Tracking
+# Add this section at the bottom of main.py
+# ---------------------------------------------------------------------------
+
+@app.post(
+    "/students/{student_id}/job-applications",
+    response_model=JobApplicationOut,
+    status_code=201,
+    dependencies=STUDENT_SELF_OR_ADMIN,
+)
+def create_job_application(
+    student_id: int,
+    payload: JobApplicationCreate,
+    db: Session = Depends(get_db),
+):
+    """Record a job application for the selected student."""
+
+    # Confirm that the student exists.
+    student = db.get(Student, student_id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    # Accept only valid HTTP or HTTPS job links.
+    job_url = payload.job_url.strip()
+    parsed_url = urlparse(job_url)
+
+    if (
+        parsed_url.scheme not in ("http", "https")
+        or not parsed_url.netloc
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Enter a valid HTTP or HTTPS job URL",
+        )
+
+    if not payload.job_title.strip() or not payload.company.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Job title and company are required",
+        )
+
+    # Prevent the same student from recording the same URL twice.
+    existing = (
+        db.query(JobApplication)
+        .filter(
+            JobApplication.student_id == student_id,
+            JobApplication.job_url == job_url,
+        )
+        .first()
+    )
+
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="You have already recorded this job application",
+        )
+
+    application = JobApplication(
+        student_id=student_id,
+        job_title=payload.job_title.strip(),
+        company=payload.company.strip(),
+        job_url=job_url,
+        source=payload.source.strip() or "External",
+        status="Applied",
+    )
+
+    try:
+        db.add(application)
+        db.commit()
+        db.refresh(application)
+        return application
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="This job application has already been recorded",
+        )
+
+
+@app.get(
+    "/students/{student_id}/job-applications",
+    response_model=List[JobApplicationOut],
+    dependencies=STUDENT_SELF_OR_ADMIN,
+)
+def list_job_applications(
+    student_id: int,
+    db: Session = Depends(get_db),
+):
+    """List all recorded job applications for a student."""
+
+    student = db.get(Student, student_id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    return (
+        db.query(JobApplication)
+        .filter(JobApplication.student_id == student_id)
+        .order_by(JobApplication.applied_at.desc())
+        .all()
+    )
+def get_job_search_query(question: str) -> str:
+    q = question.lower()
+
+    if "python" in q:
+        return "python"
+
+    if "ai/ml" in q or "ai ml" in q or "machine learning" in q:
+        return "machine learning"
+
+    if "data scientist" in q or "data science" in q:
+        return "data"
+
+    if "cyber" in q or "cybersecurity" in q:
+        return "cybersecurity"
+
+    if "frontend" in q or "front end" in q:
+        return "frontend"
+
+    if "backend" in q or "back end" in q:
+        return "backend"
+
+    if "java" in q:
+        return "java"
+
+    if "developer" in q or "software engineer" in q:
+        return "developer"
+
+    return ""
+
+@app.post("/ai/job-assistant")
+def job_assistant(
+    payload: JobAssistantRequest,
+    user: dict = Depends(current_user)
+):
+    question = payload.question.strip()
+
+    if not question:
+        raise HTTPException(
+            status_code=400,
+            detail="Question is required"
+        )
+
+    try:
+        # Get real jobs from the existing CampusLink job service
+        
+        search_query = get_job_search_query(question)
+
+        jobs = fetch_external_jobs(
+    query=search_query,
+    limit=20
+)
+
+        # Send the real job data to local Ollama AI
+        answer = ask_local_ai(
+            question=question,
+            jobs=jobs
+        )
+
+        return {
+            "success": True,
+            "answer": answer,
+            "jobs_found": len(jobs)
+        }
+
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=str(exc)
+        )

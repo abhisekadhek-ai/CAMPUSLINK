@@ -5,24 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student — CampusLink</title>
 <link rel="stylesheet" href="../css/style.css">
+
+<style>
+/* Job Portal navigation option */
+.nav-links a {
+  display: block;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+.nav-links a:not(.active) {
+  color: inherit;
+}
+
+.nav-links a:hover {
+  opacity: 0.85;
+}
+</style>
 </head>
+
 <body>
 <div class="shell">
+
+  <!-- SIDEBAR -->
   <nav class="nav">
     <div class="brand">Campus<span>Link</span></div>
+
     <div>
-      <label style="color:#9AA0B4;font-size:12px;margin:0 0 4px;">Viewing as</label>
+      <label style="color:#9AA0B4;font-size:12px;margin:0 0 4px;">
+        Viewing as
+      </label>
       <select id="studentSelect" class="role-select"></select>
     </div>
+
     <div class="nav-links">
-      <a class="active" href="dashboard.html">Readiness & Matches</a>
-      
-      
+      <a class="active" href="dashboard.html">
+        Readiness &amp; Matches
+      </a>
+
+      <!-- NEW OPTION -->
+      <a href="jobs.html">
+        Job Portal
+      </a>
+      <a href="ai-assistant.html">
+    AI Assistant
+</a>
     </div>
-    <div class="nav-footer">Live data from your FastAPI backend</div>
+
+    <div class="nav-footer">
+      Live data from your FastAPI backend
+    </div>
   </nav>
 
+  <!-- MAIN CONTENT -->
   <main class="main">
+
     <div class="page-head">
       <div>
         <h1 id="studentName">Loading…</h1>
@@ -32,19 +69,26 @@
 
     <div id="errorBox"></div>
 
+    <!-- READINESS SCORE AND PROFILE -->
     <div class="grid-2">
+
       <div class="panel">
         <div class="panel-title">Readiness score</div>
+
         <div class="score-hero">
           <div class="score-ring">
             <div class="val" id="scoreVal">–</div>
             <div class="max">/ 100</div>
           </div>
+
           <div>
             <span class="badge" id="scoreBadge">–</span>
-            <p class="muted" style="font-size:13px;margin-top:8px;">CGPA, certifications, mock-interview score, minus any backlog penalty.</p>
+            <p class="muted" style="font-size:13px;margin-top:8px;">
+              CGPA, certifications, mock-interview score, minus any backlog penalty.
+            </p>
           </div>
         </div>
+
         <div id="breakdown" style="margin-top:18px;"></div>
       </div>
 
@@ -52,33 +96,67 @@
         <div class="panel-title">Profile</div>
         <div id="profileBox" style="font-size:13.5px;"></div>
       </div>
+
     </div>
 
+    <!-- AI RECOMMENDATIONS -->
     <div class="panel" id="aiPanel">
+
       <div class="panel-title">
-        <span>Recommended for you <span class="ai-chip">AI</span></span>
-        <span class="muted" style="font-size:12.5px;font-weight:400;">top roles by skill fit, best first</span>
+        <span>
+          Recommended for you
+          <span class="ai-chip">AI</span>
+        </span>
+
+        <span class="muted" style="font-size:12.5px;font-weight:400;">
+          top roles by skill fit, best first
+        </span>
       </div>
+
       <div id="aiLearn"></div>
-      <div id="aiCards" class="ai-cards"><div class="empty">Loading AI recommendations…</div></div>
+
+      <div id="aiCards" class="ai-cards">
+        <div class="empty">Loading AI recommendations…</div>
+      </div>
+
     </div>
 
+    <!-- MATCHED ROLES -->
     <div class="panel">
-      <div class="panel-title">Matched roles <span class="muted" style="font-size:12.5px;font-weight:400;">ranked by fit score</span></div>
+
+      <div class="panel-title">
+        Matched roles
+        <span class="muted" style="font-size:12.5px;font-weight:400;">
+          ranked by fit score
+        </span>
+      </div>
+
       <table>
-        <thead><tr><th>Role</th><th>Match score</th><th>Status</th><th>Skill gap</th><th>Why</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Match score</th>
+            <th>Status</th>
+            <th>Skill gap</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+
         <tbody id="matchesBody"></tbody>
       </table>
+
     </div>
+
   </main>
 </div>
 
+<!-- EXISTING API FILE -->
 <script src="../js/api.js"></script>
-<script>
 
+<script>
 async function init() {
   try {
-    // Get the logged-in student's session
+    // Get the logged-in student's session.
     const session = JSON.parse(
       sessionStorage.getItem("campuslink_session") || "null"
     );
@@ -87,16 +165,18 @@ async function init() {
       throw new Error("Please log in again as a student.");
     }
 
-    // Fetch only this student's data
+    // Fetch only this student's data.
     const student = await getStudent(session.studentId);
 
     const sel = document.getElementById("studentSelect");
 
-    // Show the logged-in student in the dropdown
-    sel.innerHTML = `<option value="${student.id}">${escapeHtml(student.name)}</option>`;
+    // Display the logged-in student.
+    sel.innerHTML =
+      `<option value="${student.id}">${escapeHtml(student.name)}</option>`;
+
     sel.value = String(student.id);
 
-    // Load the student's dashboard
+    // Load this student's dashboard.
     await loadStudent(student.id);
 
   } catch (err) {
@@ -106,125 +186,294 @@ async function init() {
 
 function showError(err) {
   document.getElementById("errorBox").innerHTML =
-    `<div class="alert">Couldn't reach the backend: ${escapeHtml(err.message)}. Make sure "uvicorn main:app --reload" is running.</div>`;
+    `<div class="alert">
+      Couldn't reach the backend: ${escapeHtml(err.message)}.
+      Make sure "uvicorn main:app --reload" is running.
+    </div>`;
 }
 
 async function loadAiMatches(id) {
   const box = document.getElementById("aiCards");
   const learn = document.getElementById("aiLearn");
-  box.innerHTML = '<div class="empty">Loading AI recommendations…</div>';
+
+  box.innerHTML =
+    '<div class="empty">Loading AI recommendations…</div>';
+
   learn.innerHTML = "";
+
   try {
     const matches = await getStudentAiMatches(id, 5);
+
     if (!matches.length) {
-      box.innerHTML = '<div class="empty">No roles posted yet.</div>';
+      box.innerHTML =
+        '<div class="empty">No roles posted yet.</div>';
       return;
     }
 
-    // "Learn next": skills missing most often across the roles this student is eligible for
+    // Find skills that would unlock the most eligible roles.
     const counts = {};
+
     matches
-    .filter(m => m.status !== "Not eligible")
-    .forEach(m => {
+      .filter(m =>
+        String(m.status || "").toLowerCase() !== "not eligible"
+      )
+      .forEach(m => {
         (m.missing_skills || []).forEach(sk => {
-            counts[sk] = (counts[sk] || 0) + 1;
+          counts[sk] = (counts[sk] || 0) + 1;
         });
-    });
-    
-    const learnNext = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+      });
+
+    const learnNext = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4);
+
     learn.innerHTML = learnNext.length
-      ? `<div class="ai-learn"><strong>Skills to learn next</strong>
-           <span class="muted">— they unlock the most of these roles:</span>
-           ${learnNext.map(([sk, n]) => `<span class="tag missing">${escapeHtml(sk)} <span class="muted">(${n} role${n > 1 ? "s" : ""})</span></span>`).join("")}
-         </div>`
-      : `<div class="ai-learn ok">You already cover the required skills for your top matches.</div>`;
+      ? `
+        <div class="ai-learn">
+          <strong>Skills to learn next</strong>
+          <span class="muted">
+            — they unlock the most of these roles:
+          </span>
+
+          ${learnNext.map(([sk, n]) => `
+            <span class="tag missing">
+              ${escapeHtml(sk)}
+              <span class="muted">
+                (${n} role${n > 1 ? "s" : ""})
+              </span>
+            </span>
+          `).join("")}
+        </div>
+      `
+      : `
+        <div class="ai-learn ok">
+          You already cover the required skills for your top matches.
+        </div>
+      `;
 
     box.innerHTML = matches.map((m, i) => {
       const rawScore = Number(m.fit_score) || 0;
-const pct = Math.max(2, Math.min(100, rawScore));
-      const eligible = m.status !== "Not Eligible";
+      const pct = Math.max(2, Math.min(100, rawScore));
+      const eligible =
+        String(m.status || "").toLowerCase() !== "not eligible";
+
+      const missingSkills = Array.isArray(m.missing_skills)
+        ? m.missing_skills
+        : [];
+
       return `
         <div class="ai-card ${eligible ? "" : "dim"}">
+
           <div class="ai-rank">${i + 1}</div>
+
           <div class="ai-body">
+
             <div class="ai-top">
               <div>
-                <strong>${escapeHtml(m.role)}</strong>
-                <div class="muted" style="font-size:12.5px;">${escapeHtml(m.company)}</div>
+                <strong>${escapeHtml(m.role || "Role")}</strong>
+
+                <div class="muted" style="font-size:12.5px;">
+                  ${escapeHtml(m.company || "")}
+                </div>
               </div>
-              <span class="badge ${badgeClass(m.status)}">${escapeHtml(m.status)}</span>
+
+              <span class="badge ${badgeClass(m.status)}">
+                ${escapeHtml(m.status || "Unknown")}
+              </span>
             </div>
+
             <div class="bar-row" style="margin:10px 0 6px;">
-              <div class="bar-label" style="width:96px;">AI fit score</div>
-              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-              <div class="bar-val" style="width:72px;">${m.fit_score} / 1000</div>
+              <div class="bar-label" style="width:96px;">
+                AI fit score
+              </div>
+
+              <div class="bar-track">
+                <div class="bar-fill" style="width:${pct}%"></div>
+              </div>
+
+              <div class="bar-val" style="width:72px;">
+                ${escapeHtml(m.fit_score ?? 0)} / 100
+              </div>
             </div>
+
             <div style="font-size:12.5px;">
-              ${m.missing_skills.length
-                ? 'Missing: ' + m.missing_skills.map(sk => `<span class="tag missing">${escapeHtml(sk)}</span>`).join("")
-                : '<span class="tag">All required skills covered</span>'}
+              ${
+                missingSkills.length
+                  ? "Missing: " +
+                    missingSkills.map(sk =>
+                      `<span class="tag missing">${escapeHtml(sk)}</span>`
+                    ).join("")
+                  : '<span class="tag">All required skills covered</span>'
+              }
             </div>
-            <div class="muted" style="font-size:12.5px;margin-top:6px;">${escapeHtml(m.explanation)}</div>
+
+            <div class="muted" style="font-size:12.5px;margin-top:6px;">
+              ${escapeHtml(m.explanation || "")}
+            </div>
+
           </div>
-        </div>`;
+        </div>
+      `;
     }).join("");
+
   } catch (err) {
     const msg = String(err.message || err);
+
     box.innerHTML = msg.includes("503")
-      ? '<div class="alert">AI matching is switched off on the server. Run <code>pip install scikit-learn</code> and restart the backend.</div>'
-      : `<div class="alert">Couldn't load AI recommendations: ${escapeHtml(msg)}</div>`;
+      ? `
+        <div class="alert">
+          AI matching is switched off on the server.
+          Run <code>pip install scikit-learn</code>
+          and restart the backend if the AI dependency is missing.
+        </div>
+      `
+      : `
+        <div class="alert">
+          Couldn't load AI recommendations: ${escapeHtml(msg)}
+        </div>
+      `;
   }
 }
 
 async function loadStudent(id) {
   try {
     const s = await getStudent(id);
-    document.getElementById("studentName").textContent = s.name;
-    document.getElementById("studentMeta").textContent = `${s.branch} · CGPA ${s.cgpa} · ${s.backlogs} backlog(s)`;
 
+    document.getElementById("studentName").textContent = s.name;
+
+    document.getElementById("studentMeta").textContent =
+      `${s.branch} · CGPA ${s.cgpa} · ${s.backlogs} backlog(s)`;
+
+    // Readiness score.
     const r = await getReadiness(id);
+
     document.getElementById("scoreVal").textContent = r.score;
+
     const badge = document.getElementById("scoreBadge");
     badge.textContent = r.label;
     badge.className = "badge " + badgeClass(r.label);
 
     const b = r.breakdown;
-    const rows = [["CGPA", b.cgpa, 40], ["Certifications", b.certifications, 20], ["Mock interview", b.mock_interview, 30]];
-    document.getElementById("breakdown").innerHTML = rows.map(([label, val, max]) => `
-      <div class="bar-row">
-        <div class="bar-label">${label}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(0, val / max * 100)}%"></div></div>
-        <div class="bar-val">${val}</div>
-      </div>
-    `).join("") + (b.backlog_penalty ? `<div class="alert" style="margin-top:10px;">Backlog penalty: ${b.backlog_penalty} points</div>` : "");
+
+    const rows = [
+      ["CGPA", b.cgpa, 40],
+      ["Certifications", b.certifications, 20],
+      ["Mock interview", b.mock_interview, 30]
+    ];
+
+    document.getElementById("breakdown").innerHTML =
+      rows.map(([label, val, max]) => `
+        <div class="bar-row">
+          <div class="bar-label">${label}</div>
+
+          <div class="bar-track">
+            <div class="bar-fill"
+                 style="width:${Math.max(0, Math.min(100, val / max * 100))}%">
+            </div>
+          </div>
+
+          <div class="bar-val">${val}</div>
+        </div>
+      `).join("") +
+      (
+        b.backlog_penalty
+          ? `<div class="alert" style="margin-top:10px;">
+               Backlog penalty: ${b.backlog_penalty} points
+             </div>`
+          : ""
+      );
+
+    // Student profile.
+    const skills = Array.isArray(s.skills) ? s.skills : [];
+    const certifications = Array.isArray(s.certifications)
+      ? s.certifications
+      : [];
 
     document.getElementById("profileBox").innerHTML = `
-      <div style="margin-bottom:10px;">${csv(s.skills)}</div>
+      <div style="margin-bottom:10px;">
+        ${csv(skills)}
+      </div>
+
       <table>
-        <tr><td class="muted">Certifications</td><td>${s.certifications.length ? escapeHtml(s.certifications.join(", ")) : "—"}</td></tr>
-        <tr><td class="muted">Mock interview</td><td>${s.mock_interview_score ?? "—"}/100</td></tr>
+        <tr>
+          <td class="muted">Certifications</td>
+          <td>
+            ${
+              certifications.length
+                ? escapeHtml(certifications.join(", "))
+                : "—"
+            }
+          </td>
+        </tr>
+
+        <tr>
+          <td class="muted">Mock interview</td>
+          <td>${escapeHtml(s.mock_interview_score ?? "—")}/100</td>
+        </tr>
       </table>
     `;
 
+    // Load AI recommendations.
     loadAiMatches(id);
 
+    // Load matched roles.
     const matches = await getStudentMatches(id);
-    document.getElementById("matchesBody").innerHTML = matches.map(m => `
-      <tr>
-        <td><strong>${escapeHtml(m.role)}</strong><div class="muted" style="font-size:12px;">${escapeHtml(m.company)}</div></td>
-        <td class="mono">${m.match_score}</td>
-        <td><span class="badge ${badgeClass(m.status)}">${m.status}</span></td>
-        <td>${m.missing_skills.length ? m.missing_skills.map(sk => `<span class="tag missing">${escapeHtml(sk)}</span>`).join("") : '<span class="muted">none</span>'}</td>
-        <td class="muted" style="max-width:280px;">${escapeHtml(m.explanation)}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="5" class="empty">No roles posted yet.</td></tr>`;
+
+    document.getElementById("matchesBody").innerHTML =
+      matches.map(m => {
+        const missingSkills = Array.isArray(m.missing_skills)
+          ? m.missing_skills
+          : [];
+
+        return `
+          <tr>
+            <td>
+              <strong>${escapeHtml(m.role || "Role")}</strong>
+              <div class="muted" style="font-size:12px;">
+                ${escapeHtml(m.company || "")}
+              </div>
+            </td>
+
+            <td class="mono">${escapeHtml(m.match_score ?? 0)}</td>
+
+            <td>
+              <span class="badge ${badgeClass(m.status)}">
+                ${escapeHtml(m.status || "Unknown")}
+              </span>
+            </td>
+
+            <td>
+              ${
+                missingSkills.length
+                  ? missingSkills.map(sk =>
+                      `<span class="tag missing">${escapeHtml(sk)}</span>`
+                    ).join("")
+                  : '<span class="muted">none</span>'
+              }
+            </td>
+
+            <td class="muted" style="max-width:280px;">
+              ${escapeHtml(m.explanation || "")}
+            </td>
+          </tr>
+        `;
+      }).join("") ||
+      `
+        <tr>
+          <td colspan="5" class="empty">No roles posted yet.</td>
+        </tr>
+      `;
+
   } catch (err) {
     showError(err);
   }
 }
 
+// Start the dashboard.
 init();
 </script>
+
 <script src="../js/fx.js" defer></script>
+
 </body>
 </html>
