@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recruiter Signup — CampusLink</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px 16px;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .brand {
+            text-align: center;
+            color: #4f46e5;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin: 12px 0 25px;
+            line-height: 1.5;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 28px;
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            height: 50px;
+            padding: 10px 13px;
+            border: 1px solid #cbd0d8;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .help {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        #signupBtn {
+            width: 100%;
+            min-height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        #signupBtn:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        #msg {
+            margin-bottom: 15px;
+        }
+
+        .message {
+            padding: 11px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.error {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .message.success {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .links a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 520px) {
+            .panel {
+                padding: 22px 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="signup-container">
+
+    <div class="brand">CAMPUSLINK</div>
+
+    <h1>Recruiter Signup</h1>
+
+    <p class="subtitle">
+        Create your recruiter account and post job opportunities.
+    </p>
+
+    <section class="panel">
+
+        <div id="msg"></div>
+
+        <!-- Email -->
+        <div class="field">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                id="email"
+                type="email"
+                placeholder="Enter your company email"
+                autocomplete="email"
+                required
+            >
+
+        </div>
+
+
+        <!-- Password -->
+        <div class="field">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                id="password"
+                type="password"
+                placeholder="Minimum 6 characters"
+                autocomplete="new-password"
+                required
+            >
+
+            <small class="help">
+                Password must contain at least 6 characters.
+            </small>
+
+        </div>
+
+
+        <!-- Company -->
+        <div class="field">
+
+            <label for="company">
+                Company Name
+            </label>
+
+            <input
+                id="company"
+                type="text"
+                placeholder="Enter company name"
+                autocomplete="organization"
+                required
+            >
+
+        </div>
+
+
+        <!-- Job Role -->
+        <div class="field">
+
+            <label for="role">
+                Job Role
+            </label>
+
+            <input
+                id="role"
+                type="text"
+                placeholder="Example: Python Developer"
+                required
+            >
+
+        </div>
+
+
+        <!-- Required Skills -->
+        <div class="field">
+
+            <label for="requiredSkills">
+                Required Skills
+            </label>
+
+            <input
+                id="requiredSkills"
+                type="text"
+                placeholder="Example: Python, SQL, FastAPI"
+            >
+
+            <small class="help">
+                Separate multiple skills using commas.
+            </small>
+
+        </div>
+
+
+        <!-- Minimum CGPA -->
+        <div class="field">
+
+            <label for="minCgpa">
+                Minimum CGPA
+            </label>
+
+            <input
+                id="minCgpa"
+                type="number"
+                min="0"
+                max="10"
+                step="0.01"
+                value="0"
+                placeholder="Example: 7.0"
+            >
+
+        </div>
+
+
+        <!-- Eligible Branches -->
+        <div class="field">
+
+            <label for="eligibleBranches">
+                Eligible Branches
+            </label>
+
+            <input
+                id="eligibleBranches"
+                type="text"
+                placeholder="Example: CSE, IT, ECE"
+            >
+
+            <small class="help">
+                Separate multiple branches using commas.
+            </small>
+
+        </div>
+
+
+        <button id="signupBtn" type="button">
+            Create Recruiter Account
+        </button>
+
+    </section>
+
+
+    <div class="links">
+
+        Already have an account?
+
+        <a href="login.html?role=recruiter">
+            Recruiter Login
+        </a>
+
+        <br><br>
+
+        <a href="index.html">
+            ← Back to all portals
+        </a>
+
+    </div>
+
+</div>
+
+
+<script src="js/api.js"></script>
+
+
+<script>
+
+    const emailInput =
+        document.getElementById("email");
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const companyInput =
+        document.getElementById("company");
+
+    const roleInput =
+        document.getElementById("role");
+
+    const requiredSkillsInput =
+        document.getElementById("requiredSkills");
+
+    const minCgpaInput =
+        document.getElementById("minCgpa");
+
+    const eligibleBranchesInput =
+        document.getElementById("eligibleBranches");
+
+    const signupBtn =
+        document.getElementById("signupBtn");
+
+    const msg =
+        document.getElementById("msg");
+
+
+    function showMessage(message, type = "error") {
+
+        msg.replaceChildren();
+
+        const box =
+            document.createElement("div");
+
+        box.className =
+            "message " + type;
+
+        box.textContent =
+            message;
+
+        msg.appendChild(box);
+    }
+
+
+    function convertToList(value) {
+
+        return value
+            .split(",")
+            .map(item => item.trim())
+            .filter(item => item.length > 0);
+
+    }
+
+
+    async function signupRecruiter() {
+
+        msg.replaceChildren();
+
+
+        const email =
+            emailInput.value.trim().toLowerCase();
+
+        const password =
+            passwordInput.value;
+
+        const company =
+            companyInput.value.trim();
+
+        const role =
+            roleInput.value.trim();
+
+        const requiredSkills =
+            convertToList(
+                requiredSkillsInput.value
+            );
+
+        const eligibleBranches =
+            convertToList(
+                eligibleBranchesInput.value
+            );
+
+        const minCgpa =
+            Number(minCgpaInput.value);
+
+
+        // -----------------------------
+        // Validation
+        // -----------------------------
+
+        if (!email) {
+
+            showMessage(
+                "Please enter your email."
+            );
+
+            emailInput.focus();
+
+            return;
+        }
+
+
+        if (!email.includes("@")) {
+
+            showMessage(
+                "Please enter a valid email address."
+            );
+
+            emailInput.focus();
+
+            return;
+        }
+
+
+        if (!password) {
+
+            showMessage(
+                "Please enter a password."
+            );
+
+            passwordInput.focus();
+
+            return;
+        }
+
+
+        if (password.length < 6) {
+
+            showMessage(
+                "Password must be at least 6 characters."
+            );
+
+            passwordInput.focus();
+
+            return;
+        }
+
+
+        if (!company) {
+
+            showMessage(
+                "Please enter your company name."
+            );
+
+            companyInput.focus();
+
+            return;
+        }
+
+
+        if (!role) {
+
+            showMessage(
+                "Please enter the job role."
+            );
+
+            roleInput.focus();
+
+            return;
+        }
+
+
+        if (
+            Number.isNaN(minCgpa) ||
+            minCgpa < 0 ||
+            minCgpa > 10
+        ) {
+
+            showMessage(
+                "Minimum CGPA must be between 0 and 10."
+            );
+
+            minCgpaInput.focus();
+
+            return;
+        }
+
+
+        // -----------------------------
+        // Request body
+        // -----------------------------
+
+        const body = {
+
+            email: email,
+
+            password: password,
+
+            company: company,
+
+            role: role,
+
+            required_skills: requiredSkills,
+
+            min_cgpa: minCgpa,
+
+            eligible_branches: eligibleBranches
+
+        };
+
+
+        console.log(
+            "Recruiter signup request:",
+            body
+        );
+
+
+        signupBtn.disabled = true;
+
+        signupBtn.textContent =
+            "Creating Account...";
+
+
+        try {
+
+            const response =
+                await apiPost(
+                    "/auth/recruiter/signup",
+                    body
+                );
+
+
+            console.log(
+                "Recruiter signup response:",
+                response
+            );
+
+
+            if (!response) {
+
+                throw new Error(
+                    "Invalid response from backend."
+                );
+            }
+
+
+            showMessage(
+                "Recruiter account created successfully! Recruiter ID: " +
+                response.recruiter_id,
+                "success"
+            );
+
+
+            // Clear password
+            passwordInput.value = "";
+
+
+            // Redirect to recruiter login
+            setTimeout(() => {
+
+                window.location.href =
+                    "login.html?role=recruiter";
+
+            }, 1500);
+
+
+        } catch (error) {
+
+            console.error(
+                "Recruiter signup error:",
+                error
+            );
+
+
+            const errorText =
+                String(
+                    error.message || error
+                );
+
+
+            if (errorText.includes("400")) {
+
+                showMessage(
+                    "Signup failed. The email may already be registered or some details are invalid."
+                );
+
+            } else if (errorText.includes("409")) {
+
+                showMessage(
+                    "This email is already registered."
+                );
+
+            } else {
+
+                showMessage(
+                    "Recruiter signup failed. Check that the backend is running."
+                );
+
+            }
+
+        } finally {
+
+            signupBtn.disabled = false;
+
+            signupBtn.textContent =
+                "Create Recruiter Account";
+
+        }
+
+    }
+
+
+    signupBtn.addEventListener(
+        "click",
+        signupRecruiter
+    );
+
+
+    passwordInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+
+                signupRecruiter();
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

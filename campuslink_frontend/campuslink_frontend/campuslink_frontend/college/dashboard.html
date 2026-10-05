@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>College Placement — CampusLink</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .college-shell {
+            min-height: 100vh;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 28px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .college-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .college-name {
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            border: none;
+            background: #dc2626;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .welcome p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .card-number {
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .students-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+        }
+
+        .refresh-btn {
+            border: none;
+            background: #4f46e5;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .refresh-btn:hover {
+            background: #4338ca;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            display: none;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th,
+        td {
+            padding: 13px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-size: 14px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status.approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 7px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .approve-btn {
+            background: #16a34a;
+            color: white;
+        }
+
+        .approve-btn:hover {
+            background: #15803d;
+        }
+
+        .reject-btn {
+            background: #dc2626;
+            color: white;
+        }
+
+        .reject-btn:hover {
+            background: #b91c1c;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 900px) {
+            .cards {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .college-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .container {
+                padding: 20px 14px;
+            }
+
+            .students-section {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+<div class="college-shell">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+
+        <div class="brand">
+            Campus<span>Link</span>
+        </div>
+
+        <div class="college-info">
+
+            <div class="college-name"
+                 id="collegeName">
+                College Placement
+            </div>
+
+            <button
+                class="logout-btn"
+                id="logoutBtn">
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="container">
+
+        <section class="welcome">
+
+            <h1>
+                College Placement Dashboard
+            </h1>
+
+            <p>
+                Manage your college students and
+                placement approvals.
+            </p>
+
+        </section>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <section class="cards">
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Students
+                </div>
+
+                <div
+                    class="card-number"
+                    id="totalStudents">
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Pending Approval
+                </div>
+
+                <div
+                    class="card-number"
+                    id="pendingStudents">
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Approved
+                </div>
+
+                <div
+                    class="card-number"
+                    id="approvedStudents">
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Rejected
+                </div>
+
+                <div
+                    class="card-number"
+                    id="rejectedStudents">
+                    0
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STUDENTS -->
+
+        <section class="students-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Students
+                </h2>
+
+                <button
+                    class="refresh-btn"
+                    id="refreshBtn">
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <div
+                id="message"
+                class="message">
+            </div>
+
+
+            <div
+                id="loading"
+                class="loading">
+                Loading students...
+            </div>
+
+
+            <div
+                id="empty"
+                class="empty"
+                style="display:none;">
+                No students found for this college.
+            </div>
+
+
+            <div
+                class="table-wrapper"
+                id="tableWrapper"
+                style="display:none;">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Student ID
+                            </th>
+
+                            <th>
+                                Name
+                            </th>
+
+                            <th>
+                                Branch
+                            </th>
+
+                            <th>
+                                CGPA
+                            </th>
+
+                            <th>
+                                Approval
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="studentsTable">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- EXISTING CAMPUSLINK FILES -->
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/api.js"></script>
+
+
+<script>
+
+    // -------------------------------------------------
+    // CHECK COLLEGE LOGIN
+    // -------------------------------------------------
+
+    const session = getSession();
+
+
+    if (
+        !session ||
+        session.role !== "college" ||
+        !session.token
+    ) {
+
+        window.location.replace(
+            "../login.html?role=college"
+        );
+
+    }
+
+
+    // -------------------------------------------------
+    // ELEMENTS
+    // -------------------------------------------------
+
+    const collegeNameElement =
+        document.getElementById(
+            "collegeName"
+        );
+
+    const totalStudentsElement =
+        document.getElementById(
+            "totalStudents"
+        );
+
+    const pendingStudentsElement =
+        document.getElementById(
+            "pendingStudents"
+        );
+
+    const approvedStudentsElement =
+        document.getElementById(
+            "approvedStudents"
+        );
+
+    const rejectedStudentsElement =
+        document.getElementById(
+            "rejectedStudents"
+        );
+
+    const studentsTable =
+        document.getElementById(
+            "studentsTable"
+        );
+
+    const loading =
+        document.getElementById(
+            "loading"
+        );
+
+    const empty =
+        document.getElementById(
+            "empty"
+        );
+
+    const tableWrapper =
+        document.getElementById(
+            "tableWrapper"
+        );
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+    const refreshBtn =
+        document.getElementById(
+            "refreshBtn"
+        );
+
+    const logoutBtn =
+        document.getElementById(
+            "logoutBtn"
+        );
+
+
+    // -------------------------------------------------
+    // COLLEGE INFORMATION
+    // -------------------------------------------------
+
+    if (session) {
+
+        collegeNameElement.textContent =
+            session.collegeName ||
+            session.name ||
+            session.college_code ||
+            "College Placement";
+
+    }
+
+
+    // -------------------------------------------------
+    // MESSAGE
+    // -------------------------------------------------
+
+    function showMessage(
+        text,
+        type = "error"
+    ) {
+
+        message.textContent = text;
+
+        message.className =
+            "message " + type;
+
+    }
+
+
+    function clearMessage() {
+
+        message.textContent = "";
+
+        message.className =
+            "message";
+
+    }
+
+
+    // -------------------------------------------------
+    // STATUS
+    // -------------------------------------------------
+
+    function getStatusClass(status) {
+
+        if (status === "Approved") {
+
+            return "approved";
+
+        }
+
+        if (status === "Rejected") {
+
+            return "rejected";
+
+        }
+
+        return "pending";
+
+    }
+
+
+    // -------------------------------------------------
+    // UPDATE SUMMARY
+    // -------------------------------------------------
+
+    function updateSummary(students) {
+
+        const total =
+            students.length;
+
+        const pending =
+            students.filter(
+                student =>
+                    (student.college_approval ||
+                        "Pending") === "Pending"
+            ).length;
+
+        const approved =
+            students.filter(
+                student =>
+                    student.college_approval ===
+                    "Approved"
+            ).length;
+
+        const rejected =
+            students.filter(
+                student =>
+                    student.college_approval ===
+                    "Rejected"
+            ).length;
+
+
+        totalStudentsElement.textContent =
+            total;
+
+        pendingStudentsElement.textContent =
+            pending;
+
+        approvedStudentsElement.textContent =
+            approved;
+
+        rejectedStudentsElement.textContent =
+            rejected;
+
+    }
+
+
+    // -------------------------------------------------
+    // LOAD STUDENTS
+    // -------------------------------------------------
+
+    async function loadStudents() {
+
+        clearMessage();
+
+        loading.style.display =
+            "block";
+
+        empty.style.display =
+            "none";
+
+        tableWrapper.style.display =
+            "none";
+
+        studentsTable.replaceChildren();
+
+
+        try {
+
+            const students =
+                await apiGet(
+                    "/college/students"
+                );
+
+
+            if (!Array.isArray(students)) {
+
+                throw new Error(
+                    "Invalid student list received."
+                );
+
+            }
+
+
+            updateSummary(students);
+
+
+            if (students.length === 0) {
+
+                loading.style.display =
+                    "none";
+
+                empty.style.display =
+                    "block";
+
+                return;
+
+            }
+
+
+            students.forEach(student => {
+
+                const row =
+                    document.createElement("tr");
+
+
+                // Student ID
+
+                const idCell =
+                    document.createElement("td");
+
+                idCell.textContent =
+                    student.id ?? "-";
+
+
+                // Name
+
+                const nameCell =
+                    document.createElement("td");
+
+                nameCell.textContent =
+                    student.name ?? "-";
+
+
+                // Branch
+
+                const branchCell =
+                    document.createElement("td");
+
+                branchCell.textContent =
+                    student.branch ?? "-";
+
+
+                // CGPA
+
+                const cgpaCell =
+                    document.createElement("td");
+
+                cgpaCell.textContent =
+                    student.cgpa ?? "-";
+
+
+                // Approval
+
+                const approvalCell =
+                    document.createElement("td");
+
+                const status =
+                    student.college_approval ||
+                    "Pending";
+
+
+                const statusElement =
+                    document.createElement("span");
+
+                statusElement.className =
+                    "status " +
+                    getStatusClass(status);
+
+                statusElement.textContent =
+                    status;
+
+                approvalCell.appendChild(
+                    statusElement
+                );
+
+
+                // Action
+
+                const actionCell =
+                    document.createElement("td");
+
+
+                if (status !== "Approved") {
+
+                    const approveButton =
+                        document.createElement(
+                            "button"
+                        );
+
+                    approveButton.className =
+                        "action-btn approve-btn";
+
+                    approveButton.textContent =
+                        "Approve";
+
+                    approveButton.addEventListener(
+                        "click",
+                        () =>
+                            updateApproval(
+                                student.id,
+                                "Approved"
+                            )
+                    );
+
+                    actionCell.appendChild(
+                        approveButton
+                    );
+
+                }
+
+
+                if (status !== "Rejected") {
+
+                    const rejectButton =
+                        document.createElement(
+                            "button"
+                        );
+
+                    rejectButton.className =
+                        "action-btn reject-btn";
+
+                    rejectButton.textContent =
+                        "Reject";
+
+                    rejectButton.addEventListener(
+                        "click",
+                        () =>
+                            updateApproval(
+                                student.id,
+                                "Rejected"
+                            )
+                    );
+
+                    actionCell.appendChild(
+                        rejectButton
+                    );
+
+                }
+
+
+                row.appendChild(idCell);
+
+                row.appendChild(nameCell);
+
+                row.appendChild(branchCell);
+
+                row.appendChild(cgpaCell);
+
+                row.appendChild(approvalCell);
+
+                row.appendChild(actionCell);
+
+
+                studentsTable.appendChild(row);
+
+            });
+
+
+            loading.style.display =
+                "none";
+
+            tableWrapper.style.display =
+                "block";
+
+
+        } catch (error) {
+
+            console.error(
+                "College students error:",
+                error
+            );
+
+            loading.style.display =
+                "none";
+
+            showMessage(
+                "Could not load students. Please check the backend.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // -------------------------------------------------
+    // APPROVE / REJECT STUDENT
+    // -------------------------------------------------
+
+    async function updateApproval(
+        studentId,
+        approval
+    ) {
+
+        try {
+
+            const result =
+                await apiPatch(
+                    `/college/students/${studentId}/approval`,
+                    {
+                        college_approval:
+                            approval
+                    }
+                );
+
+
+            showMessage(
+                `Student ${studentId} marked as ${approval}.`,
+                "success"
+            );
+
+
+            await loadStudents();
+
+
+        } catch (error) {
+
+            console.error(
+                "Approval update error:",
+                error
+            );
+
+            showMessage(
+                "Could not update student approval.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // -------------------------------------------------
+    // REFRESH
+    // -------------------------------------------------
+
+    refreshBtn.addEventListener(
+        "click",
+        loadStudents
+    );
+
+
+    // -------------------------------------------------
+    // LOGOUT
+    // -------------------------------------------------
+
+    logoutBtn.addEventListener(
+        "click",
+        () => {
+
+            logout();
+
+        }
+    );
+
+
+    // -------------------------------------------------
+    // INITIAL LOAD
+    // -------------------------------------------------
+
+    if (
+        session &&
+        session.role === "college"
+    ) {
+
+        loadStudents();
+
+    }
+
+</script>
+
+</body>
+
+</html>

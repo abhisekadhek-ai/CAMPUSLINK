@@ -21,6 +21,96 @@
 .nav-links a:hover {
   opacity: 0.85;
 }
+/* Placement Progress */
+
+.placement-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.placement-stat {
+  padding: 16px 12px;
+  border-radius: 10px;
+  background: rgba(79, 70, 229, 0.06);
+  text-align: center;
+}
+
+.placement-number {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--indigo, #4f46e5);
+}
+
+.placement-label {
+  margin-top: 5px;
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.placement-progress-line {
+  display: flex;
+  align-items: center;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 70px;
+  font-size: 12px;
+  color: #8a8f9d;
+}
+
+.progress-step.active {
+  color: var(--indigo, #4f46e5);
+  font-weight: 600;
+}
+
+.progress-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e7eb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.progress-step.active .progress-dot {
+  background: var(--indigo, #4f46e5);
+  color: white;
+}
+
+.progress-connector {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 6px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 700px) {
+  .placement-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .placement-progress-line {
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .progress-step {
+    flex-shrink: 0;
+  }
+}
 </style>
 </head>
 
@@ -50,11 +140,33 @@
       <a href="ai-assistant.html">
     AI Assistant
 </a>
+<a href="manual-apply.html">
+  Apply job
+</a>
     </div>
 
     <div class="nav-footer">
-      Live data from your FastAPI backend
-    </div>
+  <div>Live data from your FastAPI backend</div>
+
+  <button
+    type="button"
+    onclick="logout()"
+    style="
+      width:100%;
+      margin-top:16px;
+      padding:10px 14px;
+      border:none;
+      border-radius:8px;
+      background:#ef4444;
+      color:white;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+    "
+  >
+    Logout
+  </button>
+</div>
   </nav>
 
   <!-- MAIN CONTENT -->
@@ -98,7 +210,75 @@
       </div>
 
     </div>
+    <!-- PLACEMENT PROGRESS -->
+    <div class="panel" id="placementProgressPanel">
 
+      <div class="panel-title">
+        <span>
+          Placement Progress
+          <span class="ai-chip">LIVE</span>
+        </span>
+
+        <span class="muted" style="font-size:12.5px;font-weight:400;">
+          your placement journey
+        </span>
+      </div>
+
+      <div class="placement-stats">
+
+        <div class="placement-stat">
+          <div class="placement-number" id="applicationsCount">0</div>
+          <div class="placement-label">Applications</div>
+        </div>
+
+        <div class="placement-stat">
+          <div class="placement-number" id="shortlistedCount">0</div>
+          <div class="placement-label">Shortlisted</div>
+        </div>
+
+        <div class="placement-stat">
+          <div class="placement-number" id="interviewsCount">0</div>
+          <div class="placement-label">Interviews</div>
+        </div>
+
+        <div class="placement-stat">
+          <div class="placement-number" id="offersCount">0</div>
+          <div class="placement-label">Offers</div>
+        </div>
+
+      </div>
+
+      <div class="placement-progress-line">
+
+        <div class="progress-step active">
+          <div class="progress-dot">1</div>
+          <span>Applied</span>
+        </div>
+
+        <div class="progress-connector"></div>
+
+        <div class="progress-step">
+          <div class="progress-dot">2</div>
+          <span>Shortlisted</span>
+        </div>
+
+        <div class="progress-connector"></div>
+
+        <div class="progress-step">
+          <div class="progress-dot">3</div>
+          <span>Interview</span>
+        </div>
+
+        <div class="progress-connector"></div>
+
+        <div class="progress-step">
+          <div class="progress-dot">4</div>
+          <span>Offer</span>
+        </div>
+
+      </div>
+
+    </div>
     <!-- AI RECOMMENDATIONS -->
     <div class="panel" id="aiPanel">
 
@@ -151,6 +331,7 @@
 </div>
 
 <!-- EXISTING API FILE -->
+<script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
 
 <script>
@@ -190,6 +371,52 @@ function showError(err) {
       Couldn't reach the backend: ${escapeHtml(err.message)}.
       Make sure "uvicorn main:app --reload" is running.
     </div>`;
+}
+async function loadPlacementProgress(id) {
+    try {
+        // Get this student's real job applications
+        const applications = await getJobApplications(id);
+
+        const list = Array.isArray(applications) ? applications : [];
+
+        // Total applications
+        const applicationCount = list.length;
+
+        // Count based on current application status
+        const shortlistedCount = list.filter(app =>
+            ["Under Review", "Interview", "Selected"].includes(app.status)
+        ).length;
+
+        const interviewsCount = list.filter(app =>
+            app.status === "Interview"
+        ).length;
+
+        const offersCount = list.filter(app =>
+            app.status === "Selected"
+        ).length;
+
+        // Update dashboard counters
+        document.getElementById("applicationsCount").textContent =
+            applicationCount;
+
+        document.getElementById("shortlistedCount").textContent =
+            shortlistedCount;
+
+        document.getElementById("interviewsCount").textContent =
+            interviewsCount;
+
+        document.getElementById("offersCount").textContent =
+            offersCount;
+
+
+    } catch (err) {
+        console.error("Could not load placement progress:", err);
+
+        document.getElementById("applicationsCount").textContent = "0";
+        document.getElementById("shortlistedCount").textContent = "0";
+        document.getElementById("interviewsCount").textContent = "0";
+        document.getElementById("offersCount").textContent = "0";
+    }
 }
 
 async function loadAiMatches(id) {
@@ -413,8 +640,11 @@ async function loadStudent(id) {
       </table>
     `;
 
-    // Load AI recommendations.
-    loadAiMatches(id);
+    // Load placement progress.
+await loadPlacementProgress(id);
+
+// Load AI recommendations.
+loadAiMatches(id);
 
     // Load matched roles.
     const matches = await getStudentMatches(id);

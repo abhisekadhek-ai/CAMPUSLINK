@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Job Portal — CampusLink</title>
+
   <link rel="stylesheet" href="../css/style.css">
 
   <style>
@@ -27,9 +29,7 @@
 
     .job-toolbar button,
     .job-action,
-    .linkedin-button,
-    .track-button,
-    .refresh-button {
+    .linkedin-button {
       padding: 10px 16px;
       border: 0;
       border-radius: 8px;
@@ -41,9 +41,7 @@
     }
 
     .job-toolbar button,
-    .job-action,
-    .track-button,
-    .refresh-button {
+    .job-action {
       background: #2463eb;
       color: #fff;
     }
@@ -84,27 +82,14 @@
       margin-bottom: 15px;
     }
 
-    .job-action,
-    .track-button {
+    .job-action {
       margin: 4px 6px 4px 0;
     }
 
     .job-action:hover,
     .linkedin-button:hover,
-    .job-toolbar button:hover,
-    .track-button:hover,
-    .refresh-button:hover {
+    .job-toolbar button:hover {
       opacity: 0.85;
-    }
-
-    .track-button {
-      background: #16804a;
-    }
-
-    .track-button:disabled,
-    .refresh-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
     }
 
     .linkedin-panel {
@@ -154,53 +139,6 @@
       line-height: 1.5;
     }
 
-    .application-card {
-      padding: 16px;
-      margin: 12px 0;
-      border: 1px solid #e1e4eb;
-      border-radius: 10px;
-      background: #fff;
-      overflow-wrap: anywhere;
-    }
-
-    .application-card h3 {
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
-
-    .application-status {
-      display: inline-block;
-      padding: 5px 10px;
-      border-radius: 15px;
-      background: #edf2ff;
-      color: #2449a6;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .application-link {
-      display: inline-block;
-      margin-top: 10px;
-      color: #2463eb;
-      overflow-wrap: anywhere;
-    }
-
-    .application-message {
-      margin: 12px 0;
-    }
-
-    .success-message {
-      color: #16804a;
-    }
-
-    .error-message {
-      color: #c62828;
-    }
-
-    .section-heading {
-      margin: 0 0 14px;
-    }
-
     @media (max-width: 600px) {
       .job-toolbar {
         flex-direction: column;
@@ -222,38 +160,96 @@
 </head>
 
 <body>
+
 <div class="shell">
 
+  <!-- ============================= -->
+  <!-- NAVIGATION -->
+  <!-- ============================= -->
+
   <nav class="nav">
-    <div class="brand">Campus<span>Link</span></div>
+
+    <div class="brand">
+      Campus<span>Link</span>
+    </div>
 
     <div class="nav-links">
-      <a href="dashboard.html">Readiness &amp; Matches</a>
-      <a class="active" href="jobs.html">Job Portal</a>
+
+      <a href="dashboard.html">
+        Readiness &amp; Matches
+      </a>
+
+      <a class="active" href="jobs.html">
+        Job Portal
+      </a>
+
     </div>
 
-    <div class="nav-footer">CampusLink Student Portal</div>
+    <div class="nav-footer">
+      CampusLink Student Portal
+    </div>
+
   </nav>
 
+
+  <!-- ============================= -->
+  <!-- MAIN CONTENT -->
+  <!-- ============================= -->
+
   <main class="main">
+
     <div class="page-head">
+
       <div>
-        <h1>Job Portal</h1>
-        <p>Explore external opportunities and find roles matching your skills.</p>
+
+        <h1>
+          Job Portal
+        </h1>
+
+        <p>
+          Explore external opportunities and find roles matching your skills.
+        </p>
+
       </div>
+
     </div>
 
-    <!-- LinkedIn Jobs Search -->
+
+    <!-- ============================= -->
+    <!-- LINKEDIN JOB SEARCH -->
+    <!-- ============================= -->
+
     <section class="linkedin-panel">
+
       <div class="linkedin-heading">
-        <div class="linkedin-logo" aria-label="LinkedIn">in</div>
-        <div>
-          <h2>Search LinkedIn Jobs</h2>
-          <p>Explore job opportunities directly on LinkedIn.</p>
+
+        <div
+          class="linkedin-logo"
+          aria-label="LinkedIn"
+        >
+          in
         </div>
+
+        <div>
+
+          <h2>
+            Search LinkedIn Jobs
+          </h2>
+
+          <p>
+            Explore job opportunities directly on LinkedIn.
+          </p>
+
+        </div>
+
       </div>
 
-      <form id="linkedinSearchForm" class="job-toolbar">
+
+      <form
+        id="linkedinSearchForm"
+        class="job-toolbar"
+      >
+
         <input
           id="linkedinKeyword"
           type="search"
@@ -261,6 +257,7 @@
           placeholder="Job title, skill, or company"
           aria-label="LinkedIn job keyword"
         >
+
 
         <input
           id="linkedinLocation"
@@ -270,26 +267,48 @@
           aria-label="Job location"
         >
 
-        <button type="submit" class="linkedin-button">
+
+        <button
+          type="submit"
+          class="linkedin-button"
+        >
           Search LinkedIn ↗
         </button>
+
       </form>
 
+
       <div class="linkedin-note">
+
         LinkedIn opens in a new tab. You can view available listings and
         apply according to the employer's application process.
+
       </div>
+
     </section>
 
-    <!-- External Job Listings -->
+
+    <!-- ============================= -->
+    <!-- EXTERNAL JOB LISTINGS -->
+    <!-- ============================= -->
+
     <section class="panel">
-      <div class="panel-title">External Job Listings</div>
+
+      <div class="panel-title">
+        External Job Listings
+      </div>
+
 
       <p class="muted">
         Search jobs provided by CampusLink's existing external job service.
       </p>
 
-      <form id="jobSearchForm" class="job-toolbar">
+
+      <form
+        id="jobSearchForm"
+        class="job-toolbar"
+      >
+
         <input
           id="jobQuery"
           type="search"
@@ -298,506 +317,497 @@
           aria-label="Search external jobs"
         >
 
-        <button type="submit">Search Jobs</button>
-        <button type="button" id="showAllButton">Show All</button>
+
+        <button type="submit">
+          Search Jobs
+        </button>
+
+
+        <button
+          type="button"
+          id="showAllButton"
+        >
+          Show All
+        </button>
+
       </form>
 
-      <div id="jobMessage" class="job-message muted">
+
+      <div
+        id="jobMessage"
+        class="job-message muted"
+      >
         Loading jobs...
       </div>
 
+
       <div id="jobsContainer"></div>
+
     </section>
 
-    <!-- Job Application Tracking -->
-    <section class="panel" id="applicationTracking">
-      <div class="panel-title">My Job Applications</div>
-
-      <p class="muted">
-        Track jobs you have saved in CampusLink.
-        Applying on an external website is a separate step.
-      </p>
-
-      <button
-        type="button"
-        class="refresh-button"
-        id="refreshApplications"
-      >
-        Refresh Applications
-      </button>
-
-      <p
-        id="applicationMessage"
-        class="application-message muted"
-        role="status"
-        aria-live="polite"
-      >
-        Loading your applications...
-      </p>
-
-      <div id="applicationsContainer"></div>
-    </section>
   </main>
+
 </div>
 
-<!-- Load API helpers BEFORE the JavaScript that uses them. -->
+
+<!-- ============================= -->
+<!-- API HELPERS -->
+<!-- ============================= -->
+
 <script src="../js/api.js"></script>
+
 
 <script>
 "use strict";
 
-const JOBS_API = "http://127.0.0.1:8000/integrations/jobs";
 
-const jobsContainer = document.getElementById("jobsContainer");
-const jobMessage = document.getElementById("jobMessage");
-const jobQuery = document.getElementById("jobQuery");
+/* ==========================================
+   EXTERNAL JOBS API
+   ========================================== */
 
-const applicationMessage =
-  document.getElementById("applicationMessage");
+const JOBS_API =
+  "http://127.0.0.1:8000/integrations/jobs";
 
-const applicationsContainer =
-  document.getElementById("applicationsContainer");
 
-const refreshApplicationsButton =
-  document.getElementById("refreshApplications");
+/* ==========================================
+   DOM ELEMENTS
+   ========================================== */
+
+const jobsContainer =
+  document.getElementById("jobsContainer");
+
+const jobMessage =
+  document.getElementById("jobMessage");
+
+const jobQuery =
+  document.getElementById("jobQuery");
+
+
+/* ==========================================
+   CURRENT JOB LIST
+   ========================================== */
 
 let currentJobs = [];
 
+
+/* ==========================================
+   ESCAPE HTML
+   ========================================== */
+
 function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
+
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]
+  );
+
 }
 
-function getStudentSession() {
-  try {
-    return JSON.parse(
-      sessionStorage.getItem("campuslink_session") || "null"
-    );
-  } catch (error) {
-    console.error("Could not read CampusLink session:", error);
-    return null;
-  }
-}
 
-function getLoggedInStudentId() {
-  const session = getStudentSession();
-
-  if (!session || !session.token) {
-    return null;
-  }
-
-  if (String(session.role || "").toLowerCase() !== "student") {
-    return null;
-  }
-
-  const studentId = Number(session.student_id);
-
-  if (!Number.isSafeInteger(studentId) || studentId <= 0) {
-    return null;
-  }
-
-  return studentId;
-}
-
-function showApplicationMessage(message, type = "info") {
-  applicationMessage.textContent = message;
-  applicationMessage.className = "application-message";
-
-  if (type === "success") {
-    applicationMessage.classList.add("success-message");
-  } else if (type === "error") {
-    applicationMessage.classList.add("error-message");
-  } else {
-    applicationMessage.classList.add("muted");
-  }
-}
-
-/* Open LinkedIn job search. */
-document.getElementById("linkedinSearchForm").addEventListener(
-  "submit",
-  event => {
-    event.preventDefault();
-
-    const keyword = document
-      .getElementById("linkedinKeyword").value.trim();
-
-    const location = document
-      .getElementById("linkedinLocation").value.trim();
-
-    const params = new URLSearchParams();
-
-    if (keyword) params.set("keywords", keyword);
-    if (location) params.set("location", location);
-
-    const searchUrl =
-      "https://www.linkedin.com/jobs/search/?" + params.toString();
-
-    window.open(searchUrl, "_blank", "noopener,noreferrer");
-  }
-);
-
-function normalizeJobs(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (payload && Array.isArray(payload.jobs)) return payload.jobs;
-  if (payload && Array.isArray(payload.data)) return payload.data;
-  return [];
-}
+/* ==========================================
+   SAFE HTTP URL
+   ========================================== */
 
 function getSafeHttpUrl(value) {
-  try {
-    const parsedUrl = new URL(String(value || ""));
 
-    if (["http:", "https:"].includes(parsedUrl.protocol)) {
+  try {
+
+    const parsedUrl =
+      new URL(String(value || ""));
+
+    if (
+      ["http:", "https:"].includes(
+        parsedUrl.protocol
+      )
+    ) {
+
       return parsedUrl.href;
+
     }
+
   } catch (error) {
-    // An invalid URL should not become a clickable link.
+
+    console.warn(
+      "Invalid job URL:",
+      value
+    );
+
   }
 
   return "";
+
 }
 
-/* Load external job listings. */
+
+/* ==========================================
+   LINKEDIN JOB SEARCH
+   ========================================== */
+
+document
+  .getElementById("linkedinSearchForm")
+  .addEventListener(
+    "submit",
+    event => {
+
+      event.preventDefault();
+
+
+      const keyword =
+        document
+          .getElementById("linkedinKeyword")
+          .value
+          .trim();
+
+
+      const location =
+        document
+          .getElementById("linkedinLocation")
+          .value
+          .trim();
+
+
+      const params =
+        new URLSearchParams();
+
+
+      if (keyword) {
+
+        params.set(
+          "keywords",
+          keyword
+        );
+
+      }
+
+
+      if (location) {
+
+        params.set(
+          "location",
+          location
+        );
+
+      }
+
+
+      const query =
+        params.toString();
+
+
+      const searchUrl =
+        query
+          ? `https://www.linkedin.com/jobs/search/?${query}`
+          : "https://www.linkedin.com/jobs/search/";
+
+
+      window.open(
+        searchUrl,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+    }
+  );
+
+
+/* ==========================================
+   NORMALIZE JOB RESPONSE
+   ========================================== */
+
+function normalizeJobs(payload) {
+
+  if (Array.isArray(payload)) {
+
+    return payload;
+
+  }
+
+
+  if (
+    payload &&
+    Array.isArray(payload.jobs)
+  ) {
+
+    return payload.jobs;
+
+  }
+
+
+  if (
+    payload &&
+    Array.isArray(payload.data)
+  ) {
+
+    return payload.data;
+
+  }
+
+
+  return [];
+
+}
+
+
+/* ==========================================
+   LOAD EXTERNAL JOBS
+   ========================================== */
+
 async function loadJobs(query = "") {
+
   jobsContainer.innerHTML = "";
+
   currentJobs = [];
-  jobMessage.textContent = "Loading jobs...";
+
+  jobMessage.textContent =
+    "Loading jobs...";
+
 
   try {
-    const params = new URLSearchParams({
-      q: query.trim(),
-      limit: "20"
-    });
 
-    const response = await fetch(
-      `${JOBS_API}?${params.toString()}`
-    );
+    const params =
+      new URLSearchParams({
+        q: query.trim(),
+        limit: "20"
+      });
+
+
+    const response =
+      await fetch(
+        `${JOBS_API}?${params.toString()}`
+      );
+
 
     if (!response.ok) {
-      throw new Error(`Server returned HTTP ${response.status}`);
+
+      throw new Error(
+        `Server returned HTTP ${response.status}`
+      );
+
     }
 
-    const payload = await response.json();
-    const jobs = normalizeJobs(payload);
+
+    const payload =
+      await response.json();
+
+
+    const jobs =
+      normalizeJobs(payload);
+
 
     if (!jobs.length) {
+
       jobMessage.textContent =
         "No jobs found. Try another keyword or click Show All.";
+
       return;
+
     }
 
+
     currentJobs = jobs;
-    jobMessage.textContent = `${jobs.length} job(s) found.`;
 
-    jobsContainer.innerHTML = jobs.map((job, index) => {
-      const tags = Array.isArray(job.tags) ? job.tags : [];
 
-      const title = job.title || "Untitled role";
+    jobMessage.textContent =
+      `${jobs.length} job(s) found.`;
 
-      const company =
-        job.company ||
-        job.company_name ||
-        "Company not specified";
 
-      const safeUrl = getSafeHttpUrl(job.url);
+    jobsContainer.innerHTML =
+      jobs
+        .map((job) => {
 
-      return `
-        <article class="job-card">
-          <h3>${escapeHtml(title)}</h3>
+          const tags =
+            Array.isArray(job.tags)
+              ? job.tags
+              : [];
 
-          <div class="muted">${escapeHtml(company)}</div>
 
-          <p>
-            <strong>Location:</strong>
-            ${escapeHtml(job.location || "Not specified")}
-            ${job.remote ? " · Remote" : ""}
-          </p>
+          const title =
+            job.title ||
+            "Untitled role";
 
-          <div class="job-tags">
-            ${tags.map(tag =>
-              `<span>${escapeHtml(tag)}</span>`
-            ).join("")}
-          </div>
 
-          <p class="muted">
-            Source: ${escapeHtml(job.source || "External job board")}
-          </p>
+          const company =
+            job.company ||
+            job.company_name ||
+            "Company not specified";
 
-          ${
-            safeUrl
-              ? `
-                <a
-                  class="job-action"
-                  href="${escapeHtml(safeUrl)}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View Job &amp; Apply
-                </a>
 
-               
-              `
-              : `
-                <span class="muted">
-                  Application link unavailable
-                </span>
-              `
-          }
-        </article>
-      `;
-    }).join("");
+          const safeUrl =
+            getSafeHttpUrl(job.url);
+
+
+          return `
+
+            <article class="job-card">
+
+              <h3>
+                ${escapeHtml(title)}
+              </h3>
+
+
+              <div class="muted">
+                ${escapeHtml(company)}
+              </div>
+
+
+              <p>
+
+                <strong>
+                  Location:
+                </strong>
+
+                ${escapeHtml(
+                  job.location ||
+                  "Not specified"
+                )}
+
+                ${
+                  job.remote
+                    ? " · Remote"
+                    : ""
+                }
+
+              </p>
+
+
+              <div class="job-tags">
+
+                ${
+                  tags
+                    .map(tag =>
+                      `<span>
+                        ${escapeHtml(tag)}
+                      </span>`
+                    )
+                    .join("")
+                }
+
+              </div>
+
+
+              <p class="muted">
+
+                Source:
+                ${escapeHtml(
+                  job.source ||
+                  "External job board"
+                )}
+
+              </p>
+
+
+              ${
+                safeUrl
+                  ? `
+
+                    <a
+                      class="job-action"
+                      href="${escapeHtml(safeUrl)}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Job &amp; Apply ↗
+                    </a>
+
+                  `
+                  : `
+
+                    <span class="muted">
+                      Application link unavailable
+                    </span>
+
+                  `
+              }
+
+            </article>
+
+          `;
+
+        })
+        .join("");
+
 
   } catch (error) {
-    console.error("Could not load jobs:", error);
+
+    console.error(
+      "Could not load jobs:",
+      error
+    );
+
 
     jobMessage.textContent =
       "Could not load jobs. Check that the FastAPI backend is running and the external jobs endpoint is available.";
 
+
     jobsContainer.innerHTML = `
-      <div class="alert">${escapeHtml(error.message)}</div>
+
+      <div class="alert">
+
+        ${escapeHtml(error.message)}
+
+      </div>
+
     `;
+
   }
+
 }
 
-/* Save a job in the student's CampusLink application tracker. */
-async function trackApplication(job, button) {
-  const studentId = getLoggedInStudentId();
 
-  if (!studentId) {
-    showApplicationMessage(
-      "Please log in with your student account before tracking applications.",
-      "error"
-    );
-    return;
-  }
+/* ==========================================
+   SEARCH JOBS
+   ========================================== */
 
-  const jobUrl = getSafeHttpUrl(job.url);
+document
+  .getElementById("jobSearchForm")
+  .addEventListener(
+    "submit",
+    event => {
 
-  if (!jobUrl) {
-    showApplicationMessage(
-      "This job does not have a valid application URL.",
-      "error"
-    );
-    return;
-  }
+      event.preventDefault();
 
-  const company =
-    job.company ||
-    job.company_name ||
-    "Company not specified";
-
-  const payload = {
-    job_title: String(job.title || "Untitled role").trim(),
-    company: String(company).trim(),
-    job_url: jobUrl,
-    source: String(job.source || "External").trim()
-  };
-
-  if (!payload.job_title || !payload.company) {
-    showApplicationMessage(
-      "The job title and company are required.",
-      "error"
-    );
-    return;
-  }
-
-  const originalText = button.textContent;
-  button.disabled = true;
-  button.textContent = "Saving...";
-
-  try {
-    await createJobApplication(studentId, payload);
-
-    showApplicationMessage(
-      "Job saved to My Job Applications successfully. Remember to apply on the external job website.",
-      "success"
-    );
-
-    await loadApplications();
-
-  } catch (error) {
-    console.error("Could not save job application:", error);
-
-    const message = String(error.message || "");
-
-    if (message.includes("409")) {
-      showApplicationMessage(
-        "You have already tracked this job.",
-        "info"
+      loadJobs(
+        jobQuery.value
       );
-    } else if (message.includes("401") || message.includes("403")) {
-      showApplicationMessage(
-        "Your login may have expired or you do not have permission. Please log in again.",
-        "error"
-      );
-    } else {
-      showApplicationMessage(
-        "Could not save this job. Check your login, backend endpoint, and browser console for details.",
-        "error"
-      );
+
     }
+  );
 
-  } finally {
-    button.disabled = false;
-    button.textContent = originalText;
-  }
-}
 
-/* Handle Track Application clicks without inline JavaScript. */
-jobsContainer.addEventListener("click", event => {
-  const button = event.target.closest("[data-track-index]");
+/* ==========================================
+   SHOW ALL JOBS
+   ========================================== */
 
-  if (!button) return;
+document
+  .getElementById("showAllButton")
+  .addEventListener(
+    "click",
+    () => {
 
-  const index = Number(button.dataset.trackIndex);
-  const job = currentJobs[index];
+      jobQuery.value = "";
 
-  if (!job) {
-    showApplicationMessage(
-      "This job is no longer available in the current list. Refresh the jobs.",
-      "error"
-    );
-    return;
-  }
+      loadJobs("");
 
-  trackApplication(job, button);
-});
-
-/* Display saved applications from the backend. */
-async function loadApplications() {
-  applicationsContainer.innerHTML = "";
-
-  const studentId = getLoggedInStudentId();
-
-  if (!studentId) {
-    showApplicationMessage(
-      "Log in with your student account to view your saved applications."
-    );
-    return;
-  }
-
-  showApplicationMessage("Loading your applications...");
-
-  refreshApplicationsButton.disabled = true;
-
-  try {
-    const result = await getJobApplications(studentId);
-
-    const applications = Array.isArray(result)
-      ? result
-      : Array.isArray(result.applications)
-        ? result.applications
-        : [];
-
-    if (!applications.length) {
-      showApplicationMessage(
-        "No tracked applications yet. Click Track Application on a job above."
-      );
-      return;
     }
+  );
 
-    showApplicationMessage(
-      `${applications.length} saved application(s) found.`,
-      "success"
-    );
 
-    applicationsContainer.innerHTML = applications.map(application => {
-      const safeUrl = getSafeHttpUrl(application.job_url);
+/* ==========================================
+   INITIAL PAGE LOAD
+   ========================================== */
 
-      const appliedAt = application.applied_at
-        ? escapeHtml(
-            String(application.applied_at).replace("T", " ").slice(0, 19)
-          )
-        : "Date not available";
-
-      return `
-        <article class="application-card">
-          <h3>${escapeHtml(application.job_title || "Untitled role")}</h3>
-
-          <p>
-            <strong>Company:</strong>
-            ${escapeHtml(application.company || "Not specified")}
-          </p>
-
-          <p>
-            <strong>Source:</strong>
-            ${escapeHtml(application.source || "External")}
-          </p>
-
-          <p>
-            <strong>Status:</strong>
-            <span class="application-status">
-              ${escapeHtml(application.status || "Applied")}
-            </span>
-          </p>
-
-          <p>
-            <strong>Tracked on:</strong> ${appliedAt}
-          </p>
-
-          ${
-            safeUrl
-              ? `
-                <a
-                  class="application-link"
-                  href="${escapeHtml(safeUrl)}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open job website ↗
-                </a>
-              `
-              : ""
-          }
-        </article>
-      `;
-    }).join("");
-
-  } catch (error) {
-    console.error("Could not load applications:", error);
-
-    showApplicationMessage(
-      "Could not load your applications. Check your login and backend endpoint.",
-      "error"
-    );
-
-  } finally {
-    refreshApplicationsButton.disabled = false;
-  }
-}
-
-/* Search and refresh controls. */
-document.getElementById("jobSearchForm").addEventListener(
-  "submit",
-  event => {
-    event.preventDefault();
-    loadJobs(jobQuery.value);
-  }
-);
-
-document.getElementById("showAllButton").addEventListener(
-  "click",
-  () => {
-    jobQuery.value = "";
-    loadJobs("");
-  }
-);
-
-refreshApplicationsButton.addEventListener(
-  "click",
-  loadApplications
-);
-
-/* Initial page load. */
 loadJobs();
-loadApplications();
+
 </script>
 
+
 <script src="../js/fx.js" defer></script>
+
 </body>
 </html>

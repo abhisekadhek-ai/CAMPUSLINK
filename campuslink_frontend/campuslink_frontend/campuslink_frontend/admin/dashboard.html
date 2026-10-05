@@ -1,42 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — CampusLink</title>
-<link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
-<div class="shell">
-  <nav class="nav">
-    <div class="brand">Campus<span>Link</span></div>
 
-    <!-- Admin sidebar: only Placement cell -->
-    <div class="nav-links">
-      <a class="active" href="dashboard.html">Placement cell</a>
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Admin — CampusLink</title>
+
+  <link
+    rel="stylesheet"
+    href="../css/style.css"
+  >
+</head>
+
+
+<body>
+
+<div class="shell">
+
+
+  <nav class="nav">
+
+    <div class="brand">
+      Campus<span>Link</span>
     </div>
 
-    <div class="nav-footer">Live data from your FastAPI backend</div>
+
+    <!-- Admin sidebar -->
+
+    <div class="nav-links">
+
+      <a
+        class="active"
+        href="dashboard.html"
+      >
+        Placement cell
+      </a>
+
+
+      <a href="../recruiter/college-approval.html">
+        College Approval
+      </a>
+
+    </div>
+
+
+    <div class="nav-footer">
+      Live data from your FastAPI backend
+    </div>
+
   </nav>
 
+
+
   <main class="main">
+
+
     <div class="page-head">
+
       <div>
+
         <h1>Placement command dashboard</h1>
-        <p>Conflicts, offers and conversion analytics in one view.</p>
+
+        <p>
+          Conflicts, offers and conversion analytics in one view.
+        </p>
+
       </div>
+
     </div>
+
+
 
     <div id="errorBox"></div>
 
-    <div class="stat-row" id="statRow"></div>
+
+
+    <!-- Dashboard statistics -->
+
+    <div
+      class="stat-row"
+      id="statRow"
+    ></div>
+
+
 
     <!-- Search Student by ID -->
-    <div class="panel">
-      <div class="panel-title">Search Student by ID</div>
 
-      <form id="studentSearchForm"
-            style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
+    <div class="panel">
+
+      <div class="panel-title">
+        Search Student by ID
+      </div>
+
+
+      <form
+        id="studentSearchForm"
+        style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;"
+      >
 
         <input
           type="number"
@@ -47,374 +112,1229 @@
           style="max-width:260px;"
         >
 
-        <button type="submit">Search Student</button>
+
+        <button type="submit">
+          Search Student
+        </button>
+
       </form>
 
-      <div id="studentSearchResult" aria-live="polite"></div>
+
+      <div
+        id="studentSearchResult"
+        aria-live="polite"
+      ></div>
+
     </div>
-    <!-- End Search Student by ID -->
+
+
+
+    <!-- College Registration -->
+
+    <div class="panel">
+
+      <div class="panel-title">
+        Register College
+      </div>
+
+      <p
+        class="muted"
+        style="margin-top:0;"
+      >
+        Admin can create a college account from this section.
+      </p>
+
+
+      <form
+        id="collegeRegisterForm"
+        style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;"
+      >
+
+        <input
+          type="text"
+          id="collegeName"
+          placeholder="College Name"
+          required
+          style="max-width:260px;"
+        >
+
+
+        <input
+          type="email"
+          id="collegeEmail"
+          placeholder="College Email"
+          required
+          style="max-width:260px;"
+        >
+
+
+        <input
+          type="password"
+          id="collegePassword"
+          placeholder="College Password (min 8 characters)"
+          minlength="8"
+          required
+          style="max-width:280px;"
+        >
+
+
+        <button type="submit">
+          Register College
+        </button>
+
+      </form>
+
+
+      <div
+        id="collegeRegisterResult"
+        aria-live="polite"
+      ></div>
+
+    </div>
+
+
 
     <!-- Drive Schedule -->
+
     <div class="panel">
+
       <div class="panel-title">
+
         Drive schedule
-        <span class="muted" style="font-size:12.5px;font-weight:400;">
+
+        <span
+          class="muted"
+          style="font-size:12.5px;font-weight:400;"
+        >
           conflicts flagged automatically
         </span>
+
       </div>
+
 
       <div id="conflictsBox"></div>
 
+
       <table>
+
         <thead>
+
           <tr>
+
             <th>Company</th>
+
             <th>Date</th>
+
             <th>Time slot</th>
+
             <th>Venue</th>
+
             <th>Status</th>
+
           </tr>
+
         </thead>
+
+
         <tbody id="drivesBody"></tbody>
+
       </table>
+
     </div>
+
+
 
     <!-- Branch Conversion and CTC -->
+
     <div class="grid-2">
+
+
       <div class="panel">
-        <div class="panel-title">Branch-wise conversion</div>
+
+        <div class="panel-title">
+          Branch-wise conversion
+        </div>
+
 
         <table>
+
           <thead>
+
             <tr>
+
               <th>Branch</th>
+
               <th>Total</th>
+
               <th>Placed</th>
+
               <th>Rate</th>
+
             </tr>
+
           </thead>
+
+
           <tbody id="branchBody"></tbody>
+
         </table>
+
       </div>
+
+
 
       <div class="panel">
-        <div class="panel-title">CTC</div>
-        <div id="ctcBox" style="font-size:13.5px;"></div>
+
+        <div class="panel-title">
+          CTC
+        </div>
+
+
+        <div
+          id="ctcBox"
+          style="font-size:13.5px;"
+        ></div>
+
       </div>
+
     </div>
+
+
 
     <!-- Offers -->
+
     <div class="panel">
-      <div class="panel-title">Offers</div>
+
+      <div class="panel-title">
+        Offers
+      </div>
+
 
       <table>
+
         <thead>
+
           <tr>
+
             <th>Student</th>
+
             <th>Company / Role</th>
+
             <th>Status</th>
+
             <th>CTC (LPA)</th>
+
             <th>Update</th>
+
           </tr>
+
         </thead>
+
+
         <tbody id="offersBody"></tbody>
+
       </table>
+
     </div>
+
+
   </main>
+
+
 </div>
 
+
 <script src="../js/auth.js"></script>
+
 <script src="../js/api.js"></script>
 
+
 <script>
+
+
 // ========================================
 // SEARCH STUDENT BY ID
 // ========================================
 
-document.getElementById("studentSearchForm").addEventListener(
-  "submit",
-  async function (event) {
-    event.preventDefault();
-    await searchStudentById();
-  }
-);
+document
+  .getElementById("studentSearchForm")
+  .addEventListener(
+    "submit",
+    async function (event) {
+
+      event.preventDefault();
+
+      await searchStudentById();
+
+    }
+  );
+
 
 async function searchStudentById() {
-  const input = document.getElementById("searchStudentId");
-  const result = document.getElementById("studentSearchResult");
-  const rawId = input.value.trim();
-  const studentId = Number(rawId);
+
+  const input =
+    document.getElementById("searchStudentId");
+
+
+  const result =
+    document.getElementById("studentSearchResult");
+
+
+  const rawId =
+    input.value.trim();
+
+
+  const studentId =
+    Number(rawId);
+
 
   if (
     !rawId ||
     !Number.isSafeInteger(studentId) ||
     studentId < 1
   ) {
+
     result.innerHTML =
       '<div class="alert">Please enter a valid Student ID.</div>';
+
     return;
+
   }
 
-  result.innerHTML = "<p>Searching for student...</p>";
+
+  result.innerHTML =
+    "<p>Searching for student...</p>";
+
 
   try {
-    // Uses the existing authenticated API helper.
-    const students = await getStudents();
 
-    const student = students.find(
-      s => Number(s.id) === studentId
-    );
+    const students =
+      await getStudents();
+
+
+    const student =
+      students.find(
+        s => Number(s.id) === studentId
+      );
+
 
     if (!student) {
+
       result.innerHTML =
         '<div class="alert">No student found with this ID.</div>';
+
       return;
+
     }
 
-    const skills = Array.isArray(student.skills)
-      ? student.skills.join(", ")
-      : (student.skills || "—");
 
-    const certifications = Array.isArray(student.certifications)
-      ? student.certifications.join(", ")
-      : (student.certifications || "—");
+    const skills =
+      Array.isArray(student.skills)
+        ? student.skills.join(", ")
+        : (student.skills || "—");
+
+
+    const certifications =
+      Array.isArray(student.certifications)
+        ? student.certifications.join(", ")
+        : (student.certifications || "—");
+
 
     result.innerHTML = `
+
       <h3>Student Details</h3>
 
       <table>
+
         <tbody>
+
           <tr>
+
             <th>Student ID</th>
-            <td>${escapeHtml(student.id)}</td>
+
+            <td>
+              ${escapeHtml(student.id)}
+            </td>
+
           </tr>
+
+
           <tr>
+
             <th>Name</th>
-            <td>${escapeHtml(student.name || "—")}</td>
+
+            <td>
+              ${escapeHtml(student.name || "—")}
+            </td>
+
           </tr>
+
+
           <tr>
+
             <th>Branch</th>
-            <td>${escapeHtml(student.branch || "—")}</td>
+
+            <td>
+              ${escapeHtml(student.branch || "—")}
+            </td>
+
           </tr>
+
+
           <tr>
+
             <th>CGPA</th>
-            <td>${escapeHtml(student.cgpa ?? "—")}</td>
+
+            <td>
+              ${escapeHtml(student.cgpa ?? "—")}
+            </td>
+
           </tr>
+
+
           <tr>
+
             <th>Backlogs</th>
-            <td>${escapeHtml(student.backlogs ?? 0)}</td>
+
+            <td>
+              ${escapeHtml(student.backlogs ?? 0)}
+            </td>
+
           </tr>
+
+
           <tr>
+
             <th>Skills</th>
-            <td>${escapeHtml(skills)}</td>
+
+            <td>
+              ${escapeHtml(skills)}
+            </td>
+
           </tr>
+
+
           <tr>
+
             <th>Certifications</th>
-            <td>${escapeHtml(certifications)}</td>
+
+            <td>
+              ${escapeHtml(certifications)}
+            </td>
+
           </tr>
+
+
           <tr>
+
             <th>Mock Interview Score</th>
-            <td>${escapeHtml(student.mock_interview_score ?? "—")}</td>
+
+            <td>
+              ${escapeHtml(
+                student.mock_interview_score ?? "—"
+              )}
+            </td>
+
           </tr>
+
+
         </tbody>
+
       </table>
+
     `;
+
   } catch (err) {
+
     result.innerHTML =
-      `<div class="alert">Search failed: ${escapeHtml(err.message || "Please check your login and backend.")}</div>`;
+      `<div class="alert">
+
+        Search failed:
+
+        ${escapeHtml(
+          err.message ||
+          "Please check your login and backend."
+        )}
+
+      </div>`;
+
   }
+
 }
 
+// ========================================
+// COLLEGE REGISTRATION
+// ========================================
+// ========================================
+// COLLEGE REGISTRATION
+// ========================================
+
+document
+  .getElementById("collegeRegisterForm")
+  .addEventListener(
+    "submit",
+    async function (event) {
+
+      event.preventDefault();
+
+      await registerCollege();
+
+    }
+  );
+
+
+async function registerCollege() {
+
+  const result =
+    document.getElementById("collegeRegisterResult");
+
+
+  const collegeName =
+    document
+      .getElementById("collegeName")
+      .value
+      .trim();
+
+
+  const collegeEmail =
+    document
+      .getElementById("collegeEmail")
+      .value
+      .trim();
+
+
+  const collegePassword =
+    document
+      .getElementById("collegePassword")
+      .value;
+
+
+  if (
+    !collegeName ||
+    !collegeEmail ||
+    !collegePassword
+  ) {
+
+    result.innerHTML =
+      '<div class="alert">Please fill in all college details.</div>';
+
+    return;
+
+  }
+
+
+  if (collegePassword.length < 8) {
+
+    result.innerHTML =
+      '<div class="alert">College password must contain at least 8 characters.</div>';
+
+    return;
+
+  }
+
+
+  result.innerHTML =
+    "<p>Registering college...</p>";
+
+
+  try {
+
+    const response =
+      await fetch(
+        `${BASE_URL}/auth/college/register`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders()
+          },
+
+          body: JSON.stringify({
+            college_name: collegeName,
+            email: collegeEmail,
+            password: collegePassword
+          })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.detail ||
+        "College registration failed."
+      );
+
+    }
+
+
+    result.innerHTML = `
+
+      <div class="alert ok">
+
+        <strong>
+          College registered successfully.
+        </strong>
+
+        <br>
+
+        College Name:
+        ${escapeHtml(
+          data.college_name || collegeName
+        )}
+
+        <br>
+
+        College ID:
+        <strong>
+          ${escapeHtml(
+            data.college_id || "—"
+          )}
+        </strong>
+
+        <br>
+
+        Email:
+        ${escapeHtml(
+          data.email || collegeEmail
+        )}
+
+        <br>
+
+        Password:
+        ${escapeHtml(
+          collegePassword
+        )}
+
+      </div>
+
+    `;
+
+
+    document
+      .getElementById("collegeRegisterForm")
+      .reset();
+
+
+  } catch (err) {
+
+    result.innerHTML = `
+
+      <div class="alert">
+
+        College registration failed:
+
+        ${escapeHtml(
+          err.message ||
+          "Please check your login and backend."
+        )}
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+// ========================================
+// ERROR MESSAGE
+// ========================================
+// ========================================
+// ERROR MESSAGE
+// ========================================
 // ========================================
 // ERROR MESSAGE
 // ========================================
 
 function showError(err) {
-  document.getElementById("errorBox").innerHTML =
-    `<div class="alert">Couldn't reach the backend: ${escapeHtml(err.message)}. Make sure "uvicorn main:app --reload" is running.</div>`;
+
+  document
+    .getElementById("errorBox")
+    .innerHTML =
+
+      `<div class="alert">
+
+        Couldn't reach the backend:
+
+        ${escapeHtml(err.message)}.
+
+        Make sure
+        "uvicorn main:app --reload"
+        is running.
+
+      </div>`;
+
 }
+
+
 
 // ========================================
 // LOAD ADMIN DASHBOARD
 // ========================================
 
 async function loadDashboard() {
+
   try {
-    const analytics = await getAnalytics();
 
-    // Dashboard statistics
-    document.getElementById("statRow").innerHTML = `
-      <div class="stat">
-        <div class="num">${analytics.total_students}</div>
-        <div class="label">Total students</div>
-      </div>
+    const analytics =
+      await getAnalytics();
 
-      <div class="stat">
-        <div class="num">${analytics.offers_made}</div>
-        <div class="label">Offers made</div>
-      </div>
 
-      <div class="stat">
-        <div class="num">${analytics.offers_accepted}</div>
-        <div class="label">Offers accepted</div>
-      </div>
+    // ========================================
+    // DASHBOARD STATISTICS
+    // ========================================
 
-      <div class="stat">
-        <div class="num">${analytics.offers_pending}</div>
-        <div class="label">Offers pending</div>
-      </div>
-    `;
+    document
+      .getElementById("statRow")
+      .innerHTML = `
 
-    // Branch-wise conversion
-    document.getElementById("branchBody").innerHTML =
-      Object.entries(analytics.branch_wise_conversion)
-        .map(([branch, v]) => `
-          <tr>
-            <td><strong>${escapeHtml(branch)}</strong></td>
-            <td>${v.total}</td>
-            <td>${v.placed}</td>
-            <td class="mono">
-              ${v.total ? Math.round(v.placed / v.total * 100) : 0}%
-            </td>
-          </tr>
-        `).join("") ||
-      '<tr><td colspan="4" class="empty">No students yet.</td></tr>';
+        <div class="stat">
 
-    // CTC statistics
-    document.getElementById("ctcBox").innerHTML = `
-      <table>
-        <tbody>
-          <tr>
-            <td class="muted">Average CTC (accepted offers)</td>
-            <td>${analytics.average_ctc_lpa ?? "—"} LPA</td>
-          </tr>
-          <tr>
-            <td class="muted">Highest CTC (accepted offers)</td>
-            <td>${analytics.highest_ctc_lpa ?? "—"} LPA</td>
-          </tr>
-        </tbody>
-      </table>
-    `;
+          <div class="num">
+            ${analytics.total_students}
+          </div>
 
-    // Drives and conflicts
-    const drives = await getDrives();
-    const conflicts = await getDriveConflicts();
+          <div class="label">
+            Total students
+          </div>
 
-    document.getElementById("conflictsBox").innerHTML =
-      conflicts.length
-        ? conflicts.map(c =>
-            `<div class="alert">⚠ ${escapeHtml(c.reason)}</div>`
-          ).join("")
-        : '<div class="alert ok">No scheduling conflicts detected.</div>';
+        </div>
 
-    document.getElementById("drivesBody").innerHTML =
-      drives.map(d => `
+
+        <div class="stat">
+
+          <div class="num">
+            ${analytics.offers_made}
+          </div>
+
+          <div class="label">
+            Offers made
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="num">
+            ${analytics.offers_accepted}
+          </div>
+
+          <div class="label">
+            Offers accepted
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="num">
+            ${analytics.offers_pending}
+          </div>
+
+          <div class="label">
+            Offers pending
+          </div>
+
+        </div>
+
+      `;
+
+
+
+    // ========================================
+    // BRANCH-WISE CONVERSION
+    // ========================================
+
+    document
+      .getElementById("branchBody")
+      .innerHTML =
+
+      Object
+        .entries(
+          analytics.branch_wise_conversion
+        )
+
+        .map(
+          ([branch, v]) => `
+
+            <tr>
+
+              <td>
+
+                <strong>
+                  ${escapeHtml(branch)}
+                </strong>
+
+              </td>
+
+
+              <td>
+                ${v.total}
+              </td>
+
+
+              <td>
+                ${v.placed}
+              </td>
+
+
+              <td class="mono">
+
+                ${
+                  v.total
+                    ? Math.round(
+                        v.placed /
+                        v.total *
+                        100
+                      )
+                    : 0
+                }%
+
+              </td>
+
+            </tr>
+
+          `
+        )
+
+        .join("")
+
+        ||
+
+      `
+
         <tr>
-          <td><strong>${escapeHtml(d.company)}</strong></td>
-          <td class="mono">${escapeHtml(d.date)}</td>
-          <td class="mono">${escapeHtml(d.time_slot)}</td>
-          <td>${escapeHtml(d.venue)}</td>
-          <td>
-            <span class="badge ${badgeClass(d.status)}">
-              ${escapeHtml(d.status)}
-            </span>
+
+          <td
+            colspan="4"
+            class="empty"
+          >
+            No students yet.
           </td>
+
         </tr>
-      `).join("") ||
-      '<tr><td colspan="5" class="empty">No drives scheduled yet.</td></tr>';
 
-    // Offers
-    const offers = await getOffers();
-    const students = await getStudents();
-    const recruiters = await getRecruiters();
+      `;
 
-    const studentMap = Object.fromEntries(
-      students.map(s => [s.id, s])
-    );
 
-    const recruiterMap = Object.fromEntries(
-      recruiters.map(r => [r.id, r])
-    );
+
+    // ========================================
+    // CTC STATISTICS
+    // ========================================
+
+    document
+      .getElementById("ctcBox")
+      .innerHTML = `
+
+        <table>
+
+          <tbody>
+
+            <tr>
+
+              <td class="muted">
+                Average CTC (accepted offers)
+              </td>
+
+              <td>
+                ${analytics.average_ctc_lpa ?? "—"} LPA
+              </td>
+
+            </tr>
+
+
+            <tr>
+
+              <td class="muted">
+                Highest CTC (accepted offers)
+              </td>
+
+              <td>
+                ${analytics.highest_ctc_lpa ?? "—"} LPA
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      `;
+
+
+
+    // ========================================
+    // DRIVES AND CONFLICTS
+    // ========================================
+
+    const drives =
+      await getDrives();
+
+
+    const conflicts =
+      await getDriveConflicts();
+
+
+    document
+      .getElementById("conflictsBox")
+      .innerHTML =
+
+      conflicts.length
+
+        ? conflicts
+            .map(
+              c =>
+
+                `<div class="alert">
+
+                  ⚠
+                  ${escapeHtml(c.reason)}
+
+                </div>`
+
+            )
+            .join("")
+
+        :
+
+      `
+
+        <div class="alert ok">
+
+          No scheduling conflicts detected.
+
+        </div>
+
+      `;
+
+
+
+    document
+      .getElementById("drivesBody")
+      .innerHTML =
+
+      drives
+
+        .map(
+          d => `
+
+            <tr>
+
+              <td>
+
+                <strong>
+                  ${escapeHtml(d.company)}
+                </strong>
+
+              </td>
+
+
+              <td class="mono">
+                ${escapeHtml(d.date)}
+              </td>
+
+
+              <td class="mono">
+                ${escapeHtml(d.time_slot)}
+              </td>
+
+
+              <td>
+                ${escapeHtml(d.venue)}
+              </td>
+
+
+              <td>
+
+                <span
+                  class="badge ${badgeClass(d.status)}"
+                >
+
+                  ${escapeHtml(d.status)}
+
+                </span>
+
+              </td>
+
+            </tr>
+
+          `
+        )
+
+        .join("")
+
+        ||
+
+      `
+
+        <tr>
+
+          <td
+            colspan="5"
+            class="empty"
+          >
+            No drives scheduled yet.
+          </td>
+
+        </tr>
+
+      `;
+
+
+
+    // ========================================
+    // OFFERS
+    // ========================================
+
+    const offers =
+      await getOffers();
+
+
+    const students =
+      await getStudents();
+
+
+    const recruiters =
+      await getRecruiters();
+
+
+    const studentMap =
+      Object.fromEntries(
+        students.map(
+          s => [s.id, s]
+        )
+      );
+
+
+    const recruiterMap =
+      Object.fromEntries(
+        recruiters.map(
+          r => [r.id, r]
+        )
+      );
+
 
     const statuses = [
+
       "Issued",
+
       "Accepted",
+
       "Deferred",
+
       "Withdrawn",
+
       "Joined"
+
     ];
 
-    document.getElementById("offersBody").innerHTML =
-      offers.map(o => {
-        const student = studentMap[o.student_id];
-        const recruiter = recruiterMap[o.recruiter_id];
 
-        return `
-          <tr>
-            <td>
-              <strong>
-                ${student
-                  ? escapeHtml(student.name)
-                  : escapeHtml(o.student_id)}
-              </strong>
-            </td>
+    document
+      .getElementById("offersBody")
+      .innerHTML =
 
-            <td class="muted">
-              ${recruiter
-                ? `${escapeHtml(recruiter.company)} — ${escapeHtml(recruiter.role)}`
-                : escapeHtml(o.recruiter_id)}
-            </td>
+      offers
 
-            <td>
-              <span class="badge ${badgeClass(o.status)}">
-                ${escapeHtml(o.status)}
-              </span>
-            </td>
+        .map(o => {
 
-            <td class="mono">
-              ${escapeHtml(o.ctc_lpa ?? "—")}
-            </td>
+          const student =
+            studentMap[o.student_id];
 
-            <td>
-              <select
-                onchange="changeStatus(${Number(o.id)}, this.value)"
-                style="width:auto;display:inline-block;padding:5px 8px;"
-              >
-                <option value="">Change to…</option>
 
-                ${statuses.map(s =>
-                  `<option value="${s}">${s}</option>`
-                ).join("")}
-              </select>
-            </td>
-          </tr>
-        `;
-      }).join("") ||
-      '<tr><td colspan="5" class="empty">No offers yet.</td></tr>';
+          const recruiter =
+            recruiterMap[o.recruiter_id];
+
+
+          return `
+
+            <tr>
+
+              <td>
+
+                <strong>
+
+                  ${
+                    student
+
+                      ? escapeHtml(student.name)
+
+                      : escapeHtml(
+                          o.student_id
+                        )
+                  }
+
+                </strong>
+
+              </td>
+
+
+              <td class="muted">
+
+                ${
+                  recruiter
+
+                    ? `${escapeHtml(
+                        recruiter.company
+                      )} — ${escapeHtml(
+                        recruiter.role
+                      )}`
+
+                    : escapeHtml(
+                        o.recruiter_id
+                      )
+                }
+
+              </td>
+
+
+              <td>
+
+                <span
+                  class="badge ${badgeClass(o.status)}"
+                >
+
+                  ${escapeHtml(o.status)}
+
+                </span>
+
+              </td>
+
+
+              <td class="mono">
+
+                ${escapeHtml(
+                  o.ctc_lpa ?? "—"
+                )}
+
+              </td>
+
+
+              <td>
+
+                <select
+                  onchange="changeStatus(
+                    ${Number(o.id)},
+                    this.value
+                  )"
+                  style="
+                    width:auto;
+                    display:inline-block;
+                    padding:5px 8px;
+                  "
+                >
+
+                  <option value="">
+                    Change to…
+                  </option>
+
+
+                  ${
+                    statuses
+                      .map(
+                        s =>
+
+                          `<option value="${s}">
+                            ${s}
+                          </option>`
+
+                      )
+                      .join("")
+                  }
+
+                </select>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        })
+
+        .join("")
+
+        ||
+
+      `
+
+        <tr>
+
+          <td
+            colspan="5"
+            class="empty"
+          >
+            No offers yet.
+          </td>
+
+        </tr>
+
+      `;
+
 
   } catch (err) {
-    showError(err);
-  }
-}
 
+    showError(err);
+
+  }
+
+}
 // ========================================
 // UPDATE OFFER STATUS
 // ========================================
 
-async function changeStatus(offerId, status) {
+async function changeStatus(
+  offerId,
+  status
+) {
+
   if (!status) return;
 
+
   try {
-    await updateOfferStatus(offerId, { status });
+
+    await updateOfferStatus(
+      offerId,
+      { status }
+    );
+
+
     await loadDashboard();
+
+
   } catch (err) {
+
     showError(err);
+
   }
+
 }
 
-// Start dashboard
+
+
+// ========================================
+// START DASHBOARD
+// ========================================
+
 loadDashboard();
+
 </script>
-<script src="../js/fx.js" defer></script>
+
+
+<script
+  src="../js/fx.js"
+  defer>
+</script>
+
+
 </body>
+
 </html>

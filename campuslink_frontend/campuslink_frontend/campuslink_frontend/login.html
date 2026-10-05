@@ -1,8 +1,11 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Login — CampusLink</title>
@@ -10,6 +13,7 @@
     <link rel="stylesheet" href="css/style.css">
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -156,7 +160,42 @@
             text-decoration: none;
         }
 
+        .forgot-password {
+            margin: 14px 0 0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .forgot-password a {
+            color: var(--indigo, #4f46e5);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* Recruiter Sign Up */
+
+        #recruiterSignup {
+            margin: 14px 0 0;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        #recruiterSignup a {
+            color: var(--indigo, #4f46e5);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #recruiterSignup a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 480px) {
+
             body {
                 padding: 20px 14px;
             }
@@ -168,40 +207,54 @@
             .tag-line {
                 margin-bottom: 22px;
             }
+
         }
-        .forgot-password {
-    margin: 14px 0 0;
-    text-align: center;
-    font-size: 14px;
-}
 
-.forgot-password a {
-    color: var(--indigo, #4f46e5);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.forgot-password a:hover {
-    text-decoration: underline;
-}
     </style>
-</head>
+    </head>
+
 
 <body>
+
+
     <main class="landing">
+
 
         <div class="brand">CAMPUSLINK</div>
 
+
         <h1 id="title">Login</h1>
+
 
         <p class="tag-line" id="subtitle"></p>
 
+
         <section class="panel">
+
 
             <div id="msg" aria-live="polite"></div>
 
-            <!-- Student ID field: shown only for student login -->
+
+            <!-- Recruiter Email -->
+
+            <div class="field" id="emailRow" hidden>
+
+                <label for="email">Email</label>
+
+                <input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your recruiter email"
+                    autocomplete="username"
+                >
+
+            </div>
+
+
+            <!-- Student ID -->
+
             <div class="field" id="studentRow" hidden>
+
                 <label for="studentId">Student ID</label>
 
                 <input
@@ -219,9 +272,30 @@
                 <small id="studentHelp">
                     Type your Student ID to search. Only IDs are displayed.
                 </small>
+
             </div>
 
+
+            <!-- College Placement ID -->
+
+            <div class="field" id="collegeRow" hidden>
+
+                <label for="collegeId">College ID</label>
+
+                <input
+                    id="collegeId"
+                    type="text"
+                    placeholder="Enter your College ID"
+                    autocomplete="username"
+                >
+
+            </div>
+
+
+            <!-- Password -->
+
             <div class="field">
+
                 <label for="password">Password</label>
 
                 <input
@@ -231,238 +305,744 @@
                     autocomplete="current-password"
                     required
                 >
+
             </div>
+
+
+            <!-- Login Button -->
 
             <button id="loginBtn" type="button">
                 Log in
             </button>
-            <p class="forgot-password">
-    <a href="forgot-password.html">Forgot Password?</a>
+
+
+            <!-- Recruiter Sign Up -->
+
+            <p id="recruiterSignup" style="display: none;">
+
+                New recruiter?
+
+                <a href="recruiter-signup.html">
+                    Sign Up
+                </a>
+
+            </p>
+            <!-- College Sign Up -->
+<p id="collegeSignup" style="display: none;">
+
+    New college?
+
+    <a href="college-signup.html">
+        Sign Up
+    </a>
+
 </p>
+
+
+            <!-- Forgot Password -->
+
+            <p class="forgot-password">
+
+                <a href="forgot-password.html">
+                    Forgot Password?
+                </a>
+
+            </p>
+
 
         </section>
 
+
         <p class="back-link">
+
             <a href="index.html" class="muted">
                 &larr; Back to all portals
             </a>
+
         </p>
+
 
     </main>
 
-    <!-- Load your existing authentication and API functions -->
+
+    <!-- Existing files -->
+
     <script src="js/auth.js"></script>
+
     <script src="js/api.js"></script>
 
+
     <script>
+
         const CONFIG = {
+
             student: {
+
                 title: "Student login",
-                subtitle: "See your readiness score, AI role matches and skill gaps."
+
+                subtitle:
+                    "See your readiness score, AI role matches and skill gaps."
+
             },
+
+
             recruiter: {
+
                 title: "Recruiter login",
-                subtitle: "Post roles and review your candidate pool."
+
+                subtitle:
+                    "Post roles and review your candidate pool."
+
             },
-            admin: {
-                title: "Admin login",
-                subtitle: "Placement cell: drives, offers and analytics."
+
+
+            college: {
+
+                title: "College Placement login",
+
+                subtitle:
+                    "Manage students, approve applications and support placement activities."
+
             }
+
         };
+
+
+        // Get selected role from URL
 
         const role = new URLSearchParams(
             window.location.search
         ).get("role");
 
+
+        // Check role
+
         if (!CONFIG[role]) {
+
             window.location.replace("index.html");
+
         } else {
+
             document.getElementById("title").textContent =
                 CONFIG[role].title;
 
             document.getElementById("subtitle").textContent =
                 CONFIG[role].subtitle;
 
-            document.title = CONFIG[role].title + " — CampusLink";
+            document.title =
+                CONFIG[role].title + " — CampusLink";
+
         }
 
-        const msg = document.getElementById("msg");
-        const studentRow = document.getElementById("studentRow");
-        const studentIdInput = document.getElementById("studentId");
-        const studentIdOptions = document.getElementById("studentIdOptions");
-        const passwordInput = document.getElementById("password");
-        const loginBtn = document.getElementById("loginBtn");
 
-        let students = [];
+        // Elements
+
+        const msg =
+            document.getElementById("msg");
+
+
+        const emailRow =
+            document.getElementById("emailRow");
+
+
+        const emailInput =
+            document.getElementById("email");
+
+
+        const studentRow =
+            document.getElementById("studentRow");
+
+
+        const studentIdInput =
+            document.getElementById("studentId");
+
+
+        const studentIdOptions =
+            document.getElementById("studentIdOptions");
+
+
+        // College Placement elements
+
+        const collegeRow =
+            document.getElementById("collegeRow");
+
+
+        const collegeIdInput =
+            document.getElementById("collegeId");
+
+
+        const passwordInput =
+            document.getElementById("password");
+
+
+        const loginBtn =
+            document.getElementById("loginBtn");
+
+
+        const recruiterSignup =
+    document.getElementById("recruiterSignup");
+
+const collegeSignup =
+    document.getElementById("collegeSignup");
+
+
+let students = [];
+        // Display message
 
         function showMessage(message, type = "error") {
+
             msg.replaceChildren();
 
-            const box = document.createElement("div");
-            box.className = "message " + type;
-            box.textContent = message;
+            const box =
+                document.createElement("div");
+
+            box.className =
+                "message " + type;
+
+            box.textContent =
+                message;
 
             msg.appendChild(box);
+
         }
 
-        // Load the existing student IDs from your backend.
+
+        // -------------------------------------------------
+        // Recruiter login -> show Email + Sign Up
+        // -------------------------------------------------
+
+        if (role === "recruiter") {
+
+            emailRow.hidden = false;
+
+            emailInput.required = true;
+
+            // Show recruiter signup
+
+            recruiterSignup.style.display = "block";
+
+            emailInput.focus();
+
+        }
+
+
+        // -------------------------------------------------
+        // College Placement login -> show College ID
+        // -------------------------------------------------
+
+        if (role === "college") {
+
+    collegeRow.hidden = false;
+
+    collegeIdInput.required = true;
+
+    collegeSignup.style.display = "block";
+
+    collegeIdInput.focus();
+
+}
+
+
+        // -------------------------------------------------
+        // Student login -> load Student IDs
+        // -------------------------------------------------
+
         async function loadStudents() {
+
             studentRow.hidden = false;
+
             studentIdInput.disabled = true;
-            studentIdInput.placeholder = "Loading Student IDs...";
+
+            studentIdInput.placeholder =
+                "Loading Student IDs...";
 
             try {
-                const data = await apiGet("/auth/students");
+
+                const data =
+                    await apiGet("/auth/students");
 
                 if (!Array.isArray(data)) {
+
                     throw new Error(
                         "The student list API did not return a list."
                     );
+
                 }
+
 
                 students = data
-                    .filter(s =>
-                        s &&
-                        s.id !== undefined &&
-                        s.id !== null &&
-                        String(s.id).trim() !== ""
-                    )
-                    .sort((a, b) => Number(a.id) - Number(b.id));
 
-                // Show IDs only, not student names.
+                    .filter(student =>
+                        student &&
+                        student.id !== undefined &&
+                        student.id !== null &&
+                        String(student.id).trim() !== ""
+                    )
+
+                    .sort(
+                        (a, b) =>
+                            Number(a.id) - Number(b.id)
+                    );
+
+
                 studentIdOptions.replaceChildren();
 
+
                 students.forEach(student => {
-                    const option = document.createElement("option");
-                    option.value = String(student.id);
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value =
+                        String(student.id);
+
                     studentIdOptions.appendChild(option);
+
                 });
 
+
                 if (students.length === 0) {
-                    showMessage("No Student IDs were returned by the backend.");
+
+                    showMessage(
+                        "No Student IDs were returned by the backend."
+                    );
+
                 } else {
+
                     studentIdInput.placeholder =
                         "Type or select your Student ID";
+
                 }
+
 
             } catch (error) {
-                console.error("Could not load Student IDs:", error);
+
+                console.error(
+                    "Could not load Student IDs:",
+                    error
+                );
 
                 showMessage(
-                    "Could not load Student IDs. Check that the backend is running and /auth/students works."
+                    "Could not load Student IDs. Check that the backend is running."
                 );
+
             } finally {
+
                 studentIdInput.disabled = false;
+
             }
+
         }
 
-        // Run only for student login.
+
         if (role === "student") {
+
             loadStudents();
+
         }
+
+
+        // -------------------------------------------------
+        // LOGIN
+        // -------------------------------------------------
 
         async function doLogin() {
+
             msg.replaceChildren();
 
-            const password = passwordInput.value;
+
+            const password =
+                passwordInput.value.trim();
+
+
+            // Password validation
 
             if (!password) {
-                showMessage("Please enter your password.");
-                passwordInput.focus();
-                return;
-            }
 
-            const body = {
-                role: role,
-                password: password
-            };
-
-            if (role === "student") {
-                const enteredId = studentIdInput.value.trim();
-
-                if (!enteredId) {
-                    showMessage("Please enter your Student ID.");
-                    studentIdInput.focus();
-                    return;
-                }
-
-                // Accept only an ID present in the loaded student list.
-                const selectedStudent = students.find(
-                    student => String(student.id) === enteredId
+                showMessage(
+                    "Please enter your password."
                 );
 
+                passwordInput.focus();
+
+                return;
+
+            }
+
+
+            // Base request
+
+            const body = {
+
+                role: role,
+
+                password: password
+
+            };
+
+
+        // -------------------------------------------------
+        // RECRUITER
+        // -------------------------------------------------
+
+            if (role === "recruiter") {
+
+                const email =
+                    emailInput.value.trim().toLowerCase();
+
+
+                if (!email) {
+
+                    showMessage(
+                        "Please enter your recruiter email."
+                    );
+
+                    emailInput.focus();
+
+                    return;
+
+                }
+
+
+                if (!email.includes("@")) {
+
+                    showMessage(
+                        "Please enter a valid email address."
+                    );
+
+                    emailInput.focus();
+
+                    return;
+
+                }
+
+
+                body.email = email;
+
+            }
+
+
+        // -------------------------------------------------
+        // STUDENT
+        // -------------------------------------------------
+
+            if (role === "student") {
+
+                const enteredId =
+                    studentIdInput.value.trim();
+
+
+                if (!enteredId) {
+
+                    showMessage(
+                        "Please enter your Student ID."
+                    );
+
+                    studentIdInput.focus();
+
+                    return;
+
+                }
+
+
+                const selectedStudent =
+                    students.find(
+                        student =>
+                            String(student.id) === enteredId
+                    );
+
+
                 if (!selectedStudent) {
+
                     showMessage(
                         "Student ID not found. Please type or select a valid ID."
                     );
+
                     studentIdInput.focus();
+
                     return;
+
                 }
 
-                body.student_id = Number(selectedStudent.id);
+
+                body.student_id =
+                    Number(selectedStudent.id);
+
             }
 
+
+        // -------------------------------------------------
+        // COLLEGE PLACEMENT
+        // -------------------------------------------------
+
+            if (role === "college") {
+
+                const collegeId =
+                    collegeIdInput.value.trim().toUpperCase();
+
+
+                if (!collegeId) {
+
+                    showMessage(
+                        "Please enter your College ID."
+                    );
+
+                    collegeIdInput.focus();
+
+                    return;
+
+                }
+
+
+                body.college_id = collegeId;
+
+            }
+
+
+        // -------------------------------------------------
+        // SEND LOGIN REQUEST
+        // -------------------------------------------------
+
             loginBtn.disabled = true;
-            loginBtn.textContent = "Logging in...";
+
+            loginBtn.textContent =
+                "Logging in...";
+
 
             try {
-                const res = await apiPost("/auth/login", body);
 
-                if (!res || !res.token || !res.role) {
-                    throw new Error("The backend returned an invalid login response.");
+                console.log(
+                    "Login request:",
+                    {
+                        role: body.role,
+                        email: body.email || null,
+                        student_id: body.student_id || null,
+                        college_id: body.college_id || null
+                    }
+                );
+
+
+                const res =
+                    await apiPost(
+                        "/auth/login",
+                        body
+                    );
+
+
+                console.log(
+                    "Login response:",
+                    res
+                );
+
+
+                if (
+                    !res ||
+                    !res.token ||
+                    !res.role
+                ) {
+
+                    throw new Error(
+                        "The backend returned an invalid login response."
+                    );
+
                 }
+
+
+                // Save session
 
                 saveSession({
+
                     role: res.role,
+
                     token: res.token,
+
                     studentId: res.student_id,
-                    studentName: res.name
+
+                    studentName: res.name,
+
+                    recruiter_id: res.recruiter_id,
+
+                    college_id: res.college_id,
+
+                    college_code: res.college_code,
+
+                    collegeName: res.name
+
                 });
 
-                const destination = ROLE_HOME[role];
+
+                showMessage(
+                    "Login successful. Redirecting...",
+                    "success"
+                );
+
+
+                // Dashboard
+
+                const destination =
+                    ROLE_HOME[role];
+
 
                 if (!destination) {
-                    throw new Error("The dashboard page is not configured.");
+
+                    throw new Error(
+                        "The dashboard page is not configured."
+                    );
+
                 }
 
-                window.location.href = destination;
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        destination;
+
+                }, 300);
+
 
             } catch (error) {
-                console.error("Login error:", error);
 
-                const errorText = String(error.message || error);
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+
+                const errorText =
+                    String(
+                        error.message || error
+                    );
+
 
                 if (errorText.includes("401")) {
-                    showMessage("Wrong password. Please try again.");
+
+                    showMessage(
+                        "Invalid email, College ID or password."
+                    );
+
                 } else if (errorText.includes("404")) {
-                    showMessage("Student ID was not found in the database.");
+
+                    if (role === "college") {
+
+                        showMessage(
+                            "College account was not found."
+                        );
+
+                    } else {
+
+                        showMessage(
+                            "Recruiter account was not found."
+                        );
+
+                    }
+
                 } else if (errorText.includes("400")) {
-                    showMessage("Please check your login details.");
+
+                    showMessage(
+                        "Please check your login details."
+                    );
+
                 } else {
+
                     showMessage(
                         "Login failed. Check the backend terminal for the exact error."
                     );
+
                 }
+
             } finally {
+
                 loginBtn.disabled = false;
-                loginBtn.textContent = "Log in";
+
+                loginBtn.textContent =
+                    "Log in";
+
             }
+
         }
 
-        loginBtn.addEventListener("click", doLogin);
 
-        passwordInput.addEventListener("keydown", event => {
-            if (event.key === "Enter") {
-                doLogin();
-            }
-        });
+        // Button click
 
-        studentIdInput.addEventListener("keydown", event => {
-            if (event.key === "Enter") {
-                passwordInput.focus();
+        loginBtn.addEventListener(
+            "click",
+            doLogin
+        );
+
+
+        // Enter on password
+
+        passwordInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Enter") {
+
+                    doLogin();
+
+                }
+
             }
-        });
+        );
+
+
+        // Enter on recruiter email
+
+        emailInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Enter") {
+
+                    passwordInput.focus();
+
+                }
+
+            }
+        );
+
+
+        // Enter on student ID
+
+        studentIdInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Enter") {
+
+                    passwordInput.focus();
+
+                }
+
+            }
+        );
+
+
+        // Enter on College ID
+
+        collegeIdInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Enter") {
+
+                    passwordInput.focus();
+
+                }
+
+            }
+        );
+                // -------------------------------------------------
+        // END OF LOGIN SCRIPT
+        // -------------------------------------------------
+
     </script>
-<script src="js/fx.js" defer></script>
+
+
+    <script src="js/fx.js" defer></script>
+
+
 </body>
+
+
 </html>

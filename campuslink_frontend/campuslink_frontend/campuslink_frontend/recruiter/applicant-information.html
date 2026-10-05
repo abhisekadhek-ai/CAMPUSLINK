@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Applicant Information — CampusLink</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+
+  <style>
+    .page-content {
+      padding: 24px;
+    }
+
+    .page-header {
+      margin-bottom: 24px;
+    }
+
+    .search-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-row input {
+      padding: 11px 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 250px;
+    }
+
+    .search-row button {
+      padding: 11px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .student-card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .student-card h2 {
+      margin-top: 0;
+    }
+
+    .student-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .info-item {
+      background: #f7f7f7;
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .info-label {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .info-value {
+      word-break: break-word;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .error {
+      background: #ffecec;
+      color: #b00020;
+    }
+
+    .loading {
+      background: #f5f5f5;
+      color: #555;
+    }
+
+    @media (max-width: 700px) {
+      .student-info {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <nav class="nav">
+
+    <div class="brand">
+      Campus<span>Link</span>
+    </div>
+
+    <div class="nav-links">
+
+      <a href="dashboard.html">
+        Jobs &amp; Candidates
+      </a>
+
+      <a href="job-applicants.html">
+        Job Applicants
+      </a>
+
+      <a class="active" href="applicant-information.html">
+        Applicant Information
+      </a>
+
+    </div>
+
+  </nav>
+
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <div class="page-content">
+
+      <div class="page-header">
+        <h1>Applicant Information</h1>
+        <p>Search for a student using their Student ID.</p>
+      </div>
+
+
+      <!-- Search -->
+      <div class="search-box">
+
+        <h3>Search Student</h3>
+
+        <div class="search-row">
+
+          <input
+            type="number"
+            id="studentIdInput"
+            placeholder="Enter Student ID"
+            min="1"
+          >
+
+          <button onclick="searchStudent()">
+            Search
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div id="messageBox"></div>
+
+      <div id="studentContainer"></div>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script src="../js/api.js"></script>
+
+<script>
+
+  async function searchStudent() {
+
+    const input =
+      document.getElementById("studentIdInput");
+
+    const studentId =
+      input.value.trim();
+
+    const messageBox =
+      document.getElementById("messageBox");
+
+    const container =
+      document.getElementById("studentContainer");
+
+
+    if (!studentId) {
+
+      messageBox.innerHTML = `
+        <div class="message error">
+          Please enter a Student ID.
+        </div>
+      `;
+
+      container.innerHTML = "";
+
+      return;
+    }
+
+
+    messageBox.innerHTML = `
+      <div class="message loading">
+        Loading student information...
+      </div>
+    `;
+
+    container.innerHTML = "";
+
+
+    try {
+
+      const student =
+        await apiGet(
+          `/recruiter/applicant-information/${studentId}`
+        );
+
+
+      messageBox.innerHTML = "";
+
+
+      const fields =
+        Object.entries(student);
+
+
+      const information =
+        fields.map(([key, value]) => {
+
+          let displayValue = value;
+
+          if (
+            value !== null &&
+            typeof value === "object"
+          ) {
+            displayValue =
+              JSON.stringify(value);
+          }
+
+          if (
+            displayValue === null ||
+            displayValue === undefined ||
+            displayValue === ""
+          ) {
+            displayValue = "-";
+          }
+
+          return `
+            <div class="info-item">
+
+              <div class="info-label">
+                ${formatLabel(key)}
+              </div>
+
+              <div class="info-value">
+                ${escapeHtml(String(displayValue))}
+              </div>
+
+            </div>
+          `;
+
+        }).join("");
+
+
+      container.innerHTML = `
+        <div class="student-card">
+
+          <h2>
+            Student Information
+          </h2>
+
+          <div class="student-info">
+            ${information}
+          </div>
+
+        </div>
+      `;
+
+
+    } catch (err) {
+
+      console.error(
+        "Could not load student:",
+        err
+      );
+
+      container.innerHTML = "";
+
+      messageBox.innerHTML = `
+        <div class="message error">
+          Student not found or you are not authorized
+          to view this information.
+        </div>
+      `;
+
+    }
+
+  }
+
+
+  function formatLabel(key) {
+
+    return key
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, char =>
+        char.toUpperCase()
+      );
+
+  }
+
+
+  document
+    .getElementById("studentIdInput")
+    .addEventListener("keydown", function(event) {
+
+      if (event.key === "Enter") {
+        searchStudent();
+      }
+
+    });
+
+</script>
+
+</body>
+</html>

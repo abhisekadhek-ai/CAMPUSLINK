@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>College Sign Up — CampusLink</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+            overflow-x: hidden;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .brand {
+            color: var(--indigo, #4f46e5);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(30px, 6vw, 42px);
+        }
+
+        .subtitle {
+            margin: 14px 0 25px;
+            line-height: 1.6;
+        }
+
+        .panel {
+            width: 100%;
+            padding: 28px;
+            border-radius: 14px;
+            text-align: left;
+            background: var(
+                --panel,
+                rgba(255, 255, 255, 0.72)
+            );
+            box-shadow:
+                0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .field {
+            width: 100%;
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .field input {
+            width: 100%;
+            height: 52px;
+            padding: 12px 14px;
+            border: 1px solid #cbd0d8;
+            border-radius: 9px;
+            background: #fff;
+            color: #20242b;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .field input:focus {
+            border-color:
+                var(--indigo, #4f46e5);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(79, 70, 229, 0.12);
+        }
+
+        #signupBtn {
+            display: block;
+            width: 100%;
+            min-height: 52px;
+            padding: 12px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        #signupBtn:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        #message {
+            margin-bottom: 15px;
+        }
+
+        #message:empty {
+            display: none;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.error {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .message.success {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .college-id-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 9px;
+            background: #eef4ff;
+            border: 1px solid #c9d8ff;
+            text-align: center;
+        }
+
+        .college-id-box strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 24px;
+            color: #2449a6;
+            letter-spacing: 1px;
+        }
+
+        .login-link {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: var(--indigo, #4f46e5);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .back-link a {
+            text-decoration: none;
+        }
+
+        .help-text {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #667085;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+
+            body {
+                padding: 20px 14px;
+            }
+
+            .panel {
+                padding: 22px 18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="signup-container">
+
+    <div class="brand">
+        CAMPUSLINK
+    </div>
+
+    <h1>
+        College Sign Up
+    </h1>
+
+    <p class="subtitle">
+        Register your college placement cell
+        with CampusLink.
+    </p>
+
+
+    <section class="panel">
+
+        <div
+            id="message"
+            aria-live="polite"
+        ></div>
+
+
+        <!-- College Name -->
+
+        <div class="field">
+
+            <label for="collegeName">
+                College Name
+            </label>
+
+            <input
+                id="collegeName"
+                type="text"
+                placeholder="Enter your college name"
+                maxlength="150"
+                autocomplete="organization"
+                required
+            >
+
+        </div>
+
+
+        <!-- Email -->
+
+        <div class="field">
+
+            <label for="email">
+                College Email
+            </label>
+
+            <input
+                id="email"
+                type="email"
+                placeholder="placement@college.edu"
+                maxlength="150"
+                autocomplete="email"
+                required
+            >
+
+            <div class="help-text">
+                Use an official college or placement-cell
+                email address.
+            </div>
+
+        </div>
+
+
+        <!-- Password -->
+
+        <div class="field">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                id="password"
+                type="password"
+                placeholder="Create a password"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+
+            <div class="help-text">
+                Password must contain at least 8 characters.
+            </div>
+
+        </div>
+
+
+        <!-- Confirm Password -->
+
+        <div class="field">
+
+            <label for="confirmPassword">
+                Confirm Password
+            </label>
+
+            <input
+                id="confirmPassword"
+                type="password"
+                placeholder="Re-enter your password"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+
+        </div>
+
+
+        <!-- Signup Button -->
+
+        <button
+            id="signupBtn"
+            type="button"
+        >
+            Create College Account
+        </button>
+
+
+        <!-- Generated College ID -->
+
+        <div
+            id="collegeIdBox"
+            class="college-id-box"
+            hidden
+        >
+
+            College registration successful.
+
+            <strong id="generatedCollegeId">
+                --
+            </strong>
+
+            <div class="help-text">
+                Save this College ID.
+                You will use it when logging in.
+            </div>
+
+        </div>
+
+
+        <!-- Login -->
+
+        <p class="login-link">
+
+            Already have a college account?
+
+            <a href="login.html?role=college">
+                Log In
+            </a>
+
+        </p>
+
+    </section>
+
+
+    <p class="back-link">
+
+        <a
+            href="index.html"
+            class="muted"
+        >
+            &larr; Back to all portals
+        </a>
+
+    </p>
+
+</div>
+
+
+<script src="js/api.js"></script>
+
+<script>
+
+"use strict";
+
+
+const collegeNameInput =
+    document.getElementById("collegeName");
+
+const emailInput =
+    document.getElementById("email");
+
+const passwordInput =
+    document.getElementById("password");
+
+const confirmPasswordInput =
+    document.getElementById("confirmPassword");
+
+const signupBtn =
+    document.getElementById("signupBtn");
+
+const message =
+    document.getElementById("message");
+
+const collegeIdBox =
+    document.getElementById("collegeIdBox");
+
+const generatedCollegeId =
+    document.getElementById("generatedCollegeId");
+
+
+function showMessage(
+    text,
+    type = "error"
+) {
+
+    message.replaceChildren();
+
+    const box =
+        document.createElement("div");
+
+    box.className =
+        "message " + type;
+
+    box.textContent =
+        text;
+
+    message.appendChild(box);
+}
+
+
+async function registerCollege() {
+
+    message.replaceChildren();
+
+    collegeIdBox.hidden = true;
+
+
+    const collegeName =
+        collegeNameInput.value.trim();
+
+    const email =
+        emailInput.value.trim().toLowerCase();
+
+    const password =
+        passwordInput.value;
+
+    const confirmPassword =
+        confirmPasswordInput.value;
+
+
+    // College name validation
+
+    if (!collegeName) {
+
+        showMessage(
+            "Please enter your college name."
+        );
+
+        collegeNameInput.focus();
+
+        return;
+    }
+
+
+    // Email validation
+
+    if (!email) {
+
+        showMessage(
+            "Please enter your college email."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+
+    if (
+        !email.includes("@") ||
+        email.startsWith("@") ||
+        email.endsWith("@")
+    ) {
+
+        showMessage(
+            "Please enter a valid college email address."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+
+    // Password validation
+
+    if (password.length < 8) {
+
+        showMessage(
+            "Password must contain at least 8 characters."
+        );
+
+        passwordInput.focus();
+
+        return;
+    }
+
+
+    // Confirm password
+
+    if (password !== confirmPassword) {
+
+        showMessage(
+            "Passwords do not match."
+        );
+
+        confirmPasswordInput.focus();
+
+        return;
+    }
+
+
+    const payload = {
+
+        college_name: collegeName,
+
+        email: email,
+
+        password: password
+
+    };
+
+
+    signupBtn.disabled = true;
+
+    signupBtn.textContent =
+        "Creating account...";
+
+
+    try {
+
+        console.log(
+            "College registration request:",
+            {
+                college_name: collegeName,
+                email: email
+            }
+        );
+
+
+        const result =
+            await apiPost(
+                "/auth/college/register",
+                payload
+            );
+
+
+        console.log(
+            "College registration response:",
+            result
+        );
+
+
+        if (!result) {
+
+            throw new Error(
+                "The server returned an empty response."
+            );
+
+        }
+
+
+        showMessage(
+            "College account created successfully!",
+            "success"
+        );
+
+
+        if (result.college_id) {
+
+            generatedCollegeId.textContent =
+                result.college_id;
+
+            collegeIdBox.hidden = false;
+
+        }
+
+
+        signupBtn.textContent =
+            "Account Created ✓";
+
+
+        // Keep the generated ID visible.
+        // User can click Log In manually.
+
+
+    } catch (error) {
+
+        console.error(
+            "College registration failed:",
+            error
+        );
+
+
+        const errorText =
+            String(
+                error.message || error
+            );
+
+
+        if (errorText.includes("409")) {
+
+            showMessage(
+                "This college email is already registered."
+            );
+
+        } else if (errorText.includes("400")) {
+
+            showMessage(
+                "Please check the information you entered."
+            );
+
+        } else if (errorText.includes("403")) {
+
+            showMessage(
+                "College registration is currently restricted. The backend still requires admin approval."
+            );
+
+        } else if (errorText.includes("500")) {
+
+            showMessage(
+                "Server error. Check the FastAPI terminal for the exact error."
+            );
+
+        } else {
+
+            showMessage(
+                "College registration failed. Make sure the FastAPI backend is running."
+            );
+
+        }
+
+    } finally {
+
+        if (!collegeIdBox.hidden) {
+
+            signupBtn.disabled = true;
+
+        } else {
+
+            signupBtn.disabled = false;
+
+            signupBtn.textContent =
+                "Create College Account";
+
+        }
+
+    }
+
+}
+
+
+signupBtn.addEventListener(
+    "click",
+    registerCollege
+);
+
+
+confirmPasswordInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (event.key === "Enter") {
+
+            registerCollege();
+
+        }
+
+    }
+);
+
+</script>
+
+
+<script src="js/fx.js" defer></script>
+
+</body>
+
+</html>

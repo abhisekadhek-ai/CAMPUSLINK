@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Manual Apply — CampusLink</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+
+  <style>
+    .manual-apply-card {
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 28px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .manual-apply-card h2 {
+      margin-top: 0;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid #d6d9e2;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 8px;
+      background: #2463eb;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .submit-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .success {
+      display: block;
+      background: #e8f7ee;
+      color: #16804a;
+    }
+
+    .error {
+      display: block;
+      background: #ffecec;
+      color: #c62828;
+    }
+
+    .approval-info {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #f6f9ff;
+      color: #596579;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="shell">
+
+  <nav class="nav">
+
+    <div class="brand">
+      Campus<span>Link</span>
+    </div>
+
+    <div class="nav-links">
+
+      <a href="dashboard.html">
+        Readiness &amp; Matches
+      </a>
+
+      <a href="jobs.html">
+        Job Portal
+      </a>
+
+      <a href="ai-assistant.html">
+        AI Assistant
+      </a>
+
+      <a class="active" href="manual-apply.html">
+        Manual Apply
+      </a>
+
+    </div>
+
+    <div class="nav-footer">
+      CampusLink Student Portal
+    </div>
+
+  </nav>
+
+
+  <main class="main">
+
+    <div class="page-head">
+
+      <div>
+        <h1>Manual Apply</h1>
+
+        <p>
+          Submit a job application manually for college approval.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="manual-apply-card">
+
+      <h2>Apply for a Job</h2>
+
+      <p class="muted">
+        Enter the job details below. Your application will first go
+        to the Placement Cell for approval.
+      </p>
+
+
+      <form id="manualApplyForm">
+
+        <div class="form-group">
+
+          <label for="jobTitle">
+            Job Title
+          </label>
+
+          <input
+            id="jobTitle"
+            type="text"
+            placeholder="Example: Python Developer"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="company">
+            Company
+          </label>
+
+          <input
+            id="company"
+            type="text"
+            placeholder="Example: TCS"
+            required
+          >
+
+        </div>
+        <div class="form-group">
+
+  <label for="college">
+    College
+  </label>
+
+  <input
+    id="college"
+    type="text"
+    placeholder="Enter your college name"
+    required
+  >
+
+</div>
+
+
+        <div class="form-group">
+
+          <label for="jobUrl">
+            Job / Application URL
+          </label>
+
+          <input
+            id="jobUrl"
+            type="url"
+            placeholder="https://example.com/job"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="source">
+            Job Source
+          </label>
+
+          <select id="source">
+
+            <option value="Manual">
+              Manual
+            </option>
+
+            <option value="LinkedIn">
+              LinkedIn
+            </option>
+
+            <option value="Company Website">
+              Company Website
+            </option>
+
+            <option value="Other">
+              Other
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <button
+          type="submit"
+          class="submit-button"
+          id="submitButton"
+        >
+          Apply for Job
+        </button>
+
+      </form>
+
+
+      <div
+        id="message"
+        class="message"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+
+      <div class="approval-info">
+
+        <strong>What happens after applying?</strong>
+
+        <br><br>
+
+        1. Your application is saved with
+        <strong>Applied</strong> status.
+
+        <br>
+
+        2. College approval is initially
+        <strong>Pending</strong>.
+
+        <br>
+
+        3. The Placement Cell reviews your application.
+
+        <br>
+
+        4. If approved, the recruiter can access your application
+        and student information.
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script src="../js/api.js"></script>
+
+<script>
+
+"use strict";
+
+
+function getStudentSession() {
+
+  try {
+
+    return JSON.parse(
+      sessionStorage.getItem("campuslink_session") || "null"
+    );
+
+  } catch (error) {
+
+    return null;
+
+  }
+
+}
+
+
+function getLoggedInStudentId() {
+  const session = getStudentSession();
+
+  if (!session || !session.token) {
+    return null;
+  }
+
+  if (String(session.role || "").toLowerCase() !== "student") {
+    return null;
+  }
+
+  const studentId = Number(
+    session.student_id ?? session.studentId
+  );
+
+  if (!Number.isSafeInteger(studentId) || studentId <= 0) {
+    return null;
+  }
+
+  return studentId;
+}
+
+const form =
+  document.getElementById("manualApplyForm");
+
+const submitButton =
+  document.getElementById("submitButton");
+
+const message =
+  document.getElementById("message");
+
+
+form.addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+
+  const studentId =
+    getLoggedInStudentId();
+
+
+  if (!studentId) {
+
+    message.className = "message error";
+
+    message.textContent =
+      "Please log in with your student account first.";
+
+    return;
+
+  }
+
+
+  const jobTitle =
+    document.getElementById("jobTitle")
+      .value.trim();
+
+  const company =
+    document.getElementById("company")
+      .value.trim();
+  const college =
+  document.getElementById("college")
+    .value.trim();
+
+  const jobUrl =
+    document.getElementById("jobUrl")
+      .value.trim();
+
+  const source =
+    document.getElementById("source")
+      .value;
+
+
+  if (
+    !jobTitle ||
+    !company ||
+    !jobUrl
+  ) {
+
+    message.className = "message error";
+
+    message.textContent =
+      "Please fill in all required fields.";
+
+    return;
+
+  }
+
+
+  submitButton.disabled = true;
+
+  submitButton.textContent =
+    "Submitting...";
+
+  message.className = "message";
+
+  message.textContent = "";
+
+
+  try {
+
+    const result =
+      await createJobApplication(
+        studentId,
+        {
+          job_title: jobTitle,
+          company: company,
+          college:college,
+          job_url: jobUrl,
+          source: source
+        }
+      );
+
+
+    message.className =
+      "message success";
+
+    message.innerHTML =
+      `
+        Application submitted successfully. 
+        Your application is now
+        <strong>Pending College Approval</strong>.
+      `;
+
+
+    form.reset();
+
+
+    console.log(
+      "Manual application created:",
+      result
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Manual application failed:",
+      error
+    );
+
+
+    message.className =
+      "message error";
+
+
+    const errorText =
+      String(error.message || "");
+
+
+    if (errorText.includes("409")) {
+
+      message.textContent =
+        "You have already applied for this job.";
+
+    } else {
+
+      message.textContent =
+        "Could not submit the application. Please try again.";
+
+    }
+
+  } finally {
+
+    submitButton.disabled = false;
+
+    submitButton.textContent =
+      "Apply for Job";
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>

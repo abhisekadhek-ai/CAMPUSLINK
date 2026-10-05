@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>College Approval — CampusLink</title>
+
+<link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+<div class="shell">
+
+  <!-- LEFT SIDEBAR -->
+  <nav class="nav">
+
+    <div class="brand">
+      Campus<span>Link</span>
+    </div>
+
+    <div class="nav-links">
+
+      <a href="dashboard.html">
+        Jobs & Candidates
+      </a>
+
+      <a class="active" href="college-approval.html">
+        College Approval
+      </a>
+
+    </div>
+
+    <div class="nav-footer">
+      Live data from your FastAPI backend
+    </div>
+
+  </nav>
+
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <div class="page-head">
+
+      <div>
+        <h1>College Approval</h1>
+
+        <p>
+          Review student job applications before recruiter processing.
+        </p>
+      </div>
+
+    </div>
+
+
+    <!-- ERROR MESSAGE -->
+    <div id="errorBox"></div>
+
+
+    <!-- APPROVAL PANEL -->
+    <div class="panel">
+
+      <div class="panel-title">
+        Student Applications
+      </div>
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Student ID</th>
+            <th>Student</th>
+            <th>Job</th>
+            <th>Company</th>
+            <th>Application Status</th>
+            <th>College Approval</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="applicationsBody">
+
+          <tr>
+            <td colspan="7" class="empty">
+              Loading applications...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script src="../js/api.js"></script>
+
+<script>
+
+function showError(err) {
+
+  document.getElementById("errorBox").innerHTML = `
+    <div class="alert">
+      ${escapeHtml(err.message || "Something went wrong")}
+    </div>
+  `;
+
+}
+
+
+function approvalBadge(status) {
+
+  if (status === "Approved") {
+
+    return `
+      <span class="badge" style="color:green;">
+        Approved
+      </span>
+    `;
+
+  }
+
+  if (status === "Rejected") {
+
+    return `
+      <span class="badge" style="color:red;">
+        Rejected
+      </span>
+    `;
+
+  }
+
+  return `
+    <span class="badge">
+      Pending
+    </span>
+  `;
+
+}
+
+
+function applicationRows(applications) {
+
+  if (!applications || applications.length === 0) {
+
+    return `
+      <tr>
+        <td colspan="7" class="empty">
+          No student applications found.
+        </td>
+      </tr>
+    `;
+
+  }
+
+
+  return applications.map(app => `
+
+    <tr>
+
+      <td class="mono">
+        ${app.student_id}
+      </td>
+
+      <td>
+        Student ${app.student_id}
+      </td>
+
+      <td>
+        <strong>
+          ${escapeHtml(app.job_title)}
+        </strong>
+      </td>
+
+      <td class="muted">
+        ${escapeHtml(app.company)}
+      </td>
+
+      <td>
+        <span class="badge">
+          ${escapeHtml(app.status)}
+        </span>
+      </td>
+
+      <td>
+        ${approvalBadge(app.college_approval)}
+      </td>
+
+      <td>
+
+        ${
+          app.college_approval === "Approved"
+
+          ? `
+            <span class="muted">
+              Approved ✓
+            </span>
+          `
+
+          : app.college_approval === "Rejected"
+
+          ? `
+            <span class="muted">
+              Rejected
+            </span>
+          `
+
+          : `
+            <button
+              class="secondary small"
+              onclick="approveApplication(${app.id}, this)">
+              Approve
+            </button>
+
+            <button
+              class="secondary small"
+              onclick="rejectApplication(${app.id}, this)">
+              Reject
+            </button>
+          `
+        }
+
+      </td>
+
+    </tr>
+
+  `).join("");
+
+}
+
+
+async function loadApplications() {
+
+  try {
+
+    /*
+      Get all student applications.
+
+      This uses the existing backend endpoint.
+    */
+
+    const students = await getStudents();
+
+    const applications = [];
+
+    /*
+      Load applications for each student.
+    */
+
+    for (const student of students) {
+
+      try {
+
+        const studentApplications =
+          await getJobApplications(student.id);
+
+        if (Array.isArray(studentApplications)) {
+
+          studentApplications.forEach(app => {
+
+            applications.push({
+              ...app,
+              student_name: student.name
+            });
+
+          });
+
+        }
+
+      } catch (err) {
+
+        console.error(
+          "Could not load applications for student",
+          student.id,
+          err
+        );
+
+      }
+
+    }
+
+
+    document.getElementById("applicationsBody").innerHTML =
+      applications.map(app => `
+
+        <tr>
+
+          <td class="mono">
+            ${app.student_id}
+          </td>
+
+          <td>
+            <strong>
+              ${escapeHtml(app.student_name || "Student")}
+            </strong>
+          </td>
+
+          <td>
+            ${escapeHtml(app.job_title)}
+          </td>
+
+          <td class="muted">
+            ${escapeHtml(app.company)}
+          </td>
+
+          <td>
+            <span class="badge">
+              ${escapeHtml(app.status)}
+            </span>
+          </td>
+
+          <td>
+            ${approvalBadge(app.college_approval)}
+          </td>
+
+          <td>
+
+            ${
+              app.college_approval === "Approved"
+
+              ? `
+                <span class="muted">
+                  Approved ✓
+                </span>
+              `
+
+              : app.college_approval === "Rejected"
+
+              ? `
+                <span class="muted">
+                  Rejected
+                </span>
+              `
+
+              : `
+                <button
+                  class="secondary small"
+                  onclick="approveApplication(${app.id}, this)">
+                  Approve
+                </button>
+
+                <button
+                  class="secondary small"
+                  onclick="rejectApplication(${app.id}, this)">
+                  Reject
+                </button>
+              `
+            }
+
+          </td>
+
+        </tr>
+
+      `).join("") || `
+
+        <tr>
+          <td colspan="7" class="empty">
+            No student applications found.
+          </td>
+        </tr>
+
+      `;
+
+  } catch (err) {
+
+    console.error(err);
+
+    showError(err);
+
+    document.getElementById("applicationsBody").innerHTML = `
+
+      <tr>
+        <td colspan="7" class="empty">
+          Could not load applications.
+        </td>
+      </tr>
+
+    `;
+
+  }
+
+}
+
+
+async function approveApplication(applicationId, button) {
+
+  try {
+
+    button.disabled = true;
+
+    button.textContent = "Approving...";
+
+
+    await apiPatch(
+      `/job-applications/${applicationId}/college-approval`,
+      {
+        college_approval: "Approved"
+      }
+    );
+
+
+    await loadApplications();
+
+  } catch (err) {
+
+    console.error(err);
+
+    showError(err);
+
+    button.disabled = false;
+
+    button.textContent = "Approve";
+
+  }
+
+}
+
+
+async function rejectApplication(applicationId, button) {
+
+  try {
+
+    button.disabled = true;
+
+    button.textContent = "Rejecting...";
+
+
+    await apiPatch(
+      `/job-applications/${applicationId}/college-approval`,
+      {
+        college_approval: "Rejected"
+      }
+    );
+
+
+    await loadApplications();
+
+  } catch (err) {
+
+    console.error(err);
+
+    showError(err);
+
+    button.disabled = false;
+
+    button.textContent = "Reject";
+
+  }
+
+}
+
+
+loadApplications();
+
+</script>
+
+
+<script src="../js/fx.js" defer></script>
+
+</body>
+</html>

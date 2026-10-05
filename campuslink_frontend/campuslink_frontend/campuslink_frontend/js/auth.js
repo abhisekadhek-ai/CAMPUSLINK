@@ -1,36 +1,113 @@
-// auth.js — keeps each visitor inside their own portal (student / recruiter / admin).
-//
-// The password check and the real access rules now live in the BACKEND
-// (POST /auth/login gives back a signed token, and every API route checks it).
-// This file only remembers who is logged in for this browser tab and sends
-// people who aren't logged in to the right login page.
 const AUTH_KEY = "campuslink_session";
 
-const ROLE_HOME = {
-  student:   "student/dashboard.html",
-  recruiter: "recruiter/dashboard.html",
-  admin:     "admin/dashboard.html",
-};
+
+/* =========================
+   GET LOGIN SESSION
+========================= */
 
 function getSession() {
-  try { return JSON.parse(sessionStorage.getItem(AUTH_KEY)); } catch (e) { return null; }
+
+    try {
+
+        const raw =
+            sessionStorage.getItem(AUTH_KEY);
+
+        if (!raw) {
+            return null;
+        }
+
+        return JSON.parse(raw);
+
+    } catch (error) {
+
+        console.error(
+            "Error reading CampusLink session:",
+            error
+        );
+
+        return null;
+    }
 }
+
+
+/* =========================
+   SAVE LOGIN SESSION
+========================= */
 
 function saveSession(session) {
-  sessionStorage.setItem(AUTH_KEY, JSON.stringify(session));
+
+    sessionStorage.setItem(
+        AUTH_KEY,
+        JSON.stringify(session)
+    );
 }
 
-// Call at the top of a dashboard. Returns the session, or sends the visitor to
-// the login page for that role (and hides the page so nothing flashes).
+
+/* =========================
+   ROLE HOME
+========================= */
+
+const ROLE_HOME = {
+
+    student:
+        "student/dashboard.html",
+
+    recruiter:
+        "recruiter/dashboard.html",
+
+    admin:
+        "admin/dashboard.html",
+
+    college: 
+        "college/dashboard.html"    
+
+};
+
+
+/* =========================
+   REQUIRE ROLE
+========================= */
+
 function requireRole(role) {
-  const s = getSession();
-  if (s && s.role === role && s.token) return s;
-  document.documentElement.style.visibility = "hidden";
-  location.replace("../login.html?role=" + role);
-  return null;
+
+    const session =
+        getSession();
+
+
+    if (
+        session &&
+        session.role === role &&
+        session.token
+    ) {
+
+        return session;
+
+    }
+
+
+    document.documentElement.style.visibility =
+        "hidden";
+
+
+    location.replace(
+        "../login.html?role=" + role
+    );
+
+
+    return null;
 }
+
+
+/* =========================
+   LOGOUT
+========================= */
 
 function logout() {
-  sessionStorage.removeItem(AUTH_KEY);
-  location.href = "../index.html";
+
+    sessionStorage.removeItem(
+        AUTH_KEY
+    );
+
+    location.href =
+        "../index.html";
 }

@@ -1,143 +1,1270 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Recruiter — CampusLink</title>
-<link rel="stylesheet" href="../css/style.css">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Recruiter — CampusLink</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/style.css"
+    >
+
+    <style>
+
+        /* =========================
+           RECRUITER INFORMATION
+        ========================== */
+
+        .recruiter-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 18px 20px;
+            border: 1px solid var(--border, #e5e7eb);
+            border-radius: 14px;
+            background: var(--card, #ffffff);
+        }
+
+        .recruiter-info h2 {
+            margin: 0 0 5px;
+        }
+
+        .recruiter-info p {
+            margin: 0;
+        }
+
+        .recruiter-id {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-top: 6px !important;
+        }
+
+        .company-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--indigo, #4f46e5);
+        }
+
+
+        /* =========================
+           OPEN ROLE CARD
+        ========================== */
+
+        #roleContainer {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .role-card {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+
+            border: 1px solid var(--border, #e5e7eb);
+            border-radius: 14px;
+            padding: 20px;
+            background: var(--card, #ffffff);
+            margin-bottom: 20px;
+        }
+
+        .role-card-header {
+            width: 100%;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .role-card-header > div:first-child {
+            min-width: 0;
+            flex: 1 1 240px;
+        }
+
+        .role-card-header .secondary {
+            flex: 0 0 auto;
+        }
+
+        .role-card h2 {
+            margin: 0 0 6px;
+            overflow-wrap: anywhere;
+        }
+
+        .role-company {
+            margin: 0;
+            opacity: 0.7;
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =========================
+           ROLE DETAILS
+        ========================== */
+
+        .role-grid {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-top: 20px;
+        }
+
+        .role-detail {
+            min-width: 0;
+            overflow: hidden;
+
+            padding: 14px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(0, 0, 0, 0.03);
+
+            box-sizing: border-box;
+        }
+
+        .role-detail-label {
+            display: block;
+
+            font-size: 12px;
+
+            opacity: 0.65;
+
+            margin-bottom: 5px;
+        }
+
+        .role-detail-value {
+            display: block;
+
+            min-width: 0;
+
+            font-weight: 600;
+
+            overflow-wrap: anywhere;
+
+            word-break: break-word;
+        }
+
+
+        /* =========================
+           EMPTY
+        ========================== */
+
+        .empty {
+            text-align: center;
+            padding: 30px !important;
+            opacity: 0.7;
+        }
+
+
+        /* =========================
+           RECRUITER SIDEBAR
+        ========================== */
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .nav-links {
+            flex-shrink: 0;
+        }
+
+        .nav-footer {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .backend-status {
+            margin-bottom: 14px;
+        }
+
+        .logout-btn {
+    width: 100%;
+    padding: 11px 14px;
+
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    text-align: left;
+
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+        .logout-btn:hover {
+            background:
+                rgba(255, 255, 255, 0.08);
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 800px) {
+
+            .role-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recruiter-info,
+            .role-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+
 </head>
+
+
 <body>
+
 <div class="shell">
-  <nav class="nav">
-    <div class="brand">Campus<span>Link</span></div>
-    <div class="nav-links">
-      
-      <a class="active" href="dashboard.html">Jobs & Candidates</a>
-      
-    </div>
-    <div class="nav-footer">Live data from your FastAPI backend</div>
-  </nav>
 
-  <main class="main">
-    <div class="page-head">
-      <div><h1>Open roles</h1><p>Select a role to see a ranked, explained candidate pool.</p></div>
-      <button onclick="document.getElementById('newJobPanel').scrollIntoView({behavior:'smooth'})">+ Post a role</button>
-    </div>
 
-    <div id="errorBox"></div>
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
 
-    <div class="panel">
-      <table>
-        <thead><tr><th>Role</th><th>Company</th><th>Required skills</th><th>Min CGPA</th><th>Branches</th><th></th></tr></thead>
-        <tbody id="jobsBody"></tbody>
-      </table>
-    </div>
+    <nav class="nav">
 
-    <div class="panel" id="candidatesPanel" style="display:none;">
-      <div class="panel-title">Candidates for <span id="jobTitleLabel" style="color:var(--indigo);"></span></div>
-      <table>
-        <thead><tr><th>Student</th><th>Match score</th><th>Status</th><th>Coverage</th><th>Explanation</th><th></th></tr></thead>
-        <tbody id="candidatesBody"></tbody>
-      </table>
-    </div>
+        <div class="brand">
+            Campus<span>Link</span>
+        </div>
 
-    <div class="panel" id="newJobPanel">
-      <div class="panel-title">Post a new role</div>
-      <form id="jobForm">
-        <label>Company</label>
-        <input name="company" required placeholder="e.g. NimbusCloud Technologies">
-        <label>Role title</label>
-        <input name="role" required placeholder="e.g. Backend Engineer">
-        <label>Required skills (comma-separated)</label>
-        <input name="required_skills" required placeholder="Python, AWS, Docker">
-        <label>Minimum CGPA</label>
-        <input name="min_cgpa" type="number" step="0.1" required value="7.0">
-        <label>Eligible branches (comma-separated)</label>
-        <input name="eligible_branches" required placeholder="CSE, IT, ECE">
-        <button type="submit">Post role & generate matches</button>
-      </form>
-    </div>
-  </main>
+
+        <div class="nav-links">
+
+            <a
+                class="active"
+                href="dashboard.html"
+            >
+                Jobs & Candidates
+            </a>
+
+
+            <a href="job-applicants.html">
+                Job Applicants
+            </a>
+
+
+            <a href="applicant-information.html">
+                Applicant Information
+            </a>
+
+        </div>
+
+
+        <!-- Bottom Sidebar -->
+        <div class="nav-footer">
+
+            <div class="backend-status">
+                Live data from your FastAPI backend
+            </div>
+
+            <button
+                id="logoutBtn"
+                class="logout-btn"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main">
+
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-head">
+
+            <div>
+
+                <h1>
+                    Recruiter Dashboard
+                </h1>
+
+                <p>
+                    Manage your company's
+                    candidates and recruitment process.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ERROR -->
+
+        <div id="errorBox"></div>
+
+
+        <!-- =========================
+             RECRUITER INFORMATION
+        ========================== -->
+
+        <div class="recruiter-info">
+
+            <div>
+
+                <h2 id="companyName">
+                    Loading company...
+                </h2>
+
+                <p id="recruiterRole">
+                    Loading role...
+                </p>
+
+                <p
+                    id="recruiterIdText"
+                    class="recruiter-id"
+                >
+                    Recruiter ID: -
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span
+                    id="companyBadge"
+                    class="company-badge"
+                >
+                    Recruiter
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             YOUR ROLE
+        ========================== -->
+
+        <div class="panel">
+
+            <div class="panel-title">
+                Your Open Role
+            </div>
+
+
+            <div id="roleContainer">
+
+                <div class="empty">
+                    Loading your recruiter profile...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             CANDIDATES
+        ========================== -->
+
+        <div
+            class="panel"
+            id="candidatesPanel"
+            style="display:none;"
+        >
+
+            <div class="panel-title">
+
+                Candidates for
+
+                <span
+                    id="jobTitleLabel"
+                    style="color:var(--indigo);"
+                ></span>
+
+            </div>
+
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Student
+                        </th>
+
+                        <th>
+                            Match score
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Coverage
+                        </th>
+
+                        <th>
+                            Explanation
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    id="candidatesBody"
+                ></tbody>
+
+            </table>
+
+        </div>
+
+
+    </main>
+
 </div>
 
+
+<!-- =========================
+     API
+========================== -->
+
 <script src="../js/api.js"></script>
+
+
+<!-- =========================
+     AUTH
+========================== -->
+
+<script src="../js/auth.js"></script>
+
+
 <script>
-let currentRecruiterId = null;
 
-function showError(err) {
-  document.getElementById("errorBox").innerHTML =
-    `<div class="alert">Couldn't reach the backend: ${escapeHtml(err.message)}. Make sure "uvicorn main:app --reload" is running.</div>`;
+/* =========================
+   LOGIN SESSION
+========================= */
+
+const recruiterSession =
+    getSession();
+
+
+console.log(
+    "Logged-in recruiter session:",
+    recruiterSession
+);
+
+
+/* =========================
+   CHECK LOGIN
+========================= */
+
+if (
+    !recruiterSession ||
+    recruiterSession.role !== "recruiter" ||
+    !recruiterSession.token
+) {
+
+    document.documentElement.style.visibility =
+        "hidden";
+
+    location.replace(
+        "../login.html?role=recruiter"
+    );
+
 }
 
-async function loadJobs() {
-  try {
-    const recruiters = await getRecruiters();
-    document.getElementById("jobsBody").innerHTML = recruiters.map(r => `
-      <tr>
-        <td><strong>${escapeHtml(r.role)}</strong></td>
-        <td class="muted">${escapeHtml(r.company)}</td>
-        <td>${csv(r.required_skills)}</td>
-        <td class="mono">${r.min_cgpa}</td>
-        <td class="muted">${r.eligible_branches.join(", ")}</td>
-        <td><button class="secondary small" onclick="viewCandidates(${r.id}, '${escapeHtml(r.role)}')">View candidates</button></td>
-      </tr>
-    `).join("") || `<tr><td colspan="6" class="empty">No roles posted yet — post one below.</td></tr>`;
-  } catch (err) {
-    showError(err);
-  }
+
+/* =========================
+   CURRENT RECRUITER ID
+========================= */
+
+let currentRecruiterId =
+
+    recruiterSession
+    &&
+    recruiterSession.recruiter_id
+        ? Number(
+            recruiterSession.recruiter_id
+        )
+        : null;
+
+
+console.log(
+    "Logged-in recruiter ID:",
+    currentRecruiterId
+);
+
+
+/* =========================
+   ERROR
+========================= */
+
+function showError(error) {
+
+    console.error(
+        "Recruiter dashboard error:",
+        error
+    );
+
+
+    document.getElementById(
+        "errorBox"
+    ).innerHTML =
+
+        `
+        <div class="alert">
+
+            ${escapeHtml(
+                error &&
+                error.message
+                    ? error.message
+                    : "Something went wrong."
+            )}
+
+        </div>
+        `;
+
 }
 
-async function viewCandidates(recruiterId, title) {
-  currentRecruiterId = recruiterId;
-  const candidates = await getCandidates(recruiterId);
-  document.getElementById("candidatesPanel").style.display = "block";
-  document.getElementById("jobTitleLabel").textContent = title;
-  document.getElementById("candidatesBody").innerHTML = candidates.map(c => `
-    <tr>
-      <td><strong>${escapeHtml(c.student_name)}</strong></td>
-      <td class="mono">${c.match_score}</td>
-      <td><span class="badge ${badgeClass(c.status)}">${c.status}</span></td>
-      <td>${c.coverage_percent}%</td>
-      <td class="muted" style="max-width:280px;">${escapeHtml(c.explanation)}</td>
-      <td>
-        ${c.status === "Shortlisted"
-          ? `<button class="secondary small" onclick="doShortlist(${c.student_id}, this)">Shortlist</button>`
-          : `<span class="muted" style="font-size:12px;">not eligible</span>`}
-      </td>
-    </tr>
-  `).join("");
-  document.getElementById("candidatesPanel").scrollIntoView({behavior:"smooth"});
+
+/* =========================
+   LOAD RECRUITER
+========================= */
+
+async function loadRecruiter() {
+
+    if (!currentRecruiterId) {
+
+        throw new Error(
+            "Recruiter ID is missing from your login session. Please log out and log in again."
+        );
+
+    }
+
+
+    /*
+     * Get recruiter records from
+     * existing backend API.
+     *
+     * Then select ONLY the logged-in
+     * recruiter's record.
+     */
+
+    const recruiters =
+        await getRecruiters();
+
+
+    const recruiter =
+        recruiters.find(
+            r =>
+                Number(r.id) ===
+                Number(currentRecruiterId)
+        );
+
+
+    if (!recruiter) {
+
+        throw new Error(
+            "Recruiter profile not found."
+        );
+
+    }
+
+
+    /*
+     * Display company.
+     */
+
+    document.getElementById(
+        "companyName"
+    ).textContent =
+
+        recruiter.company ||
+        "Company";
+
+
+    /*
+     * Display role.
+     */
+
+    document.getElementById(
+        "recruiterRole"
+    ).textContent =
+
+        recruiter.role ||
+        "Recruiter";
+
+
+    /*
+     * Display recruiter ID.
+     */
+
+    document.getElementById(
+        "recruiterIdText"
+    ).textContent =
+
+        "Recruiter ID: " +
+        recruiter.id;
+
+
+    /*
+     * Display company badge.
+     */
+
+    document.getElementById(
+        "companyBadge"
+    ).textContent =
+
+        recruiter.company ||
+        "Recruiter";
+
+
+    /*
+     * Display role card.
+     */
+
+    renderRole(recruiter);
+
 }
 
-async function doShortlist(studentId, btn) {
-  btn.disabled = true;
-  btn.textContent = "Notifying…";
-  await shortlistStudent(currentRecruiterId, studentId);
-  btn.textContent = "Notified ✓";
+
+/* =========================
+   RENDER ROLE
+========================= */
+
+function renderRole(recruiter) {
+
+    const container =
+        document.getElementById(
+            "roleContainer"
+        );
+
+
+    const skills =
+
+        Array.isArray(
+            recruiter.required_skills
+        )
+            ? recruiter.required_skills
+            : [];
+
+
+    const branches =
+
+        Array.isArray(
+            recruiter.eligible_branches
+        )
+            ? recruiter.eligible_branches
+            : [];
+
+
+    container.innerHTML =
+
+        `
+        <div class="role-card">
+
+            <div class="role-card-header">
+
+                <div>
+
+                    <h2>
+
+                        ${escapeHtml(
+                            recruiter.role ||
+                            "Open Role"
+                        )}
+
+                    </h2>
+
+
+                    <p class="role-company">
+
+                        ${escapeHtml(
+                            recruiter.company ||
+                            ""
+                        )}
+
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="secondary small"
+                    onclick="viewCandidates(
+                        ${Number(recruiter.id)},
+                        '${escapeHtml(
+                            recruiter.role ||
+                            "Open Role"
+                        )}'
+                    )"
+                >
+                    View Candidates
+                </button>
+
+            </div>
+
+
+            <div class="role-grid">
+
+                <div class="role-detail">
+
+                    <span
+                        class="role-detail-label"
+                    >
+                        Required Skills
+                    </span>
+
+
+                    <span
+                        class="role-detail-value"
+                    >
+
+                        ${
+                            skills.length
+                                ? csv(skills)
+                                : "Not specified"
+                        }
+
+                    </span>
+
+                </div>
+
+
+                <div class="role-detail">
+
+                    <span
+                        class="role-detail-label"
+                    >
+                        Minimum CGPA
+                    </span>
+
+
+                    <span
+                        class="role-detail-value"
+                    >
+
+                        ${
+                            recruiter.min_cgpa ??
+                            "-"
+                        }
+
+                    </span>
+
+                </div>
+
+
+                <div class="role-detail">
+
+                    <span
+                        class="role-detail-label"
+                    >
+                        Eligible Branches
+                    </span>
+
+
+                    <span
+                        class="role-detail-value"
+                    >
+
+                        ${
+                            branches.length
+                                ? branches
+                                    .map(
+                                        b =>
+                                            escapeHtml(b)
+                                    )
+                                    .join(", ")
+                                : "All branches"
+                        }
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+        `;
+
 }
 
-document.getElementById("jobForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const f = new FormData(e.target);
-  const body = {
-    company: f.get("company"),
-    role: f.get("role"),
-    required_skills: f.get("required_skills").split(",").map(s => s.trim()).filter(Boolean),
-    min_cgpa: parseFloat(f.get("min_cgpa")),
-    eligible_branches: f.get("eligible_branches").split(",").map(s => s.trim()).filter(Boolean),
-  };
-  try {
-    const recruiter = await createRecruiter(body);
-    e.target.reset();
-    await loadJobs();
-    viewCandidates(recruiter.id, recruiter.role);
-  } catch (err) {
-    showError(err);
-  }
-});
 
-loadJobs();
+/* =========================
+   VIEW CANDIDATES
+========================= */
+
+async function viewCandidates(
+    recruiterId,
+    title
+) {
+
+    try {
+
+        /*
+         * Do not allow the dashboard
+         * to request another recruiter's
+         * candidate list.
+         */
+
+        if (
+            Number(recruiterId) !==
+            Number(currentRecruiterId)
+        ) {
+
+            throw new Error(
+                "You can only access your own recruiter profile."
+            );
+
+        }
+
+
+        currentRecruiterId =
+            Number(recruiterId);
+
+
+        /*
+         * Backend checks:
+         *
+         * recruiter token
+         * recruiter_id
+         * company
+         * college approval
+         */
+
+        const candidates =
+            await getCandidates(
+                currentRecruiterId
+            );
+
+
+        document.getElementById(
+            "candidatesPanel"
+        ).style.display =
+            "block";
+
+
+        document.getElementById(
+            "jobTitleLabel"
+        ).textContent =
+            title;
+
+
+        const body =
+            document.getElementById(
+                "candidatesBody"
+            );
+
+
+        if (
+            !candidates ||
+            candidates.length === 0
+        ) {
+
+            body.innerHTML =
+
+                `
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="empty"
+                    >
+
+                        No approved candidates
+                        are available for
+                        this company yet.
+
+                    </td>
+
+                </tr>
+                `;
+
+        } else {
+
+            body.innerHTML =
+
+                candidates.map(
+                    candidate => `
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+
+                                ${escapeHtml(
+                                    candidate.student_name ||
+                                    "Unknown Student"
+                                )}
+
+                            </strong>
+
+
+                            <br>
+
+
+                            <span
+                                class="muted"
+                                style="font-size:12px;"
+                            >
+
+                                Student ID:
+                                ${escapeHtml(
+                                    String(
+                                        candidate.student_id ??
+                                        "-"
+                                    )
+                                )}
+
+                            </span>
+
+                        </td>
+
+
+                        <td class="mono">
+
+                            ${
+                                candidate.match_score ??
+                                "-"
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="badge ${badgeClass(
+                                    candidate.status
+                                )}"
+                            >
+
+                                ${escapeHtml(
+                                    candidate.status ||
+                                    "Unknown"
+                                )}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                candidate.coverage_percent ??
+                                0
+                            }%
+
+                        </td>
+
+
+                        <td
+                            class="muted"
+                            style="max-width:280px;"
+                        >
+
+                            ${escapeHtml(
+                                candidate.explanation ||
+                                "No explanation available."
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                candidate.status ===
+                                "Shortlisted"
+
+                                ?
+
+                                `
+                                <button
+                                    class="secondary small"
+                                    onclick="doShortlist(
+                                        ${Number(
+                                            candidate.student_id
+                                        )},
+                                        this
+                                    )"
+                                >
+
+                                    Shortlist
+
+                                </button>
+                                `
+
+                                :
+
+                                `
+                                <span
+                                    class="muted"
+                                    style="font-size:12px;"
+                                >
+
+                                    Not eligible
+
+                                </span>
+                                `
+                            }
+
+                        </td>
+
+
+                    </tr>
+
+                    `
+                ).join("");
+
+        }
+
+
+        document.getElementById(
+            "candidatesPanel"
+        ).scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    } catch (error) {
+
+        showError(error);
+
+    }
+
+}
+
+
+/* =========================
+   SHORTLIST
+========================= */
+
+async function doShortlist(
+    studentId,
+    button
+) {
+
+    try {
+
+        if (!currentRecruiterId) {
+
+            throw new Error(
+                "Recruiter ID is missing."
+            );
+
+        }
+
+
+        button.disabled =
+            true;
+
+
+        button.textContent =
+            "Shortlisting...";
+
+
+        /*
+         * Existing backend endpoint:
+         *
+         * POST
+         * /recruiters/{recruiter_id}
+         * /shortlist/{student_id}
+         */
+
+        const result =
+            await shortlistStudent(
+                currentRecruiterId,
+                studentId
+            );
+
+
+        console.log(
+            "Shortlist result:",
+            result
+        );
+
+
+        button.textContent =
+            "Shortlisted ✓";
+
+
+        /*
+         * Reload candidates.
+         */
+
+        setTimeout(
+            async function () {
+
+                try {
+
+                    await viewCandidates(
+                        currentRecruiterId,
+                        document.getElementById(
+                            "jobTitleLabel"
+                        ).textContent
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Candidate reload failed:",
+                        error
+                    );
+
+                }
+
+            },
+            500
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Shortlist failed:",
+            error
+        );
+
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            "Shortlist";
+
+
+        showError(error);
+
+    }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+const logoutButton =
+    document.getElementById(
+        "logoutBtn"
+    );
+
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        logout
+    );
+
+}
+
+
+/* =========================
+   INITIAL LOAD
+========================= */
+
+async function initRecruiterDashboard() {
+
+    try {
+
+        if (!currentRecruiterId) {
+
+            throw new Error(
+                "Your recruiter account is not linked to a recruiter profile. Please log out and log in again."
+            );
+
+        }
+
+
+        await loadRecruiter();
+
+
+    } catch (error) {
+
+        showError(error);
+
+    }
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+initRecruiterDashboard();
+
 </script>
-<script src="../js/fx.js" defer></script>
+
+
+<!-- EFFECTS -->
+
+<script
+    src="../js/fx.js"
+    defer
+></script>
+
+
 </body>
+
 </html>
