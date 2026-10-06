@@ -107,10 +107,79 @@
     padding-bottom: 8px;
   }
 
-  .progress-step {
-    flex-shrink: 0;
-  }
+.btn-sm-apply {
+  padding: 6px 14px;
+  background: #16a34a;
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
 }
+.btn-sm-apply:hover {
+  background: #15803d;
+}
+.cell-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cell-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.cell-badge.approved {
+  background: #dcfce7;
+  color: #166534;
+}
+.cell-badge.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Modal styles */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal-card {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 520px;
+  padding: 26px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.modal-card h2 { margin: 0 0 8px; font-size: 20px; }
+.modal-card p { margin: 0 0 16px; font-size: 13.5px; color: #6b7280; line-height: 1.5; }
+.modal-form-group { margin-bottom: 14px; }
+.modal-form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+.modal-form-group input, .modal-form-group select {
+  width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box;
+}
+.modal-notice {
+  background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 8px; font-size: 12.5px; line-height: 1.5; margin-bottom: 16px;
+}
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.modal-btn-cancel { padding: 9px 15px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; cursor: pointer; }
+.modal-btn-submit { padding: 9px 18px; border: 0; border-radius: 8px; background: #2463eb; color: #fff; font-weight: 600; cursor: pointer; }
+.modal-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>
 </head>
 
@@ -132,17 +201,18 @@
       <a class="active" href="dashboard.html">
         Readiness &amp; Matches
       </a>
-
-      <!-- NEW OPTION -->
       <a href="jobs.html">
         Job Portal
       </a>
       <a href="ai-assistant.html">
-    AI Assistant
-</a>
-<a href="manual-apply.html">
-  Apply job
-</a>
+        AI Assistant
+      </a>
+      <a href="manual-apply.html">
+        Apply job
+      </a>
+      <a href="resume.html">
+        Student Resume
+      </a>
     </div>
 
     <div class="nav-footer">
@@ -319,12 +389,92 @@
             <th>Status</th>
             <th>Skill gap</th>
             <th>Why</th>
+            <th>Action</th>
           </tr>
         </thead>
 
         <tbody id="matchesBody"></tbody>
       </table>
 
+    </div>
+
+    <!-- MY APPLICATIONS & PLACEMENT STATUS -->
+    <div class="panel" id="myApplicationsPanel">
+      <div class="panel-title">
+        <span>
+          My Job Applications &amp; Placement Approvals
+          <span class="ai-chip">CELL ROUTING</span>
+        </span>
+        <span class="muted" style="font-size:12.5px;font-weight:400;">
+          real-time placement cell tracking
+        </span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>App ID</th>
+              <th>Job Role &amp; Company</th>
+              <th>College Placement Cell</th>
+              <th>Applied Date</th>
+              <th>College Placement Decision</th>
+              <th>Recruiter Status</th>
+            </tr>
+          </thead>
+          <tbody id="myApplicationsBody">
+            <tr>
+              <td colspan="6" class="empty">Loading your applications...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- APPLY JOB MODAL -->
+    <div id="applyModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <h2 id="modalTitle">Apply for Matched Job</h2>
+        <p>
+          Submit your application to your <strong>College Placement Cell</strong>.
+          Once accepted by the placement cell, your application will be forwarded directly to the recruiter.
+        </p>
+
+        <form id="applyJobModalForm">
+          <div class="modal-form-group">
+            <label for="modalJobTitle">Job Role</label>
+            <input type="text" id="modalJobTitle" required readonly>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="modalCompany">Company</label>
+            <input type="text" id="modalCompany" required readonly>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="modalCollege">College Placement Cell</label>
+            <select id="modalCollege" required>
+              <option value="">Select your College Placement Cell</option>
+            </select>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="modalJobUrl">Job Link</label>
+            <input type="url" id="modalJobUrl" required readonly>
+          </div>
+
+          <div class="modal-notice">
+            📌 <strong>Placement Routing:</strong> When you submit, your application is stored in the <strong>College Placement Cell</strong> with <strong>Pending Approval</strong> status. Once approved by the placement cell, it will go to the recruiter.
+          </div>
+
+          <div id="modalMessage" class="message" style="display:none;margin-bottom:12px;"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="closeDashboardApplyModal()">Cancel</button>
+            <button type="submit" class="modal-btn-submit" id="modalSubmitBtn">Submit to Placement Cell</button>
+          </div>
+        </form>
+      </div>
     </div>
 
   </main>
@@ -338,16 +488,18 @@
 async function init() {
   try {
     // Get the logged-in student's session.
-    const session = JSON.parse(
+    const session = (typeof getSession === "function" ? getSession() : null) || JSON.parse(
       sessionStorage.getItem("campuslink_session") || "null"
     );
 
-    if (!session || !session.studentId) {
+    const studentId = session && (session.studentId ?? session.student_id);
+
+    if (!session || !studentId) {
       throw new Error("Please log in again as a student.");
     }
 
     // Fetch only this student's data.
-    const student = await getStudent(session.studentId);
+    const student = await getStudent(studentId);
 
     const sel = document.getElementById("studentSelect");
 
@@ -562,14 +714,292 @@ async function loadAiMatches(id) {
   }
 }
 
+let myApplicationsList = [];
+let availableDashboardColleges = [];
+let currentLoadedStudentId = null;
+
+async function loadDashboardColleges() {
+  try {
+    const colleges = await getColleges();
+    if (Array.isArray(colleges)) {
+      availableDashboardColleges = colleges;
+      const select = document.getElementById("modalCollege");
+      select.innerHTML = '<option value="">Select your College Placement Cell</option>';
+      colleges.forEach(col => {
+        const opt = document.createElement("option");
+        opt.value = col.id;
+        opt.textContent = `${col.college_name} (${col.college_code})`;
+        select.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    console.error("Could not load colleges for dashboard:", err);
+  }
+}
+
+async function loadMyJobApplications(studentId) {
+  const tbody = document.getElementById("myApplicationsBody");
+  try {
+    const apps = await getJobApplications(studentId);
+    myApplicationsList = Array.isArray(apps) ? apps : [];
+
+    if (!myApplicationsList.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty">
+            No job applications recorded yet. Click <strong>Apply Job</strong> in Matched Roles below or explore the <a href="jobs.html">Job Portal</a>.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = myApplicationsList.map(app => {
+      const approval = app.college_approval || "Pending";
+      let approvalBadge = "";
+      if (approval === "Approved") {
+        approvalBadge = `<span class="cell-badge approved">✅ Approved by College (Sent to Recruiter)</span>`;
+      } else if (approval === "Rejected") {
+        approvalBadge = `<span class="cell-badge rejected">❌ Rejected by College</span>`;
+      } else {
+        approvalBadge = `<span class="cell-badge pending">⏳ Pending College Approval</span>`;
+      }
+
+      let recruiterStatusBadge = "";
+      const status = app.status || "Applied";
+      if (approval !== "Approved") {
+        recruiterStatusBadge = `<span class="muted" style="font-size:12px;">Waiting for College Approval</span>`;
+      } else if (status === "Selected") {
+        recruiterStatusBadge = `<span class="badge ready">🎉 Selected / Offer</span>`;
+      } else if (status === "Interview") {
+        recruiterStatusBadge = `<span class="badge developing">Interview</span>`;
+      } else if (status === "Under Review") {
+        recruiterStatusBadge = `<span class="badge" style="background:#e0e7ff;color:#3730a3;">Under Review</span>`;
+      } else if (status === "Rejected") {
+        recruiterStatusBadge = `<span class="badge notready">Rejected</span>`;
+      } else {
+        recruiterStatusBadge = `<span class="badge">Applied</span>`;
+      }
+
+      const dateStr = app.applied_at ? new Date(app.applied_at).toLocaleDateString() : "—";
+
+      return `
+        <tr>
+          <td class="mono">#${escapeHtml(app.id)}</td>
+          <td>
+            <strong>${escapeHtml(app.job_title)}</strong>
+            <div class="muted" style="font-size:12px;">${escapeHtml(app.company)}</div>
+          </td>
+          <td>${escapeHtml(app.college || "Placement Cell")}</td>
+          <td>${escapeHtml(dateStr)}</td>
+          <td>${approvalBadge}</td>
+          <td>${recruiterStatusBadge}</td>
+        </tr>
+      `;
+    }).join("");
+
+  } catch (err) {
+    console.error("Could not load student applications:", err);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="alert">Could not load job applications: ${escapeHtml(err.message)}</td>
+      </tr>
+    `;
+  }
+}
+
+function openDashboardApplyModal(role, company) {
+  if (!currentLoadedStudentId) {
+    alert("Please log in as a student.");
+    return;
+  }
+
+  const session = JSON.parse(sessionStorage.getItem("campuslink_session") || "null");
+
+  document.getElementById("modalJobTitle").value = role;
+  document.getElementById("modalCompany").value = company;
+  document.getElementById("modalJobUrl").value = `https://campuslink.local/jobs/${currentLoadedStudentId}/${Date.now()}`;
+
+  const collegeSelect = document.getElementById("modalCollege");
+  if (session && session.college_id) {
+    collegeSelect.value = String(session.college_id);
+  } else if (availableDashboardColleges.length > 0 && !collegeSelect.value) {
+    collegeSelect.value = String(availableDashboardColleges[0].id);
+  }
+
+  const msgBox = document.getElementById("modalMessage");
+  msgBox.style.display = "none";
+  msgBox.textContent = "";
+
+  const submitBtn = document.getElementById("modalSubmitBtn");
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Submit to Placement Cell";
+
+  document.getElementById("applyModal").classList.add("active");
+}
+
+function closeDashboardApplyModal() {
+  document.getElementById("applyModal").classList.remove("active");
+}
+
+document.getElementById("applyJobModalForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  if (!currentLoadedStudentId) return;
+
+  const jobTitle = document.getElementById("modalJobTitle").value.trim();
+  const company = document.getElementById("modalCompany").value.trim();
+  const college = document.getElementById("modalCollege").value.trim();
+  const jobUrl = document.getElementById("modalJobUrl").value.trim();
+
+  const msgBox = document.getElementById("modalMessage");
+  const submitBtn = document.getElementById("modalSubmitBtn");
+
+  if (!jobTitle || !company || !college) {
+    msgBox.style.display = "block";
+    msgBox.className = "message error";
+    msgBox.textContent = "Please select your College Placement Cell.";
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting to Placement Cell...";
+
+  try {
+    await createJobApplication(currentLoadedStudentId, {
+      job_title: jobTitle,
+      company: company,
+      college: college,
+      job_url: jobUrl,
+      source: "Matched Roles"
+    });
+
+    msgBox.style.display = "block";
+    msgBox.className = "message success";
+    msgBox.innerHTML = `<strong>Application Stored!</strong> Sent to your College Placement Cell for review.`;
+
+    // Refresh applications and matched table
+    await loadPlacementProgress(currentLoadedStudentId);
+    await loadMyJobApplications(currentLoadedStudentId);
+    await refreshMatchedRoles(currentLoadedStudentId);
+
+    setTimeout(() => {
+      closeDashboardApplyModal();
+    }, 1400);
+
+  } catch (err) {
+    console.error("Dashboard apply error:", err);
+    msgBox.style.display = "block";
+    msgBox.className = "message error";
+    const msg = String(err.message || "");
+    if (msg.includes("409")) {
+      msgBox.textContent = "You have already applied for this job.";
+    } else {
+      msgBox.textContent = "Could not submit application. " + msg;
+    }
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit to Placement Cell";
+  }
+});
+
+// Close modal when clicking outside
+document.getElementById("applyModal").addEventListener("click", function(e) {
+  if (e.target === this) {
+    closeDashboardApplyModal();
+  }
+});
+
+async function refreshMatchedRoles(id) {
+  const matches = await getStudentMatches(id);
+
+  document.getElementById("matchesBody").innerHTML =
+    matches.map(m => {
+      const missingSkills = Array.isArray(m.missing_skills) ? m.missing_skills : [];
+      const normRole = (m.role || "").trim().toLowerCase();
+      const normComp = (m.company || "").trim().toLowerCase();
+
+      const existingApp = myApplicationsList.find(app =>
+        (app.job_title || "").trim().toLowerCase() === normRole &&
+        (app.company || "").trim().toLowerCase() === normComp
+      );
+
+      let actionMarkup = "";
+      if (existingApp) {
+        const approval = existingApp.college_approval || "Pending";
+        if (approval === "Approved") {
+          actionMarkup = `<span class="cell-badge approved">✅ Approved</span>`;
+        } else if (approval === "Rejected") {
+          actionMarkup = `<span class="cell-badge rejected">❌ Rejected</span>`;
+        } else {
+          actionMarkup = `<span class="cell-badge pending">⏳ Pending Cell</span>`;
+        }
+      } else {
+        actionMarkup = `
+          <button
+            type="button"
+            class="btn-sm-apply"
+            onclick="openDashboardApplyModal('${escapeHtml(m.role).replace(/'/g, "\\'")}', '${escapeHtml(m.company).replace(/'/g, "\\'")}')"
+          >
+            Apply Job
+          </button>
+        `;
+      }
+
+      return `
+        <tr>
+          <td>
+            <strong>${escapeHtml(m.role || "Role")}</strong>
+            <div class="muted" style="font-size:12px;">
+              ${escapeHtml(m.company || "")}
+            </div>
+          </td>
+
+          <td class="mono">${escapeHtml(m.match_score ?? 0)}</td>
+
+          <td>
+            <span class="badge ${badgeClass(m.status)}">
+              ${escapeHtml(m.status || "Unknown")}
+            </span>
+          </td>
+
+          <td>
+            ${
+              missingSkills.length
+                ? missingSkills.map(sk =>
+                    `<span class="tag missing">${escapeHtml(sk)}</span>`
+                  ).join("")
+                : '<span class="muted">none</span>'
+            }
+          </td>
+
+          <td class="muted" style="max-width:280px;">
+            ${escapeHtml(m.explanation || "")}
+          </td>
+
+          <td>
+            ${actionMarkup}
+          </td>
+        </tr>
+      `;
+    }).join("") ||
+    `
+      <tr>
+        <td colspan="6" class="empty">No roles posted yet.</td>
+      </tr>
+    `;
+}
+
 async function loadStudent(id) {
+  currentLoadedStudentId = id;
   try {
     const s = await getStudent(id);
 
     document.getElementById("studentName").textContent = s.name;
 
     document.getElementById("studentMeta").textContent =
-      `${s.branch} · CGPA ${s.cgpa} · ${s.backlogs} backlog(s)`;
+      `${s.branch} · CGPA ${s.cgpa} · ${s.backlogs} backlog(s)` +
+      (s.college_name ? ` · College: ${s.college_name}` : "");
 
     // Readiness score.
     const r = await getReadiness(id);
@@ -637,62 +1067,34 @@ async function loadStudent(id) {
           <td class="muted">Mock interview</td>
           <td>${escapeHtml(s.mock_interview_score ?? "—")}/100</td>
         </tr>
+
+        <tr>
+          <td class="muted">College</td>
+          <td><strong>${escapeHtml(s.college_name || "Assigned on Apply")}</strong></td>
+        </tr>
+
+        <tr>
+          <td class="muted">Resume</td>
+          <td>
+            ${
+              s.resume_url
+                ? `<a href="${escapeHtml(s.resume_url)}" target="_blank" rel="noopener" style="color:#16a34a;font-weight:700;text-decoration:none;">📄 View Resume ↗</a> <span class="muted" style="font-size:12px;">(<a href="resume.html" style="color:var(--indigo);">Update</a>)</span>`
+                : `<span class="muted">Not uploaded — </span><a href="resume.html" style="color:var(--indigo);font-weight:600;">Upload Resume &rarr;</a>`
+            }
+          </td>
+        </tr>
       </table>
     `;
 
-    // Load placement progress.
-await loadPlacementProgress(id);
+    // Load placement progress & my applications
+    await loadPlacementProgress(id);
+    await loadMyJobApplications(id);
 
-// Load AI recommendations.
-loadAiMatches(id);
+    // Load AI recommendations.
+    loadAiMatches(id);
 
-    // Load matched roles.
-    const matches = await getStudentMatches(id);
-
-    document.getElementById("matchesBody").innerHTML =
-      matches.map(m => {
-        const missingSkills = Array.isArray(m.missing_skills)
-          ? m.missing_skills
-          : [];
-
-        return `
-          <tr>
-            <td>
-              <strong>${escapeHtml(m.role || "Role")}</strong>
-              <div class="muted" style="font-size:12px;">
-                ${escapeHtml(m.company || "")}
-              </div>
-            </td>
-
-            <td class="mono">${escapeHtml(m.match_score ?? 0)}</td>
-
-            <td>
-              <span class="badge ${badgeClass(m.status)}">
-                ${escapeHtml(m.status || "Unknown")}
-              </span>
-            </td>
-
-            <td>
-              ${
-                missingSkills.length
-                  ? missingSkills.map(sk =>
-                      `<span class="tag missing">${escapeHtml(sk)}</span>`
-                    ).join("")
-                  : '<span class="muted">none</span>'
-              }
-            </td>
-
-            <td class="muted" style="max-width:280px;">
-              ${escapeHtml(m.explanation || "")}
-            </td>
-          </tr>
-        `;
-      }).join("") ||
-      `
-        <tr>
-          <td colspan="5" class="empty">No roles posted yet.</td>
-        </tr>
-      `;
+    // Load matched roles with Apply button.
+    await refreshMatchedRoles(id);
 
   } catch (err) {
     showError(err);
@@ -700,7 +1102,10 @@ loadAiMatches(id);
 }
 
 // Start the dashboard.
-init();
+(async () => {
+  await loadDashboardColleges();
+  await init();
+})();
 </script>
 
 <script src="../js/fx.js" defer></script>

@@ -243,6 +243,35 @@
             background: #b91c1c;
         }
 
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-tab:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-tab.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
         .loading {
             text-align: center;
             padding: 30px;
@@ -325,12 +354,11 @@
         <section class="welcome">
 
             <h1>
-                College Placement Dashboard
+                College Placement Cell Dashboard
             </h1>
 
             <p>
-                Manage your college students and
-                placement approvals.
+                Review and approve student job applications. When you accept/approve an application, it is automatically forwarded to the company recruiter.
             </p>
 
         </section>
@@ -343,7 +371,7 @@
             <div class="card">
 
                 <div class="card-title">
-                    Total Students
+                    Total Applications
                 </div>
 
                 <div
@@ -358,7 +386,7 @@
             <div class="card">
 
                 <div class="card-title">
-                    Pending Approval
+                    Pending Cell Review
                 </div>
 
                 <div
@@ -373,7 +401,7 @@
             <div class="card">
 
                 <div class="card-title">
-                    Approved
+                    Approved (Sent to Recruiter)
                 </div>
 
                 <div
@@ -388,7 +416,7 @@
             <div class="card">
 
                 <div class="card-title">
-                    Rejected
+                    Rejected Applications
                 </div>
 
                 <div
@@ -402,15 +430,18 @@
         </section>
 
 
-        <!-- STUDENTS -->
+        <!-- JOB APPLICATIONS -->
 
         <section class="students-section">
 
             <div class="section-header">
 
-                <h2>
-                    Students
-                </h2>
+                <div>
+                    <h2>Job Applications for Placement Review</h2>
+                    <p class="muted" style="margin:4px 0 0;font-size:13px;">
+                        Manage approvals for student job applications. Accepted applications route directly to company recruiters.
+                    </p>
+                </div>
 
                 <button
                     class="refresh-btn"
@@ -418,6 +449,14 @@
                     Refresh
                 </button>
 
+            </div>
+
+            <!-- FILTER TABS -->
+            <div class="filter-tabs">
+                <button type="button" class="filter-tab active" data-filter="all" onclick="filterApplications('all')">All Applications</button>
+                <button type="button" class="filter-tab" data-filter="Pending" onclick="filterApplications('Pending')">Pending Review</button>
+                <button type="button" class="filter-tab" data-filter="Approved" onclick="filterApplications('Approved')">Approved (Forwarded)</button>
+                <button type="button" class="filter-tab" data-filter="Rejected" onclick="filterApplications('Rejected')">Rejected</button>
             </div>
 
 
@@ -430,7 +469,7 @@
             <div
                 id="loading"
                 class="loading">
-                Loading students...
+                Loading placement applications...
             </div>
 
 
@@ -438,7 +477,7 @@
                 id="empty"
                 class="empty"
                 style="display:none;">
-                No students found for this college.
+                No job applications found for this college.
             </div>
 
 
@@ -454,23 +493,31 @@
                         <tr>
 
                             <th>
-                                Student ID
+                                App #
                             </th>
 
                             <th>
-                                Name
+                                Student
                             </th>
 
                             <th>
-                                Branch
+                                Branch &amp; CGPA
                             </th>
 
                             <th>
-                                CGPA
+                                Job Applied
                             </th>
 
                             <th>
-                                Approval
+                                Student Resume
+                            </th>
+
+                            <th>
+                                Placement Decision
+                            </th>
+
+                            <th>
+                                Forwarded to Recruiter?
                             </th>
 
                             <th>
@@ -512,17 +559,14 @@
 
     const session = getSession();
 
-
     if (
         !session ||
-        session.role !== "college" ||
+        (session.role !== "college" && session.role !== "admin") ||
         !session.token
     ) {
-
         window.location.replace(
             "../login.html?role=college"
         );
-
     }
 
 
@@ -657,283 +701,275 @@
 
 
     // -------------------------------------------------
+    // APPLICATION STATE
+    // -------------------------------------------------
+
+    let allCollegeApplications = [];
+    let currentFilter = "all";
+
+    // -------------------------------------------------
     // UPDATE SUMMARY
     // -------------------------------------------------
 
-    function updateSummary(students) {
+    function updateSummary(applications) {
 
-        const total =
-            students.length;
+        const total = applications.length;
 
-        const pending =
-            students.filter(
-                student =>
-                    (student.college_approval ||
-                        "Pending") === "Pending"
-            ).length;
+        const pending = applications.filter(
+            app => (app.college_approval || "Pending") === "Pending"
+        ).length;
 
-        const approved =
-            students.filter(
-                student =>
-                    student.college_approval ===
-                    "Approved"
-            ).length;
+        const approved = applications.filter(
+            app => app.college_approval === "Approved"
+        ).length;
 
-        const rejected =
-            students.filter(
-                student =>
-                    student.college_approval ===
-                    "Rejected"
-            ).length;
+        const rejected = applications.filter(
+            app => app.college_approval === "Rejected"
+        ).length;
 
-
-        totalStudentsElement.textContent =
-            total;
-
-        pendingStudentsElement.textContent =
-            pending;
-
-        approvedStudentsElement.textContent =
-            approved;
-
-        rejectedStudentsElement.textContent =
-            rejected;
-
+        totalStudentsElement.textContent = total;
+        pendingStudentsElement.textContent = pending;
+        approvedStudentsElement.textContent = approved;
+        rejectedStudentsElement.textContent = rejected;
     }
 
+    // -------------------------------------------------
+    // FILTER APPLICATIONS
+    // -------------------------------------------------
+
+    function filterApplications(status) {
+        currentFilter = status;
+
+        document.querySelectorAll(".filter-tab").forEach(tab => {
+            if (tab.getAttribute("data-filter") === status) {
+                tab.classList.add("active");
+            } else {
+                tab.classList.remove("active");
+            }
+        });
+
+        renderApplicationsTable();
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(
+            /[&<>"']/g,
+            char => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[char]
+        );
+    }
 
     // -------------------------------------------------
-    // LOAD STUDENTS
+    // RENDER APPLICATIONS TABLE
+    // -------------------------------------------------
+
+    function renderApplicationsTable() {
+        studentsTable.replaceChildren();
+
+        let list = allCollegeApplications;
+        if (currentFilter !== "all") {
+            list = allCollegeApplications.filter(app => (app.college_approval || "Pending") === currentFilter);
+        }
+
+        if (list.length === 0) {
+            empty.style.display = "block";
+            tableWrapper.style.display = "none";
+            return;
+        }
+
+        empty.style.display = "none";
+        tableWrapper.style.display = "block";
+
+        list.forEach(application => {
+            const row = document.createElement("tr");
+
+            // 1. App ID
+            const idCell = document.createElement("td");
+            idCell.innerHTML = `<strong class="mono">#${application.application_id}</strong>`;
+
+            // 2. Student details
+            const studentCell = document.createElement("td");
+            studentCell.innerHTML = `
+                <strong>${escapeHtml(application.student_name || "Unknown Student")}</strong>
+                <br>
+                <small style="color:#6b7280;">Student ID: ${escapeHtml(application.student_id)}</small>
+            `;
+
+            // 3. Branch & CGPA
+            const branchCell = document.createElement("td");
+            branchCell.innerHTML = `
+                ${escapeHtml(application.branch || "—")}
+                <br>
+                <small style="color:#6b7280;">CGPA: <strong>${escapeHtml(application.cgpa ?? "—")}</strong></small>
+            `;
+
+            // 4. Job Applied
+            const jobCell = document.createElement("td");
+            jobCell.innerHTML = `
+                <strong>${escapeHtml(application.job_title || "Untitled")}</strong>
+                <br>
+                <small style="color:#6b7280;">Company: <strong>${escapeHtml(application.company || "—")}</strong></small>
+                ${
+                    application.job_url && !application.job_url.includes("campuslink.local")
+                        ? `<br><a href="${escapeHtml(application.job_url)}" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#4f46e5;">View Job URL ↗</a>`
+                        : ""
+                }
+            `;
+
+            // 4.5 Student Resume
+            const resumeCell = document.createElement("td");
+            const resumeUrl = application.resume_url;
+            if (resumeUrl && resumeUrl.trim()) {
+                resumeCell.innerHTML = `
+                    <a
+                        href="${escapeHtml(resumeUrl)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#16a34a;color:#fff;border-radius:6px;font-size:12.5px;font-weight:600;text-decoration:none;"
+                        title="View student resume in new tab"
+                    >
+                        📄 View Resume ↗
+                    </a>
+                `;
+            } else {
+                resumeCell.innerHTML = `
+                    <span style="color:#94a3b8;font-size:12px;font-style:italic;">No resume file</span>
+                `;
+            }
+
+            // 5. College Placement Decision
+            const approvalCell = document.createElement("td");
+            const decision = application.college_approval || "Pending";
+            const decisionBadge = document.createElement("span");
+            decisionBadge.className = "status " + getStatusClass(decision);
+            decisionBadge.textContent = decision === "Approved" ? "✅ Approved" : (decision === "Rejected" ? "❌ Rejected" : "⏳ Pending Review");
+            approvalCell.appendChild(decisionBadge);
+
+            // 6. Forwarded to Recruiter?
+            const routedCell = document.createElement("td");
+            if (decision === "Approved") {
+                routedCell.innerHTML = `
+                    <span style="color:#166534;font-weight:600;font-size:12.5px;">🚀 Yes &bull; Sent to ${escapeHtml(application.company || "Company")} Recruiter</span>
+                    <br>
+                    <small style="color:#4b5563;">Recruiter Stage: <strong>${escapeHtml(application.status || "Applied")}</strong></small>
+                `;
+            } else if (decision === "Rejected") {
+                routedCell.innerHTML = `
+                    <span style="color:#991b1b;font-weight:600;font-size:12.5px;">⛔ No &bull; Blocked by Cell</span>
+                `;
+            } else {
+                routedCell.innerHTML = `
+                    <span style="color:#92400e;font-size:12.5px;">⏳ Held &bull; Awaiting Decision</span>
+                `;
+            }
+
+            // 7. Actions
+            const actionCell = document.createElement("td");
+
+            if (decision !== "Approved") {
+                const approveBtn = document.createElement("button");
+                approveBtn.className = "action-btn approve-btn";
+                approveBtn.textContent = "Accept / Approve";
+                approveBtn.title = "Accept this application and forward it to the company recruiter";
+                approveBtn.addEventListener("click", () => {
+                    updateApplicationApproval(application.application_id, "Approved");
+                });
+                actionCell.appendChild(approveBtn);
+            }
+
+            if (decision !== "Rejected") {
+                const rejectBtn = document.createElement("button");
+                rejectBtn.className = "action-btn reject-btn";
+                rejectBtn.textContent = "Reject";
+                rejectBtn.title = "Reject this application so it will not go to the recruiter";
+                rejectBtn.addEventListener("click", () => {
+                    updateApplicationApproval(application.application_id, "Rejected");
+                });
+                actionCell.appendChild(rejectBtn);
+            }
+
+            row.appendChild(idCell);
+            row.appendChild(studentCell);
+            row.appendChild(branchCell);
+            row.appendChild(jobCell);
+            row.appendChild(resumeCell);
+            row.appendChild(approvalCell);
+            row.appendChild(routedCell);
+            row.appendChild(actionCell);
+
+            studentsTable.appendChild(row);
+        });
+    }
+
+    // -------------------------------------------------
+    // LOAD APPLICATIONS
     // -------------------------------------------------
 
     async function loadStudents() {
-
         clearMessage();
 
-        loading.style.display =
-            "block";
-
-        empty.style.display =
-            "none";
-
-        tableWrapper.style.display =
-            "none";
-
-        studentsTable.replaceChildren();
-
+        loading.style.display = "block";
+        empty.style.display = "none";
+        tableWrapper.style.display = "none";
 
         try {
+            const applications = await apiGet("/college/job-applications");
 
-            const students =
-                await apiGet(
-                    "/college/students"
-                );
-
-
-            if (!Array.isArray(students)) {
-
-                throw new Error(
-                    "Invalid student list received."
-                );
-
+            if (!Array.isArray(applications)) {
+                throw new Error("Invalid placement applications received.");
             }
 
-
-            updateSummary(students);
-
-
-            if (students.length === 0) {
-
-                loading.style.display =
-                    "none";
-
-                empty.style.display =
-                    "block";
-
-                return;
-
-            }
-
-
-            students.forEach(student => {
-
-                const row =
-                    document.createElement("tr");
-
-
-                // Student ID
-
-                const idCell =
-                    document.createElement("td");
-
-                idCell.textContent =
-                    student.id ?? "-";
-
-
-                // Name
-
-                const nameCell =
-                    document.createElement("td");
-
-                nameCell.textContent =
-                    student.name ?? "-";
-
-
-                // Branch
-
-                const branchCell =
-                    document.createElement("td");
-
-                branchCell.textContent =
-                    student.branch ?? "-";
-
-
-                // CGPA
-
-                const cgpaCell =
-                    document.createElement("td");
-
-                cgpaCell.textContent =
-                    student.cgpa ?? "-";
-
-
-                // Approval
-
-                const approvalCell =
-                    document.createElement("td");
-
-                const status =
-                    student.college_approval ||
-                    "Pending";
-
-
-                const statusElement =
-                    document.createElement("span");
-
-                statusElement.className =
-                    "status " +
-                    getStatusClass(status);
-
-                statusElement.textContent =
-                    status;
-
-                approvalCell.appendChild(
-                    statusElement
-                );
-
-
-                // Action
-
-                const actionCell =
-                    document.createElement("td");
-
-
-                if (status !== "Approved") {
-
-                    const approveButton =
-                        document.createElement(
-                            "button"
-                        );
-
-                    approveButton.className =
-                        "action-btn approve-btn";
-
-                    approveButton.textContent =
-                        "Approve";
-
-                    approveButton.addEventListener(
-                        "click",
-                        () =>
-                            updateApproval(
-                                student.id,
-                                "Approved"
-                            )
-                    );
-
-                    actionCell.appendChild(
-                        approveButton
-                    );
-
-                }
-
-
-                if (status !== "Rejected") {
-
-                    const rejectButton =
-                        document.createElement(
-                            "button"
-                        );
-
-                    rejectButton.className =
-                        "action-btn reject-btn";
-
-                    rejectButton.textContent =
-                        "Reject";
-
-                    rejectButton.addEventListener(
-                        "click",
-                        () =>
-                            updateApproval(
-                                student.id,
-                                "Rejected"
-                            )
-                    );
-
-                    actionCell.appendChild(
-                        rejectButton
-                    );
-
-                }
-
-
-                row.appendChild(idCell);
-
-                row.appendChild(nameCell);
-
-                row.appendChild(branchCell);
-
-                row.appendChild(cgpaCell);
-
-                row.appendChild(approvalCell);
-
-                row.appendChild(actionCell);
-
-
-                studentsTable.appendChild(row);
-
-            });
-
-
-            loading.style.display =
-                "none";
-
-            tableWrapper.style.display =
-                "block";
-
+            allCollegeApplications = applications;
+            updateSummary(applications);
+            loading.style.display = "none";
+
+            renderApplicationsTable();
 
         } catch (error) {
-
-            console.error(
-                "College students error:",
-                error
-            );
-
-            loading.style.display =
-                "none";
-
+            console.error("College placement applications error:", error);
+            loading.style.display = "none";
             showMessage(
-                "Could not load students. Please check the backend.",
+                "Could not load placement applications. Please ensure the backend is running.",
                 "error"
             );
-
         }
-
     }
 
+    // -------------------------------------------------
+    // APPROVE / REJECT APPLICATION
+    // -------------------------------------------------
 
-    // -------------------------------------------------
-    // APPROVE / REJECT STUDENT
-    // -------------------------------------------------
+    async function updateApplicationApproval(applicationId, approval) {
+        try {
+            await apiPatch(
+                `/job-applications/${applicationId}/college-approval`,
+                { college_approval: approval }
+            );
+
+            if (approval === "Approved") {
+                showMessage(
+                    `Application #${applicationId} Accepted & Approved! Forwarded to recruiter.`,
+                    "success"
+                );
+            } else {
+                showMessage(
+                    `Application #${applicationId} Rejected. It will not be sent to recruiter.`,
+                    "success"
+                );
+            }
+
+            await loadStudents();
+
+        } catch (error) {
+            console.error("Application approval error:", error);
+            showMessage("Could not update application approval.", "error");
+        }
+    }
 
     async function updateApproval(
         studentId,
@@ -1008,11 +1044,9 @@
 
     if (
         session &&
-        session.role === "college"
+        (session.role === "college" || session.role === "admin")
     ) {
-
         loadStudents();
-
     }
 
 </script>

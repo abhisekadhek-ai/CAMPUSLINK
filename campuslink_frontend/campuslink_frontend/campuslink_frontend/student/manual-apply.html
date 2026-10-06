@@ -118,10 +118,32 @@
         Manual Apply
       </a>
 
+      <a href="resume.html">
+        Student Resume
+      </a>
+
     </div>
 
     <div class="nav-footer">
-      CampusLink Student Portal
+      <div>CampusLink Student Portal</div>
+      <button
+        type="button"
+        onclick="logout()"
+        style="
+          width:100%;
+          margin-top:16px;
+          padding:10px 14px;
+          border:none;
+          border-radius:8px;
+          background:#ef4444;
+          color:white;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Logout
+      </button>
     </div>
 
   </nav>
@@ -190,12 +212,12 @@
     College
   </label>
 
-  <input
-    id="college"
-    type="text"
-    placeholder="Enter your college name"
-    required
-  >
+  <select
+  id="college"
+  required
+>
+  <option value="">Select your college</option>
+</select>
 
 </div>
 
@@ -244,6 +266,18 @@
 
         </div>
 
+        <div class="form-group">
+          <label for="resumeUrl">Student Resume</label>
+          <div id="resumeStatusMsg" style="font-size:12.5px;margin-bottom:6px;color:#166534;font-weight:600;"></div>
+          <input
+            id="resumeUrl"
+            type="text"
+            placeholder="Resume link (auto-filled from Student Resume page)"
+          >
+          <small style="color:#596579;font-size:12px;margin-top:4px;display:block;">
+            📄 Your resume will be shared with both your <strong>College Placement Cell</strong> and <strong>Recruiters</strong>.
+          </small>
+        </div>
 
         <button
           type="submit"
@@ -296,6 +330,7 @@
 </div>
 
 
+<script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
 
 <script>
@@ -351,7 +386,50 @@ const submitButton =
 const message =
   document.getElementById("message");
 
+async function loadColleges() {
+  const collegeSelect =
+    document.getElementById("college");
+  const session = getStudentSession();
 
+  try {
+    const colleges =
+      await getColleges();
+
+    collegeSelect.innerHTML =
+      '<option value="">Select your college</option>';
+
+    colleges.forEach(college => {
+      const option =
+        document.createElement("option");
+
+      option.value = college.id;
+
+      option.textContent =
+        college.college_name +
+        " (" +
+        college.college_code +
+        ")";
+
+      collegeSelect.appendChild(option);
+    });
+
+    if (session && session.college_id) {
+      collegeSelect.value = String(session.college_id);
+    }
+
+  } catch (error) {
+
+    console.error(
+      "College loading error:",
+      error
+    );
+
+    collegeSelect.innerHTML =
+      '<option value="">Unable to load colleges</option>';
+  }
+}
+
+loadColleges();
 form.addEventListener("submit", async function(event) {
 
   event.preventDefault();
@@ -419,6 +497,10 @@ form.addEventListener("submit", async function(event) {
   message.textContent = "";
 
 
+  const resumeUrl =
+    document.getElementById("resumeUrl")
+      .value.trim();
+
   try {
 
     const result =
@@ -427,9 +509,10 @@ form.addEventListener("submit", async function(event) {
         {
           job_title: jobTitle,
           company: company,
-          college:college,
+          college: college,
           job_url: jobUrl,
-          source: source
+          source: source,
+          resume_url: resumeUrl || undefined
         }
       );
 
@@ -441,12 +524,16 @@ form.addEventListener("submit", async function(event) {
       `
         Application submitted successfully. 
         Your application is now
-        <strong>Pending College Approval</strong>.
+        <strong>Pending College Approval</strong> in your placement cell.
+        <br><br>
+        <a href="dashboard.html" style="color:#16804a;font-weight:600;text-decoration:underline;">
+          View in Dashboard &amp; Track Status &rarr;
+        </a>
       `;
 
 
     form.reset();
-
+    loadStudentResume();
 
     console.log(
       "Manual application created:",
@@ -491,6 +578,30 @@ form.addEventListener("submit", async function(event) {
 
   }
 
+});
+
+async function loadStudentResume() {
+  const studentId = getLoggedInStudentId();
+  if (!studentId) return;
+  const statusMsg = document.getElementById("resumeStatusMsg");
+  const resumeInput = document.getElementById("resumeUrl");
+
+  try {
+    const student = await getStudent(studentId);
+    if (student && student.resume_url) {
+      resumeInput.value = student.resume_url;
+      statusMsg.innerHTML = `✓ Active Resume Attached: <a href="${student.resume_url}" target="_blank" rel="noopener" style="color:#166534;font-weight:700;">View Resume ↗</a>`;
+    } else {
+      statusMsg.innerHTML = `⚠️ No resume uploaded yet. <a href="resume.html" target="_blank" style="color:#2563eb;font-weight:600;">Upload on Resume page ↗</a> or enter URL below:`;
+    }
+  } catch (e) {
+    console.warn("Could not fetch student resume:", e);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadColleges();
+  loadStudentResume();
 });
 
 </script>

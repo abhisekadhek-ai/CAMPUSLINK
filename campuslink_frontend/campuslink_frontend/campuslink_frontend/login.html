@@ -280,12 +280,12 @@
 
             <div class="field" id="collegeRow" hidden>
 
-                <label for="collegeId">College ID</label>
+                <label for="collegeId">College ID / Name / Email</label>
 
                 <input
                     id="collegeId"
                     type="text"
-                    placeholder="Enter your College ID"
+                    placeholder="Enter College ID (e.g. COL0002), Name (e.g. KIT), or Email"
                     autocomplete="username"
                 >
 
@@ -778,13 +778,13 @@ let students = [];
             if (role === "college") {
 
                 const collegeId =
-                    collegeIdInput.value.trim().toUpperCase();
+                    collegeIdInput.value.trim();
 
 
                 if (!collegeId) {
 
                     showMessage(
-                        "Please enter your College ID."
+                        "Please enter your College ID, College Name, or Email."
                     );
 
                     collegeIdInput.focus();
@@ -795,6 +795,9 @@ let students = [];
 
 
                 body.college_id = collegeId;
+                if (collegeId.includes("@")) {
+                    body.email = collegeId;
+                }
 
             }
 
@@ -851,23 +854,16 @@ let students = [];
                 // Save session
 
                 saveSession({
-
                     role: res.role,
-
                     token: res.token,
-
                     studentId: res.student_id,
-
+                    student_id: res.student_id,
                     studentName: res.name,
-
+                    name: res.name,
                     recruiter_id: res.recruiter_id,
-
                     college_id: res.college_id,
-
                     college_code: res.college_code,
-
-                    collegeName: res.name
-
+                    collegeName: res.college_name || res.name
                 });
 
 
@@ -1040,6 +1036,7 @@ let students = [];
 
 
     <script src="js/fx.js" defer></script>
+    
 
 
 </body>

@@ -26,6 +26,14 @@
         Jobs & Candidates
       </a>
 
+      <a href="job-applicants.html">
+        Job Applicants
+      </a>
+
+      <a href="applicant-information.html">
+        Applicant Information
+      </a>
+
       <a class="active" href="college-approval.html">
         College Approval
       </a>
@@ -102,195 +110,45 @@
 
 
 <script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
 
 <script>
 
 function showError(err) {
-
   document.getElementById("errorBox").innerHTML = `
     <div class="alert">
       ${escapeHtml(err.message || "Something went wrong")}
     </div>
   `;
-
 }
-
 
 function approvalBadge(status) {
-
   if (status === "Approved") {
-
-    return `
-      <span class="badge" style="color:green;">
-        Approved
-      </span>
-    `;
-
+    return `<span class="badge" style="color:green;font-weight:600;">✅ Approved</span>`;
   }
-
   if (status === "Rejected") {
-
-    return `
-      <span class="badge" style="color:red;">
-        Rejected
-      </span>
-    `;
-
+    return `<span class="badge" style="color:red;font-weight:600;">❌ Rejected</span>`;
   }
-
-  return `
-    <span class="badge">
-      Pending
-    </span>
-  `;
-
+  return `<span class="badge" style="color:#d97706;font-weight:600;">⏳ Pending</span>`;
 }
-
-
-function applicationRows(applications) {
-
-  if (!applications || applications.length === 0) {
-
-    return `
-      <tr>
-        <td colspan="7" class="empty">
-          No student applications found.
-        </td>
-      </tr>
-    `;
-
-  }
-
-
-  return applications.map(app => `
-
-    <tr>
-
-      <td class="mono">
-        ${app.student_id}
-      </td>
-
-      <td>
-        Student ${app.student_id}
-      </td>
-
-      <td>
-        <strong>
-          ${escapeHtml(app.job_title)}
-        </strong>
-      </td>
-
-      <td class="muted">
-        ${escapeHtml(app.company)}
-      </td>
-
-      <td>
-        <span class="badge">
-          ${escapeHtml(app.status)}
-        </span>
-      </td>
-
-      <td>
-        ${approvalBadge(app.college_approval)}
-      </td>
-
-      <td>
-
-        ${
-          app.college_approval === "Approved"
-
-          ? `
-            <span class="muted">
-              Approved ✓
-            </span>
-          `
-
-          : app.college_approval === "Rejected"
-
-          ? `
-            <span class="muted">
-              Rejected
-            </span>
-          `
-
-          : `
-            <button
-              class="secondary small"
-              onclick="approveApplication(${app.id}, this)">
-              Approve
-            </button>
-
-            <button
-              class="secondary small"
-              onclick="rejectApplication(${app.id}, this)">
-              Reject
-            </button>
-          `
-        }
-
-      </td>
-
-    </tr>
-
-  `).join("");
-
-}
-
 
 async function loadApplications() {
-
   try {
+    const applications = await apiGet("/college/job-applications");
 
-    /*
-      Get all student applications.
-
-      This uses the existing backend endpoint.
-    */
-
-    const students = await getStudents();
-
-    const applications = [];
-
-    /*
-      Load applications for each student.
-    */
-
-    for (const student of students) {
-
-      try {
-
-        const studentApplications =
-          await getJobApplications(student.id);
-
-        if (Array.isArray(studentApplications)) {
-
-          studentApplications.forEach(app => {
-
-            applications.push({
-              ...app,
-              student_name: student.name
-            });
-
-          });
-
-        }
-
-      } catch (err) {
-
-        console.error(
-          "Could not load applications for student",
-          student.id,
-          err
-        );
-
-      }
-
+    if (!Array.isArray(applications) || applications.length === 0) {
+      document.getElementById("applicationsBody").innerHTML = `
+        <tr>
+          <td colspan="7" class="empty">
+            No student job applications found for review.
+          </td>
+        </tr>
+      `;
+      return;
     }
-
 
     document.getElementById("applicationsBody").innerHTML =
       applications.map(app => `
-
         <tr>
 
           <td class="mono">

@@ -139,6 +139,159 @@
       line-height: 1.5;
     }
 
+    .job-apply-btn {
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #16a34a;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 4px 6px 4px 0;
+      display: inline-block;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .job-apply-btn:hover {
+      background: #15803d;
+    }
+
+    .app-status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 4px 6px 4px 0;
+    }
+
+    .app-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .app-status.approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .app-status.rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Modal Overlay & Dialog */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #fff;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 520px;
+      padding: 26px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: rise 0.3s ease-out;
+    }
+
+    .modal-card h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #1f2937;
+    }
+
+    .modal-card p {
+      margin: 0 0 18px;
+      font-size: 13.5px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .modal-form-group {
+      margin-bottom: 14px;
+    }
+
+    .modal-form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #374151;
+    }
+
+    .modal-form-group input,
+    .modal-form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .modal-form-group input[readonly] {
+      background: #f9fafb;
+      color: #4b5563;
+    }
+
+    .modal-notice {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-btn-cancel {
+      padding: 10px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      color: #374151;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .modal-btn-submit {
+      padding: 10px 20px;
+      border: 0;
+      border-radius: 8px;
+      background: #2463eb;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .modal-btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     @media (max-width: 600px) {
       .job-toolbar {
         flex-direction: column;
@@ -174,7 +327,6 @@
     </div>
 
     <div class="nav-links">
-
       <a href="dashboard.html">
         Readiness &amp; Matches
       </a>
@@ -183,10 +335,39 @@
         Job Portal
       </a>
 
+      <a href="ai-assistant.html">
+        AI Assistant
+      </a>
+
+      <a href="manual-apply.html">
+        Apply Job
+      </a>
+
+      <a href="resume.html">
+        Student Resume
+      </a>
     </div>
 
     <div class="nav-footer">
-      CampusLink Student Portal
+      <div>CampusLink Student Portal</div>
+      <button
+        type="button"
+        onclick="logout()"
+        style="
+          width:100%;
+          margin-top:16px;
+          padding:10px 14px;
+          border:none;
+          border-radius:8px;
+          background:#ef4444;
+          color:white;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Logout
+      </button>
     </div>
 
   </nav>
@@ -343,7 +524,62 @@
 
       <div id="jobsContainer"></div>
 
-    </section>
+    <!-- APPLY JOB MODAL -->
+    <div id="applyModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <h2 id="modalTitle">Apply for Job</h2>
+        <p>
+          Submit your application to your <strong>College Placement Cell</strong>.
+          Once reviewed and accepted by the placement cell, your application will be forwarded directly to the recruiter.
+        </p>
+
+        <form id="applyJobModalForm">
+          <div class="modal-form-group">
+            <label for="modalJobTitle">Job Title</label>
+            <input type="text" id="modalJobTitle" required readonly>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="modalCompany">Company</label>
+            <input type="text" id="modalCompany" required readonly>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="modalCollege">College Placement Cell</label>
+            <select id="modalCollege" required>
+              <option value="">Select your College Placement Cell</option>
+            </select>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="modalJobUrl">Job Link</label>
+            <input type="url" id="modalJobUrl" required readonly>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="modalResumeUrl">Student Resume</label>
+            <div id="modalResumeStatus" style="font-size:12.5px;margin-bottom:6px;color:#166534;font-weight:600;">
+              Loading resume...
+            </div>
+            <input type="text" id="modalResumeUrl" placeholder="Resume file or URL (auto-filled from Student Resume page)">
+            <small style="color:#6b7280;font-size:12px;margin-top:4px;display:block;">
+              📄 Both your <strong>College Placement Cell</strong> and <strong>Recruiters</strong> will review this resume.
+            </small>
+          </div>
+
+          <div class="modal-notice">
+            📌 <strong>Placement Routing:</strong> When you submit, your application is stored in the <strong>College Placement Cell</strong> with <strong>Pending Approval</strong> status. Once approved by the placement cell, it will go to the recruiter.
+          </div>
+
+          <div id="modalMessage" class="message" style="display:none;margin-bottom:12px;"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="closeApplyModal()">Cancel</button>
+            <button type="submit" class="modal-btn-submit" id="modalSubmitBtn">Submit to Placement Cell</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
   </main>
 
@@ -354,48 +590,53 @@
 <!-- API HELPERS -->
 <!-- ============================= -->
 
+<script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
+
 
 
 <script>
 "use strict";
 
+const JOBS_API = "http://127.0.0.1:8000/integrations/jobs";
 
-/* ==========================================
-   EXTERNAL JOBS API
-   ========================================== */
+const jobsContainer = document.getElementById("jobsContainer");
+const jobMessage = document.getElementById("jobMessage");
+const jobQuery = document.getElementById("jobQuery");
 
-const JOBS_API =
-  "http://127.0.0.1:8000/integrations/jobs";
-
-
-/* ==========================================
-   DOM ELEMENTS
-   ========================================== */
-
-const jobsContainer =
-  document.getElementById("jobsContainer");
-
-const jobMessage =
-  document.getElementById("jobMessage");
-
-const jobQuery =
-  document.getElementById("jobQuery");
-
-
-/* ==========================================
-   CURRENT JOB LIST
-   ========================================== */
+const applyModal = document.getElementById("applyModal");
+const applyJobModalForm = document.getElementById("applyJobModalForm");
+const modalJobTitle = document.getElementById("modalJobTitle");
+const modalCompany = document.getElementById("modalCompany");
+const modalCollege = document.getElementById("modalCollege");
+const modalJobUrl = document.getElementById("modalJobUrl");
+const modalSubmitBtn = document.getElementById("modalSubmitBtn");
+const modalMessage = document.getElementById("modalMessage");
 
 let currentJobs = [];
+let studentApplications = [];
+let availableColleges = [];
 
+function getStudentSession() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem("campuslink_session") || "null");
+    if (s && String(s.role || "").toLowerCase() === "student") {
+      return s;
+    }
+  } catch (e) {
+    console.warn("Could not read student session", e);
+  }
+  return null;
+}
 
-/* ==========================================
-   ESCAPE HTML
-   ========================================== */
+function getLoggedInStudentId() {
+  const session = getStudentSession();
+  if (!session) return null;
+  const id = Number(session.student_id ?? session.studentId);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
 
 function escapeHtml(value) {
-
   return String(value ?? "").replace(
     /[&<>"']/g,
     char => ({
@@ -406,404 +647,322 @@ function escapeHtml(value) {
       "'": "&#39;"
     })[char]
   );
-
 }
-
-
-/* ==========================================
-   SAFE HTTP URL
-   ========================================== */
 
 function getSafeHttpUrl(value) {
-
   try {
-
-    const parsedUrl =
-      new URL(String(value || ""));
-
-    if (
-      ["http:", "https:"].includes(
-        parsedUrl.protocol
-      )
-    ) {
-
+    const parsedUrl = new URL(String(value || ""));
+    if (["http:", "https:"].includes(parsedUrl.protocol)) {
       return parsedUrl.href;
-
     }
-
   } catch (error) {
-
-    console.warn(
-      "Invalid job URL:",
-      value
-    );
-
+    // URL not absolute or invalid
   }
-
   return "";
-
 }
-
-
-/* ==========================================
-   LINKEDIN JOB SEARCH
-   ========================================== */
-
-document
-  .getElementById("linkedinSearchForm")
-  .addEventListener(
-    "submit",
-    event => {
-
-      event.preventDefault();
-
-
-      const keyword =
-        document
-          .getElementById("linkedinKeyword")
-          .value
-          .trim();
-
-
-      const location =
-        document
-          .getElementById("linkedinLocation")
-          .value
-          .trim();
-
-
-      const params =
-        new URLSearchParams();
-
-
-      if (keyword) {
-
-        params.set(
-          "keywords",
-          keyword
-        );
-
-      }
-
-
-      if (location) {
-
-        params.set(
-          "location",
-          location
-        );
-
-      }
-
-
-      const query =
-        params.toString();
-
-
-      const searchUrl =
-        query
-          ? `https://www.linkedin.com/jobs/search/?${query}`
-          : "https://www.linkedin.com/jobs/search/";
-
-
-      window.open(
-        searchUrl,
-        "_blank",
-        "noopener,noreferrer"
-      );
-
-    }
-  );
-
-
-/* ==========================================
-   NORMALIZE JOB RESPONSE
-   ========================================== */
 
 function normalizeJobs(payload) {
-
-  if (Array.isArray(payload)) {
-
-    return payload;
-
-  }
-
-
-  if (
-    payload &&
-    Array.isArray(payload.jobs)
-  ) {
-
-    return payload.jobs;
-
-  }
-
-
-  if (
-    payload &&
-    Array.isArray(payload.data)
-  ) {
-
-    return payload.data;
-
-  }
-
-
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.jobs)) return payload.jobs;
+  if (payload && Array.isArray(payload.data)) return payload.data;
   return [];
-
 }
 
+async function loadColleges() {
+  try {
+    const colleges = await getColleges();
+    if (Array.isArray(colleges)) {
+      availableColleges = colleges;
+      modalCollege.innerHTML = '<option value="">Select your College Placement Cell</option>';
+      colleges.forEach(col => {
+        const opt = document.createElement("option");
+        opt.value = col.id;
+        opt.textContent = `${col.college_name} (${col.college_code})`;
+        modalCollege.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    console.error("Could not load colleges:", err);
+  }
+}
 
-/* ==========================================
-   LOAD EXTERNAL JOBS
-   ========================================== */
+async function loadStudentApplications() {
+  const studentId = getLoggedInStudentId();
+  if (!studentId) return;
+  try {
+    const apps = await getJobApplications(studentId);
+    if (Array.isArray(apps)) {
+      studentApplications = apps;
+    }
+  } catch (err) {
+    console.warn("Could not fetch student applications:", err);
+  }
+}
+
+function findStudentApplication(jobTitle, company, jobUrl) {
+  const normTitle = (jobTitle || "").trim().toLowerCase();
+  const normCompany = (company || "").trim().toLowerCase();
+  return studentApplications.find(app => {
+    const appTitle = (app.job_title || "").trim().toLowerCase();
+    const appCompany = (app.company || "").trim().toLowerCase();
+    if (appTitle === normTitle && appCompany === normCompany) return true;
+    if (jobUrl && app.job_url && app.job_url.trim() === jobUrl.trim()) return true;
+    return false;
+  });
+}
+
+function renderJobs() {
+  if (!currentJobs.length) return;
+
+  jobsContainer.innerHTML = currentJobs.map((job, idx) => {
+    const tags = Array.isArray(job.tags) ? job.tags : [];
+    const title = job.title || "Untitled role";
+    const company = job.company || job.company_name || "Company not specified";
+    const safeUrl = getSafeHttpUrl(job.url) || `https://campuslink.local/jobs/${idx + 1}`;
+
+    const appliedApp = findStudentApplication(title, company, safeUrl);
+
+    let actionMarkup = "";
+    if (appliedApp) {
+      const approval = appliedApp.college_approval || "Pending";
+      if (approval === "Approved") {
+        actionMarkup = `<span class="app-status approved">✅ Approved by College (${escapeHtml(appliedApp.status)})</span>`;
+      } else if (approval === "Rejected") {
+        actionMarkup = `<span class="app-status rejected">❌ Rejected by College</span>`;
+      } else {
+        actionMarkup = `<span class="app-status pending">⏳ Pending College Approval</span>`;
+      }
+    } else {
+      actionMarkup = `
+        <button
+          type="button"
+          class="job-apply-btn"
+          onclick="openApplyModal('${escapeHtml(title).replace(/'/g, "\\'")}', '${escapeHtml(company).replace(/'/g, "\\'")}', '${escapeHtml(safeUrl).replace(/'/g, "\\'")}')"
+        >
+          Apply Job
+        </button>
+      `;
+    }
+
+    return `
+      <article class="job-card">
+        <h3>${escapeHtml(title)}</h3>
+        <div class="muted">${escapeHtml(company)}</div>
+        <p>
+          <strong>Location:</strong>
+          ${escapeHtml(job.location || "Not specified")}${job.remote ? " · Remote" : ""}
+        </p>
+        <div class="job-tags">
+          ${tags.map(tag => `<span>${escapeHtml(tag)}</span>`).join("")}
+        </div>
+        <p class="muted">
+          Source: ${escapeHtml(job.source || "CampusLink Placement Board")}
+        </p>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;">
+          ${actionMarkup}
+          ${
+            safeUrl && !safeUrl.includes("campuslink.local")
+              ? `<a class="job-action" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">View Source ↗</a>`
+              : ""
+          }
+        </div>
+      </article>
+    `;
+  }).join("");
+}
 
 async function loadJobs(query = "") {
-
   jobsContainer.innerHTML = "";
-
   currentJobs = [];
-
-  jobMessage.textContent =
-    "Loading jobs...";
-
+  jobMessage.textContent = "Loading jobs...";
 
   try {
+    const params = new URLSearchParams({
+      q: query.trim(),
+      limit: "20"
+    });
 
-    const params =
-      new URLSearchParams({
-        q: query.trim(),
-        limit: "20"
-      });
-
-
-    const response =
-      await fetch(
-        `${JOBS_API}?${params.toString()}`
-      );
-
-
+    const response = await fetch(`${JOBS_API}?${params.toString()}`);
     if (!response.ok) {
-
-      throw new Error(
-        `Server returned HTTP ${response.status}`
-      );
-
+      throw new Error(`Server returned HTTP ${response.status}`);
     }
 
-
-    const payload =
-      await response.json();
-
-
-    const jobs =
-      normalizeJobs(payload);
-
+    const payload = await response.json();
+    const jobs = normalizeJobs(payload);
 
     if (!jobs.length) {
-
-      jobMessage.textContent =
-        "No jobs found. Try another keyword or click Show All.";
-
+      jobMessage.textContent = "No jobs found. Try another keyword or click Show All.";
       return;
-
     }
-
 
     currentJobs = jobs;
-
-
-    jobMessage.textContent =
-      `${jobs.length} job(s) found.`;
-
-
-    jobsContainer.innerHTML =
-      jobs
-        .map((job) => {
-
-          const tags =
-            Array.isArray(job.tags)
-              ? job.tags
-              : [];
-
-
-          const title =
-            job.title ||
-            "Untitled role";
-
-
-          const company =
-            job.company ||
-            job.company_name ||
-            "Company not specified";
-
-
-          const safeUrl =
-            getSafeHttpUrl(job.url);
-
-
-          return `
-
-            <article class="job-card">
-
-              <h3>
-                ${escapeHtml(title)}
-              </h3>
-
-
-              <div class="muted">
-                ${escapeHtml(company)}
-              </div>
-
-
-              <p>
-
-                <strong>
-                  Location:
-                </strong>
-
-                ${escapeHtml(
-                  job.location ||
-                  "Not specified"
-                )}
-
-                ${
-                  job.remote
-                    ? " · Remote"
-                    : ""
-                }
-
-              </p>
-
-
-              <div class="job-tags">
-
-                ${
-                  tags
-                    .map(tag =>
-                      `<span>
-                        ${escapeHtml(tag)}
-                      </span>`
-                    )
-                    .join("")
-                }
-
-              </div>
-
-
-              <p class="muted">
-
-                Source:
-                ${escapeHtml(
-                  job.source ||
-                  "External job board"
-                )}
-
-              </p>
-
-
-              ${
-                safeUrl
-                  ? `
-
-                    <a
-                      class="job-action"
-                      href="${escapeHtml(safeUrl)}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View Job &amp; Apply ↗
-                    </a>
-
-                  `
-                  : `
-
-                    <span class="muted">
-                      Application link unavailable
-                    </span>
-
-                  `
-              }
-
-            </article>
-
-          `;
-
-        })
-        .join("");
-
+    jobMessage.textContent = `${jobs.length} job(s) found.`;
+    renderJobs();
 
   } catch (error) {
-
-    console.error(
-      "Could not load jobs:",
-      error
-    );
-
-
-    jobMessage.textContent =
-      "Could not load jobs. Check that the FastAPI backend is running and the external jobs endpoint is available.";
-
-
-    jobsContainer.innerHTML = `
-
-      <div class="alert">
-
-        ${escapeHtml(error.message)}
-
-      </div>
-
-    `;
-
+    console.error("Could not load jobs:", error);
+    jobMessage.textContent = "Could not load jobs. Check that the backend is running.";
+    jobsContainer.innerHTML = `<div class="alert">${escapeHtml(error.message)}</div>`;
   }
-
 }
 
+function openApplyModal(title, company, url) {
+  const studentId = getLoggedInStudentId();
+  if (!studentId) {
+    alert("Please log in with your Student account to apply for jobs.");
+    window.location.href = "../login.html?role=student";
+    return;
+  }
 
-/* ==========================================
-   SEARCH JOBS
-   ========================================== */
+  const session = getStudentSession();
 
-document
-  .getElementById("jobSearchForm")
-  .addEventListener(
-    "submit",
-    event => {
+  modalJobTitle.value = title;
+  modalCompany.value = company;
+  modalJobUrl.value = url || `https://campuslink.local/jobs/${studentId}/${Date.now()}`;
 
-      event.preventDefault();
+  // Pre-select student's college if available
+  if (session && session.college_id) {
+    modalCollege.value = String(session.college_id);
+  } else if (availableColleges.length > 0 && !modalCollege.value) {
+    modalCollege.value = String(availableColleges[0].id);
+  }
 
-      loadJobs(
-        jobQuery.value
-      );
+  // Pre-populate resume info
+  const resumeStatusEl = document.getElementById("modalResumeStatus");
+  const resumeUrlEl = document.getElementById("modalResumeUrl");
+  resumeStatusEl.textContent = "Checking resume...";
+  resumeStatusEl.style.color = "#475569";
+  resumeUrlEl.value = "";
 
+  getStudent(studentId).then(s => {
+    if (s && s.resume_url) {
+      resumeUrlEl.value = s.resume_url;
+      resumeStatusEl.style.color = "#166534";
+      resumeStatusEl.innerHTML = `✓ Active Resume Attached: <a href="${s.resume_url}" target="_blank" rel="noopener" style="color:#166534;font-weight:700;">View Resume ↗</a>`;
+    } else {
+      resumeStatusEl.style.color = "#b45309";
+      resumeStatusEl.innerHTML = `⚠️ No resume uploaded yet. <a href="resume.html" target="_blank" style="color:#4f46e5;font-weight:600;">Upload on Resume page ↗</a> or paste link below:`;
     }
-  );
+  }).catch(() => {
+    resumeStatusEl.textContent = "Enter resume link or upload via Student Resume page";
+  });
 
+  modalMessage.style.display = "none";
+  modalMessage.textContent = "";
+  modalMessage.className = "message";
 
-/* ==========================================
-   SHOW ALL JOBS
-   ========================================== */
+  modalSubmitBtn.disabled = false;
+  modalSubmitBtn.textContent = "Submit to Placement Cell";
 
-document
-  .getElementById("showAllButton")
-  .addEventListener(
-    "click",
-    () => {
+  applyModal.classList.add("active");
+}
 
-      jobQuery.value = "";
+function closeApplyModal() {
+  applyModal.classList.remove("active");
+}
 
-      loadJobs("");
+applyJobModalForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
 
+  const studentId = getLoggedInStudentId();
+  if (!studentId) {
+    alert("Please log in first.");
+    return;
+  }
+
+  const jobTitle = modalJobTitle.value.trim();
+  const company = modalCompany.value.trim();
+  const college = modalCollege.value.trim();
+  const jobUrl = modalJobUrl.value.trim();
+  const resumeUrl = (document.getElementById("modalResumeUrl").value || "").trim();
+
+  if (!jobTitle || !company || !college) {
+    modalMessage.style.display = "block";
+    modalMessage.className = "message error";
+    modalMessage.textContent = "Please select your College Placement Cell.";
+    return;
+  }
+
+  modalSubmitBtn.disabled = true;
+  modalSubmitBtn.textContent = "Submitting to Placement Cell...";
+  modalMessage.style.display = "none";
+
+  try {
+    await createJobApplication(studentId, {
+      job_title: jobTitle,
+      company: company,
+      college: college,
+      job_url: jobUrl,
+      source: "Job Portal",
+      resume_url: resumeUrl || undefined
+    });
+
+    modalMessage.style.display = "block";
+    modalMessage.className = "message success";
+    modalMessage.innerHTML = `<strong>Application Stored!</strong> Sent to your College Placement Cell for review.`;
+
+    // Refresh student applications and re-render card buttons
+    await loadStudentApplications();
+    renderJobs();
+
+    setTimeout(() => {
+      closeApplyModal();
+    }, 1400);
+
+  } catch (error) {
+    console.error("Apply failed:", error);
+    modalMessage.style.display = "block";
+    modalMessage.className = "message error";
+    const msg = String(error.message || "");
+    if (msg.includes("409")) {
+      modalMessage.textContent = "You have already applied for this job.";
+    } else {
+      modalMessage.textContent = "Could not submit application. " + msg;
     }
-  );
+  } finally {
+    modalSubmitBtn.disabled = false;
+    modalSubmitBtn.textContent = "Submit to Placement Cell";
+  }
+});
 
+// Close modal on click outside
+applyModal.addEventListener("click", function(event) {
+  if (event.target === applyModal) {
+    closeApplyModal();
+  }
+});
 
-/* ==========================================
-   INITIAL PAGE LOAD
-   ========================================== */
+// LinkedIn Search Form
+document.getElementById("linkedinSearchForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const keyword = document.getElementById("linkedinKeyword").value.trim();
+  const location = document.getElementById("linkedinLocation").value.trim();
+  const params = new URLSearchParams();
+  if (keyword) params.set("keywords", keyword);
+  if (location) params.set("location", location);
+  const query = params.toString();
+  const searchUrl = query ? `https://www.linkedin.com/jobs/search/?${query}` : "https://www.linkedin.com/jobs/search/";
+  window.open(searchUrl, "_blank", "noopener,noreferrer");
+});
 
-loadJobs();
+// Search Jobs Form
+document.getElementById("jobSearchForm").addEventListener("submit", event => {
+  event.preventDefault();
+  loadJobs(jobQuery.value);
+});
 
+// Show All Button
+document.getElementById("showAllButton").addEventListener("click", () => {
+  jobQuery.value = "";
+  loadJobs("");
+});
+
+// Initial boot
+(async function init() {
+  await loadColleges();
+  await loadStudentApplications();
+  await loadJobs();
+})();
 </script>
 
 

@@ -3,114 +3,285 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Job Applicants — CampusLink</title>
-
   <link rel="stylesheet" href="../css/style.css">
-
   <style>
     .page-content {
-      padding: 24px;
+      padding: 28px 36px;
+      max-width: 1200px;
     }
 
     .page-header {
       margin-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
     }
 
     .page-header h1 {
+      font-size: 28px;
       margin-bottom: 6px;
     }
 
     .page-header p {
-      color: #666;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--panel);
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card .num {
+      font-family: 'Bricolage Grotesque', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--indigo);
+      line-height: 1.1;
+    }
+
+    .stat-card .label {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+
+    .controls-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      padding: 9px 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      font-size: 14px;
+      min-width: 260px;
+      background: #fff;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-tab:hover {
+      border-color: var(--indigo);
+      color: var(--indigo);
+    }
+
+    .filter-tab.active {
+      background: var(--indigo);
+      border-color: var(--indigo);
+      color: #fff;
     }
 
     .applicant-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .applicant-card:hover {
+      box-shadow: 0 4px 18px rgba(75, 75, 224, 0.12);
     }
 
     .applicant-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 15px;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
     }
 
-    .applicant-header h3 {
-      margin: 0;
-    }
-
-    .applicant-info {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .info-item {
-      padding: 10px;
-      background: #f7f7f7;
-      border-radius: 8px;
-    }
-
-    .info-item strong {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .status-row {
+    .student-title {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }
 
-    .status-select {
-      padding: 9px 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #fff;
+    .student-title h3 {
+      margin: 0;
+      font-size: 20px;
+      color: var(--ink);
     }
 
-    .approval-badge {
-      padding: 6px 10px;
-      border-radius: 20px;
+    .sub-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
       font-size: 13px;
+      color: var(--ink-soft);
+      flex-wrap: wrap;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 600;
-      background: #e7f7ed;
-      color: #16803c;
+    }
+
+    .badge-college {
+      background: rgba(75, 75, 224, 0.1);
+      color: var(--indigo);
+    }
+
+    .badge-branch {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .badge-cgpa {
+      background: #fef3c7;
+      color: #b45309;
+      font-weight: 700;
+    }
+
+    .badge-approved {
+      background: #dcfce7;
+      color: #15803d;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .applicant-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+      background: #f8fafc;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .detail-item strong {
+      display: block;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-soft);
+      margin-bottom: 2px;
+    }
+
+    .detail-item span {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .skills-row {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .skills-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .status-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-select {
+      padding: 8px 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 150px;
+    }
+
+    .status-select:focus {
+      outline: none;
+      border-color: var(--indigo);
+    }
+
+    .status-feedback {
+      font-size: 12.5px;
+      font-weight: 600;
+      display: none;
     }
 
     .empty-message {
       background: #fff;
-      padding: 30px;
+      padding: 40px;
       text-align: center;
       border-radius: 12px;
-      color: #666;
+      color: var(--ink-soft);
+      border: 1px solid var(--line);
     }
 
     .error-message {
-      background: #ffecec;
-      color: #b00020;
-      padding: 15px;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 16px 20px;
       border-radius: 10px;
       margin-bottom: 20px;
-    }
-
-    @media (max-width: 700px) {
-      .applicant-info {
-        grid-template-columns: 1fr;
-      }
-
-      .applicant-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      border: 1px solid #fecaca;
     }
   </style>
 </head>
@@ -121,13 +292,11 @@
 
   <!-- Sidebar -->
   <nav class="nav">
-
     <div class="brand">
       Campus<span>Link</span>
     </div>
 
     <div class="nav-links">
-
       <a href="dashboard.html">
         Jobs &amp; Candidates
       </a>
@@ -135,263 +304,429 @@
       <a class="active" href="job-applicants.html">
         Job Applicants
       </a>
-      <a href="applicant-information.html">
-  Applicant Information
-</a>
 
+      <a href="applicant-information.html">
+        Applicant Information
+      </a>
     </div>
 
+    <div class="nav-footer">
+      <div class="backend-status" style="margin-bottom:12px;font-size:12px;color:#9aa0b4;">
+        Live data from your FastAPI backend
+      </div>
+      <button
+        type="button"
+        onclick="logout()"
+        style="
+          width:100%;
+          padding:10px 14px;
+          border:none;
+          border-radius:8px;
+          background:#dc2626;
+          color:#ffffff;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Logout
+      </button>
+    </div>
   </nav>
-
 
   <!-- Main Content -->
   <main class="main">
-
     <div class="page-content">
 
       <div class="page-header">
-
-        <h1>Job Applicants</h1>
-
+        <h1>College-Approved Job Applicants</h1>
         <p>
-          Students whose job applications have been approved by the college.
+          Students who applied to your company and have been officially approved by their College Placement Cell.
         </p>
+      </div>
 
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="num" id="statTotal">0</div>
+          <div class="label">Approved by College</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statApplied" style="color:#2563eb;">0</div>
+          <div class="label">Applied (New)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statReview" style="color:#d97706;">0</div>
+          <div class="label">Under Review</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statInterview" style="color:#9333ea;">0</div>
+          <div class="label">In Interview</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statSelected" style="color:#16a34a;">0</div>
+          <div class="label">Selected</div>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="controls-card">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search by student name, role, skills..."
+          oninput="applyFilters()"
+        >
+
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-weight:600;font-size:13px;color:var(--ink-soft);white-space:nowrap;">Company:</label>
+          <select id="companyFilterSelect" class="status-select" onchange="onCompanySelect(this.value)">
+            <option value="All">All Companies</option>
+          </select>
+        </div>
+
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="All" onclick="setFilter('All', this)">All</button>
+          <button class="filter-tab" data-filter="Applied" onclick="setFilter('Applied', this)">Applied</button>
+          <button class="filter-tab" data-filter="Under Review" onclick="setFilter('Under Review', this)">Under Review</button>
+          <button class="filter-tab" data-filter="Interview" onclick="setFilter('Interview', this)">Interview</button>
+          <button class="filter-tab" data-filter="Selected" onclick="setFilter('Selected', this)">Selected</button>
+          <button class="filter-tab" data-filter="Rejected" onclick="setFilter('Rejected', this)">Rejected</button>
+        </div>
       </div>
 
       <div id="errorBox"></div>
 
+      <!-- Applicants List -->
       <div id="applicantsContainer">
-
         <div class="empty-message">
           Loading approved applicants...
         </div>
-
       </div>
 
     </div>
-
   </main>
 
 </div>
 
-
 <script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
 
 <script>
+  // Ensure logged in recruiter
+  const recruiterSession = requireRole("recruiter");
+
+  let allApplications = [];
+  let currentFilter = "All";
+  let selectedCompany = "All";
 
   async function loadJobApplicants() {
-
-    const container =
-      document.getElementById("applicantsContainer");
-
-    const errorBox =
-      document.getElementById("errorBox");
+    const container = document.getElementById("applicantsContainer");
+    const errorBox = document.getElementById("errorBox");
 
     try {
-
       errorBox.innerHTML = "";
+      allApplications = await getApprovedJobApplications();
 
-      const applications =
-        await getApprovedJobApplications();
-
-      if (!Array.isArray(applications) ||
-          applications.length === 0) {
-
-        container.innerHTML = `
-          <div class="empty-message">
-            No college-approved job applications found.
-          </div>
-        `;
-
-        return;
+      if (!Array.isArray(allApplications)) {
+        allApplications = [];
       }
 
-      container.innerHTML =
-        applications.map(app => `
-
-          <div class="applicant-card">
-
-            <div class="applicant-header">
-
-              <div>
-                <h3>
-                  ${escapeHtml(app.student_name || "Unknown Student")}
-                </h3>
-
-                <p>
-                  Student ID:
-                  ${escapeHtml(String(app.student_id))}
-                </p>
-              </div>
-
-              <span class="approval-badge">
-                College Approved
-              </span>
-
-            </div>
-
-
-            <div class="applicant-info">
-
-              <div class="info-item">
-
-                <strong>Job</strong>
-
-                ${escapeHtml(app.job_title || "-")}
-
-              </div>
-
-
-              <div class="info-item">
-
-                <strong>Company</strong>
-
-                ${escapeHtml(app.company || "-")}
-
-              </div>
-
-
-              <div class="info-item">
-
-                <strong>Source</strong>
-
-                ${escapeHtml(app.source || "-")}
-
-              </div>
-
-
-              <div class="info-item">
-
-                <strong>Current Status</strong>
-
-                ${escapeHtml(app.status || "-")}
-
-              </div>
-
-            </div>
-
-
-            <div class="status-row">
-
-              <label>
-                <strong>Update Status:</strong>
-              </label>
-
-              <select
-                class="status-select"
-                onchange="updateApplicationStatus(
-                  ${app.id},
-                  this.value
-                )"
-              >
-
-                <option
-                  value="Applied"
-                  ${app.status === "Applied" ? "selected" : ""}
-                >
-                  Applied
-                </option>
-
-                <option
-                  value="Under Review"
-                  ${app.status === "Under Review" ? "selected" : ""}
-                >
-                  Under Review
-                </option>
-
-                <option
-                  value="Interview"
-                  ${app.status === "Interview" ? "selected" : ""}
-                >
-                  Interview
-                </option>
-
-                <option
-                  value="Selected"
-                  ${app.status === "Selected" ? "selected" : ""}
-                >
-                  Selected
-                </option>
-
-                <option
-                  value="Rejected"
-                  ${app.status === "Rejected" ? "selected" : ""}
-                >
-                  Rejected
-                </option>
-
-              </select>
-
-            </div>
-
-          </div>
-
-        `).join("");
+      populateCompanyDropdown(allApplications);
+      updateStats(allApplications);
+      applyFilters();
 
     } catch (err) {
-
-      console.error(
-        "Could not load job applicants:",
-        err
-      );
-
+      console.error("Could not load job applicants:", err);
       container.innerHTML = "";
-
       errorBox.innerHTML = `
         <div class="error-message">
-          Could not load job applicants.
-          ${escapeHtml(err.message || "Unknown error")}
+          Could not load job applicants: ${escapeHtml(err.message || "Unknown error")}
         </div>
       `;
-
     }
-
   }
 
+  function populateCompanyDropdown(apps) {
+    const select = document.getElementById("companyFilterSelect");
+    if (!select) return;
+    const companies = Array.from(new Set(apps.map(a => a.company).filter(Boolean))).sort();
+    const currentVal = select.value || "All";
 
-  async function updateApplicationStatus(
-    applicationId,
-    newStatus
-  ) {
+    select.innerHTML = '<option value="All">All Companies (' + apps.length + ')</option>';
+    companies.forEach(comp => {
+      const count = apps.filter(a => (a.company || "").toLowerCase() === comp.toLowerCase()).length;
+      const opt = document.createElement("option");
+      opt.value = comp;
+      opt.textContent = `${comp} (${count})`;
+      select.appendChild(opt);
+    });
+
+    if (companies.includes(currentVal)) {
+      select.value = currentVal;
+    }
+  }
+
+  function onCompanySelect(comp) {
+    selectedCompany = comp;
+    applyFilters();
+  }
+
+  function updateStats(apps) {
+    const subset = selectedCompany === "All" ? apps : apps.filter(a => (a.company || "").toLowerCase() === selectedCompany.toLowerCase());
+    document.getElementById("statTotal").textContent = subset.length;
+    document.getElementById("statApplied").textContent = subset.filter(a => (a.status || "Applied") === "Applied").length;
+    document.getElementById("statReview").textContent = subset.filter(a => a.status === "Under Review").length;
+    document.getElementById("statInterview").textContent = subset.filter(a => a.status === "Interview").length;
+    document.getElementById("statSelected").textContent = subset.filter(a => a.status === "Selected").length;
+  }
+
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll(".filter-tab").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const container = document.getElementById("applicantsContainer");
+    const query = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+
+    updateStats(allApplications);
+
+    const filtered = allApplications.filter(app => {
+      // Company-wise filter
+      if (selectedCompany !== "All") {
+        if ((app.company || "").toLowerCase() !== selectedCompany.toLowerCase()) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (currentFilter !== "All") {
+        if ((app.status || "Applied") !== currentFilter) {
+          return false;
+        }
+      }
+
+      // Query filter
+      if (query) {
+        const studentName = (app.student_name || "").toLowerCase();
+        const role = (app.job_title || "").toLowerCase();
+        const college = (app.college || "").toLowerCase();
+        const company = (app.company || "").toLowerCase();
+        const branch = (app.branch || "").toLowerCase();
+        const skills = Array.isArray(app.skills) ? app.skills.join(" ").toLowerCase() : "";
+
+        if (
+          !studentName.includes(query) &&
+          !role.includes(query) &&
+          !college.includes(query) &&
+          !company.includes(query) &&
+          !branch.includes(query) &&
+          !skills.includes(query)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-message">
+          No applicants match your filter criteria.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(app => {
+      const skillsArray = Array.isArray(app.skills) ? app.skills : [];
+      const appliedDate = app.applied_at ? new Date(app.applied_at).toLocaleDateString(undefined, {
+        year: 'numeric', month: 'short', day: 'numeric'
+      }) : "-";
+
+      return `
+        <div class="applicant-card" id="appCard-${app.id}">
+          <div class="applicant-header">
+            <div>
+              <div class="student-title">
+                <h3>${escapeHtml(app.student_name || "Unknown Student")}</h3>
+                <span class="badge-pill" style="background:#e0e7ff;color:#3730a3;font-weight:700;">🏢 ${escapeHtml(app.company || "Company")}</span>
+                <span class="badge-pill badge-college">🏫 ${escapeHtml(app.college || "Campus Placement")}</span>
+                ${app.branch ? `<span class="badge-pill badge-branch">${escapeHtml(app.branch)}</span>` : ""}
+                ${app.cgpa != null ? `<span class="badge-pill badge-cgpa">CGPA: ${escapeHtml(String(app.cgpa))}</span>` : ""}
+              </div>
+              <div class="sub-meta">
+                <span>Student ID: #${escapeHtml(String(app.student_id))}</span>
+                <span>•</span>
+                <span>Applied: ${appliedDate}</span>
+              </div>
+            </div>
+
+            <span class="badge-pill badge-approved">
+              ✓ College Approved
+            </span>
+          </div>
+
+          <div class="applicant-details">
+            <div class="detail-item">
+              <strong>Job Role</strong>
+              <span>${escapeHtml(app.job_title || "-")}</span>
+            </div>
+
+            <div class="detail-item">
+              <strong>Company</strong>
+              <span style="font-weight:700;color:var(--indigo);">🏢 ${escapeHtml(app.company || "-")}</span>
+            </div>
+
+            <div class="detail-item">
+              <strong>Student Resume</strong>
+              ${app.resume_url ? `
+                <a
+                  href="${escapeHtml(app.resume_url)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="display:inline-flex;align-items:center;gap:4px;color:#16a34a;font-weight:700;font-size:13.5px;text-decoration:none;"
+                  title="View student resume in new tab"
+                >
+                  📄 View Resume ↗
+                </a>
+              ` : `
+                <span style="color:#94a3b8;font-size:13px;font-style:italic;">No resume file</span>
+              `}
+            </div>
+
+            <div class="detail-item">
+              <strong>College Routing</strong>
+              <span style="color:#16a34a;">Forwarded by Placement Cell</span>
+            </div>
+          </div>
+
+          ${skillsArray.length > 0 ? `
+            <div class="skills-row">
+              <span class="skills-label">Skills:</span>
+              ${skillsArray.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join("")}
+            </div>
+          ` : ""}
+
+          <div class="action-row">
+            <div class="status-control" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <button
+                type="button"
+                style="background:#16a34a;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;opacity:${app.status === 'Selected' ? '0.6' : '1'};"
+                onclick="updateApplicationStatus(${app.id}, 'Selected', this)"
+                title="Approve / Accept this candidate and extend offer"
+              >
+                ${app.status === 'Selected' ? '✓ Accepted & Approved' : '✅ Approve / Accept'}
+              </button>
+
+              <button
+                type="button"
+                style="background:#dc2626;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;opacity:${app.status === 'Rejected' ? '0.6' : '1'};"
+                onclick="updateApplicationStatus(${app.id}, 'Rejected', this)"
+                title="Reject this application"
+              >
+                ${app.status === 'Rejected' ? '✓ Rejected' : '❌ Reject'}
+              </button>
+
+              <div style="display:flex;align-items:center;gap:6px;">
+                <label style="margin:0;font-weight:600;font-size:12.5px;color:var(--ink-soft);">Stage:</label>
+                <select
+                  class="status-select"
+                  onchange="updateApplicationStatus(${app.id}, this.value, this)"
+                >
+                  <option value="Applied" ${app.status === "Applied" ? "selected" : ""}>Applied</option>
+                  <option value="Under Review" ${app.status === "Under Review" ? "selected" : ""}>Under Review</option>
+                  <option value="Interview" ${app.status === "Interview" ? "selected" : ""}>Interview</option>
+                  <option value="Selected" ${app.status === "Selected" ? "selected" : ""}>Selected (Approved)</option>
+                  <option value="Rejected" ${app.status === "Rejected" ? "selected" : ""}>Rejected</option>
+                </select>
+              </div>
+              <span class="status-feedback" id="feedback-${app.id}"></span>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              ${app.resume_url ? `
+                <a
+                  href="${escapeHtml(app.resume_url)}"
+                  target="_blank"
+                  rel="noopener"
+                  style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:#16a34a;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;"
+                  title="View student resume in new tab"
+                >
+                  📄 View Resume ↗
+                </a>
+              ` : ""}
+
+              ${app.job_url ? `
+                <a
+                  href="${escapeHtml(app.job_url)}"
+                  target="_blank"
+                  rel="noopener"
+                  style="font-size:13px;color:var(--indigo);font-weight:600;text-decoration:underline;"
+                >
+                  Job Link ↗
+                </a>
+              ` : ""}
+              <a
+                href="applicant-information.html?id=${app.student_id}"
+                class="secondary small"
+                style="display:inline-block;padding:7px 12px;border-radius:8px;text-decoration:none;"
+              >
+                Student Profile &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function updateApplicationStatus(applicationId, newStatus, selectEl) {
+    const feedback = document.getElementById(`feedback-${applicationId}`);
+    if (feedback) {
+      feedback.style.display = "inline";
+      feedback.style.color = "var(--ink-soft)";
+      feedback.textContent = "Updating...";
+    }
 
     try {
+      await updateJobApplicationStatus(applicationId, newStatus);
 
-      await apiPatch(
-        `/job-applications/${applicationId}/status`,
-        {
-          status: newStatus
-        }
-      );
+      // Update in memory
+      const app = allApplications.find(a => a.id === applicationId);
+      if (app) {
+        app.status = newStatus;
+      }
 
-      alert("Application status updated successfully.");
+      updateStats(allApplications);
+      applyFilters();
 
-      await loadJobApplicants();
+      const newFeedback = document.getElementById(`feedback-${applicationId}`);
+      if (newFeedback) {
+        newFeedback.style.display = "inline";
+        newFeedback.style.color = "#16a34a";
+        newFeedback.textContent = newStatus === "Selected" ? "Accepted & Selected ✓" : (newStatus === "Rejected" ? "Rejected ✓" : "Status saved ✓");
+        setTimeout(() => {
+          newFeedback.style.display = "none";
+        }, 2500);
+      }
 
     } catch (err) {
-
-      console.error(
-        "Status update failed:",
-        err
-      );
-
-      alert(
-        "Could not update application status: " +
-        (err.message || "Unknown error")
-      );
-
-      await loadJobApplicants();
-
+      console.error("Status update failed:", err);
+      if (feedback) {
+        feedback.style.color = "#dc2626";
+        feedback.textContent = "Failed: " + (err.message || "Error");
+      }
+      alert("Could not update status: " + (err.message || "Unknown error"));
     }
-
   }
 
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    loadJobApplicants
-  );
-
+  document.addEventListener("DOMContentLoaded", loadJobApplicants);
 </script>
 
 </body>

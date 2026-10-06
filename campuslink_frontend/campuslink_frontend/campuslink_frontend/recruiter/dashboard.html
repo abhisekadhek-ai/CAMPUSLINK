@@ -387,9 +387,63 @@
 
 
         <!-- =========================
+             COLLEGE-APPROVED APPLICANTS PANEL
+        ========================== -->
+        <div class="panel" id="approvedApplicantsPanel" style="margin-bottom: 24px; border: 1.5px solid rgba(79, 70, 229, 0.35); box-shadow: 0 4px 18px rgba(79, 70, 229, 0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                <div>
+                    <div style="font-weight:700; font-size:18px; color:var(--ink); display:flex; align-items:center; gap:10px;">
+                        <span>🎓 College Placement Approved Applicants</span>
+                        <span id="approvedApplicantCountBadge" class="badge ready" style="font-size:12px; padding:3px 10px;">Loading...</span>
+                    </div>
+                    <p style="margin:4px 0 0; color:var(--ink-soft); font-size:13.5px;">
+                        Students approved by College Placement Cell for your company. Review and <strong>Accept</strong> or <strong>Reject</strong> below.
+                    </p>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="secondary small" type="button" onclick="loadCollegeApprovedApplicants()" title="Refresh applications">
+                        🔄 Refresh
+                    </button>
+                    <a href="job-applicants.html" class="secondary small" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                        Full Applicants View &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- Toast / Message Container -->
+            <div id="applicantActionFeedback" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:8px; font-weight:600; font-size:13.5px;"></div>
+
+            <!-- APPLICANTS TABLE -->
+            <div id="approvedApplicantsLoading" class="empty" style="padding:20px;">
+                Loading approved candidates...
+            </div>
+            
+            <div id="approvedApplicantsTableWrapper" style="display:none; overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>College & Branch</th>
+                            <th>Applied Role</th>
+                            <th>Student Resume</th>
+                            <th>Hiring Status</th>
+                            <th style="text-align:right;">Recruiter Decision</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvedApplicantsTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="approvedApplicantsEmpty" class="empty" style="display:none; padding:24px; text-align:center;">
+                No approved applications found yet. When a college placement cell approves a student's application, it will appear here for your review.
+            </div>
+        </div>
+
+        <!-- =========================
              YOUR ROLE
         ========================== -->
-
         <div class="panel">
 
             <div class="panel-title">
@@ -1220,33 +1274,181 @@ if (logoutButton) {
 
 
 /* =========================
+   COLLEGE-APPROVED APPLICANTS
+========================= */
+
+async function loadCollegeApprovedApplicants() {
+    const loadingEl = document.getElementById("approvedApplicantsLoading");
+    const wrapperEl = document.getElementById("approvedApplicantsTableWrapper");
+    const emptyEl = document.getElementById("approvedApplicantsEmpty");
+    const tbody = document.getElementById("approvedApplicantsTableBody");
+    const badge = document.getElementById("approvedApplicantCountBadge");
+
+    if (!loadingEl || !wrapperEl || !emptyEl || !tbody) return;
+
+    loadingEl.style.display = "block";
+    wrapperEl.style.display = "none";
+    emptyEl.style.display = "none";
+
+    try {
+        const apps = await getApprovedJobApplications();
+        const list = Array.isArray(apps) ? apps : [];
+
+        if (badge) {
+            badge.style.display = "inline-block";
+            badge.textContent = `${list.length} Approved`;
+        }
+
+        // Update nav badge if element exists
+        const navApplicantsLink = document.querySelector('a[href="job-applicants.html"]');
+        if (navApplicantsLink) {
+            navApplicantsLink.innerHTML = `Job Applicants <span class="badge ready" style="font-size:11px;padding:2px 7px;margin-left:4px;">${list.length}</span>`;
+        }
+
+        loadingEl.style.display = "none";
+
+        if (list.length === 0) {
+            emptyEl.style.display = "block";
+            return;
+        }
+
+        wrapperEl.style.display = "block";
+        tbody.innerHTML = list.map(app => {
+            const status = app.status || "Applied";
+            let statusBadge = "";
+            if (status === "Selected") {
+                statusBadge = `<span class="badge ready" style="font-weight:600;">🎉 Selected / Accepted</span>`;
+            } else if (status === "Rejected") {
+                statusBadge = `<span class="badge notready" style="font-weight:600;">❌ Rejected</span>`;
+            } else if (status === "Interview") {
+                statusBadge = `<span class="badge developing">Interview</span>`;
+            } else if (status === "Under Review") {
+                statusBadge = `<span class="badge" style="background:#e0e7ff;color:#3730a3;">Under Review</span>`;
+            } else {
+                statusBadge = `<span class="badge">Applied</span>`;
+            }
+
+            const isAccepted = status === "Selected";
+            const isRejected = status === "Rejected";
+
+            return `
+                <tr id="app-row-${app.id}">
+                    <td class="mono">#${escapeHtml(String(app.student_id))}</td>
+                    <td>
+                        <strong>${escapeHtml(app.student_name || "Student")}</strong>
+                        <div class="muted" style="font-size:12px;">CGPA: ${escapeHtml(String(app.cgpa ?? "-"))}</div>
+                    </td>
+                    <td>
+                        <span style="font-weight:600; color:var(--indigo);">🏫 ${escapeHtml(app.college || "Campus Placement")}</span>
+                        <div class="muted" style="font-size:12px;">${escapeHtml(app.branch || "-")}</div>
+                    </td>
+                    <td>
+                        <strong>${escapeHtml(app.job_title)}</strong>
+                        <div class="muted" style="font-size:12px;">${escapeHtml(app.company)}</div>
+                    </td>
+                    <td>
+                        ${app.resume_url ? `
+                            <a href="${escapeHtml(app.resume_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:5px; padding:6px 12px; background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff; border-radius:6px; font-size:12px; font-weight:600; text-decoration:none; box-shadow:0 1px 3px rgba(37,99,235,0.25);" title="Open resume in new tab">
+                                📄 View Resume ↗
+                            </a>
+                        ` : `
+                            <span class="muted" style="font-size:12px; font-style:italic;">No resume</span>
+                        `}
+                    </td>
+                    <td id="status-cell-${app.id}">
+                        ${statusBadge}
+                    </td>
+                    <td style="text-align:right;">
+                        <div style="display:inline-flex; gap:8px; align-items:center;">
+                            <button
+                                type="button"
+                                style="background:#16a34a; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-weight:600; font-size:12.5px; cursor:pointer; opacity:${isAccepted ? '0.6' : '1'};"
+                                onclick="handleRecruiterDecision(${app.id}, 'Selected', this)"
+                                title="Approve candidate and extend offer"
+                            >
+                                ${isAccepted ? '✓ Approved' : '✅ Approve / Accept'}
+                            </button>
+                            <button
+                                type="button"
+                                style="background:#dc2626; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-weight:600; font-size:12.5px; cursor:pointer; opacity:${isRejected ? '0.6' : '1'};"
+                                onclick="handleRecruiterDecision(${app.id}, 'Rejected', this)"
+                                title="Reject this application"
+                            >
+                                ${isRejected ? '✓ Rejected' : '❌ Reject'}
+                            </button>
+                            <a
+                                href="applicant-information.html?id=${app.student_id}"
+                                class="secondary small"
+                                style="padding:6px 10px; border-radius:8px; text-decoration:none; font-size:12px;"
+                                title="View full student profile"
+                            >
+                                Profile &rarr;
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error("Could not load college-approved applicants:", err);
+        loadingEl.style.display = "none";
+        emptyEl.style.display = "block";
+        emptyEl.innerHTML = `<span style="color:#dc2626;">Error loading applications: ${escapeHtml(err.message || "Failed to load")}</span>`;
+    }
+}
+
+async function handleRecruiterDecision(applicationId, newStatus, btn) {
+    const feedback = document.getElementById("applicantActionFeedback");
+    try {
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        await updateJobApplicationStatus(applicationId, newStatus);
+
+        if (feedback) {
+            feedback.style.display = "block";
+            feedback.style.background = newStatus === "Selected" ? "#dcfce7" : "#fee2e2";
+            feedback.style.color = newStatus === "Selected" ? "#166534" : "#991b1b";
+            feedback.textContent = newStatus === "Selected" ? "Candidate Accepted & Selected! 🎉" : "Candidate Rejected. ❌";
+            setTimeout(() => {
+                feedback.style.display = "none";
+            }, 3000);
+        }
+
+        await loadCollegeApprovedApplicants();
+
+    } catch (err) {
+        console.error("Decision error:", err);
+        alert("Could not update decision: " + (err.message || "Error"));
+        btn.disabled = false;
+    }
+}
+
+/* =========================
    INITIAL LOAD
 ========================= */
 
 async function initRecruiterDashboard() {
-
     try {
-
         if (!currentRecruiterId) {
-
             throw new Error(
                 "Your recruiter account is not linked to a recruiter profile. Please log out and log in again."
             );
-
         }
 
-
         await loadRecruiter();
+        await loadCollegeApprovedApplicants();
 
+        // Also load candidates for the role
+        const role = currentRecruiter ? currentRecruiter.role : "Open Role";
+        viewCandidates(currentRecruiterId, role);
 
     } catch (error) {
-
+        console.error("Recruiter dashboard init error:", error);
         showError(error);
-
     }
-
 }
-
 
 /* =========================
    START

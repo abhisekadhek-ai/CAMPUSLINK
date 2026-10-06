@@ -128,6 +128,29 @@
 
     </div>
 
+    <div class="nav-footer">
+      <div class="backend-status" style="margin-bottom:12px;font-size:12px;color:#9aa0b4;">
+        Live data from your FastAPI backend
+      </div>
+      <button
+        type="button"
+        onclick="logout()"
+        style="
+          width:100%;
+          padding:10px 14px;
+          border:none;
+          border-radius:8px;
+          background:#dc2626;
+          color:#ffffff;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Logout
+      </button>
+    </div>
+
   </nav>
 
 
@@ -177,11 +200,13 @@
 
 
 <script src="../js/api.js"></script>
+<script src="../js/auth.js"></script>
 
 <script>
+  // Ensure logged-in recruiter
+  const recruiterSession = requireRole("recruiter");
 
   async function searchStudent() {
-
     const input =
       document.getElementById("studentIdInput");
 
@@ -196,46 +221,35 @@
 
 
     if (!studentId) {
-
       messageBox.innerHTML = `
         <div class="message error">
           Please enter a Student ID.
         </div>
       `;
-
       container.innerHTML = "";
-
       return;
     }
-
 
     messageBox.innerHTML = `
       <div class="message loading">
         Loading student information...
       </div>
     `;
-
     container.innerHTML = "";
 
-
     try {
-
       const student =
         await apiGet(
           `/recruiter/applicant-information/${studentId}`
         );
 
-
       messageBox.innerHTML = "";
-
 
       const fields =
         Object.entries(student);
 
-
       const information =
         fields.map(([key, value]) => {
-
           let displayValue = value;
 
           if (
@@ -254,80 +268,79 @@
             displayValue = "-";
           }
 
+          let valueHtml = escapeHtml(String(displayValue));
+          if ((key === "resume_url" || key === "resume") && value) {
+            valueHtml = `
+              <div style="margin-top:6px;">
+                <a href="${escapeHtml(String(value))}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:6px; padding:7px 14px; background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#ffffff; border-radius:8px; font-weight:600; font-size:13px; text-decoration:none; box-shadow:0 2px 5px rgba(37,99,235,0.25);">
+                  📄 View Student Resume ↗
+                </a>
+              </div>
+            `;
+          }
+
+          const label = key === "resume_url" ? "Student Resume" : formatLabel(key);
+
           return `
             <div class="info-item">
-
               <div class="info-label">
-                ${formatLabel(key)}
+                ${label}
               </div>
-
               <div class="info-value">
-                ${escapeHtml(String(displayValue))}
+                ${valueHtml}
               </div>
-
             </div>
           `;
-
         }).join("");
-
 
       container.innerHTML = `
         <div class="student-card">
-
-          <h2>
-            Student Information
-          </h2>
-
+          <h2>Student Information</h2>
           <div class="student-info">
             ${information}
           </div>
-
         </div>
       `;
 
-
     } catch (err) {
-
       console.error(
         "Could not load student:",
         err
       );
-
       container.innerHTML = "";
-
       messageBox.innerHTML = `
         <div class="message error">
-          Student not found or you are not authorized
-          to view this information.
+          Student not found or you are not authorized to view this information.
         </div>
       `;
-
     }
-
   }
 
-
   function formatLabel(key) {
-
     return key
       .replace(/_/g, " ")
       .replace(/\b\w/g, char =>
         char.toUpperCase()
       );
-
   }
-
 
   document
     .getElementById("studentIdInput")
     .addEventListener("keydown", function(event) {
-
       if (event.key === "Enter") {
         searchStudent();
       }
-
     });
 
+  // Automatically search if ID is passed in URL query param
+  document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramId = urlParams.get("id") || urlParams.get("student_id");
+    if (paramId) {
+      document.getElementById("studentIdInput").value = paramId;
+      searchStudent();
+    }
+  });
 </script>
 
 </body>

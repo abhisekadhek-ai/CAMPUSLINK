@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Resume — CampusLink</title>
+  <link rel="stylesheet" href="../css/style.css">
+
+  <style>
+    .page-content {
+      padding: 24px 32px;
+      max-width: 1000px;
+    }
+
+    .resume-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .resume-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .resume-card {
+      background: #ffffff;
+      border: 1px solid var(--line, #e2e8f0);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .resume-card h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #1e293b;
+    }
+
+    .resume-status-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .resume-status-banner.has-resume {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .upload-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #f8fafc;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .upload-zone svg {
+      width: 48px;
+      height: 48px;
+      fill: #64748b;
+      margin-bottom: 12px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .tab-switch {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+
+    .tab-btn.active {
+      color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px 18px;
+      background: #4f46e5;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+      background: #4338ca;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-view-resume {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: #16a34a;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13.5px;
+      transition: background 0.2s;
+    }
+
+    .btn-view-resume:hover {
+      background: #15803d;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .badge-status.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-status.inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .info-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .info-item {
+      background: #f8fafc;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      font-size: 13.5px;
+    }
+
+    .info-item strong {
+      color: #475569;
+      display: inline-block;
+      min-width: 130px;
+    }
+
+    .preview-frame-container {
+      margin-top: 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 400px;
+      background: #f8fafc;
+    }
+
+    .preview-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .alert.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .alert.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+  </style>
+</head>
+
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <nav class="nav">
+    <div class="brand">
+      Campus<span>Link</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="dashboard.html">
+        Readiness &amp; Matches
+      </a>
+
+      <a href="jobs.html">
+        Job Portal
+      </a>
+
+      <a href="ai-assistant.html">
+        AI Assistant
+      </a>
+
+      <a href="manual-apply.html">
+        Apply Job
+      </a>
+
+      <a class="active" href="resume.html">
+        Student Resume
+      </a>
+    </div>
+
+    <div class="nav-footer">
+      <div>CampusLink Student Portal</div>
+      <button
+        type="button"
+        onclick="logout()"
+        style="
+          width:100%;
+          margin-top:16px;
+          padding:10px 14px;
+          border:none;
+          border-radius:8px;
+          background:#ef4444;
+          color:white;
+          font-size:14px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="page-content">
+
+      <div class="page-head">
+        <div>
+          <h1>Student Resume Management</h1>
+          <p>
+            Upload and manage your professional resume. When you apply for a job, your resume will be automatically accessible to your <strong>College Placement Cell</strong> and <strong>Company Recruiters</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- STATUS BANNER -->
+      <div id="statusBanner" class="resume-status-banner">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <strong style="font-size:16px;" id="bannerTitle">Checking Resume Status...</strong>
+            <span id="bannerBadge" class="badge-status inactive">Not Uploaded</span>
+          </div>
+          <div style="font-size:13px;color:#64748b;" id="bannerSubtitle">
+            Upload your resume so colleges and recruiters can review your profile.
+          </div>
+        </div>
+
+        <div id="bannerActions" style="display:none;">
+          <a id="btnOpenResume" href="#" target="_blank" rel="noopener" class="btn-view-resume">
+            📄 View Current Resume ↗
+          </a>
+        </div>
+      </div>
+
+      <div id="feedbackAlert" class="alert"></div>
+
+      <!-- GRID LAYOUT -->
+      <div class="resume-grid">
+
+        <!-- CARD 1: UPLOAD / UPDATE RESUME -->
+        <div class="resume-card">
+          <h2>Upload / Update Resume</h2>
+          <p style="font-size:13px;color:#64748b;margin-bottom:16px;">
+            Choose a file from your computer (PDF, DOCX, TXT) or enter an external URL (Google Drive, LinkedIn, Portfolio).
+          </p>
+
+          <div class="tab-switch">
+            <button type="button" class="tab-btn active" id="tabFileBtn" onclick="switchTab('file')">Upload File</button>
+            <button type="button" class="tab-btn" id="tabUrlBtn" onclick="switchTab('url')">Online Resume URL</button>
+          </div>
+
+          <!-- FILE UPLOAD FORM -->
+          <form id="fileUploadForm">
+            <div class="upload-zone" id="dropZone" onclick="document.getElementById('resumeFileInput').click()">
+              <svg viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-5-7v4h-2v-4H9l3-3 3 3h-2z"/>
+              </svg>
+              <div style="font-weight:600;font-size:14.5px;color:#334155;">Click to select or drag & drop resume</div>
+              <div style="font-size:12.5px;color:#94a3b8;margin-top:4px;">Supported: PDF, DOCX, DOC, TXT, PNG, JPG (Max 15MB)</div>
+              <div id="selectedFileName" style="margin-top:10px;font-weight:700;color:#4f46e5;font-size:13.5px;"></div>
+            </div>
+
+            <input type="file" id="resumeFileInput" class="file-input" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" onchange="handleFileSelect(event)">
+
+            <button type="submit" id="btnSubmitFile" class="btn-submit" disabled>
+              Upload &amp; Save Resume File
+            </button>
+          </form>
+
+          <!-- URL FORM -->
+          <form id="urlUploadForm" style="display:none;">
+            <div class="form-group">
+              <label for="resumeUrlInput">Public Resume Link</label>
+              <input
+                type="url"
+                id="resumeUrlInput"
+                placeholder="https://drive.google.com/... or https://portfolio.com/resume"
+                required
+              >
+              <small style="color:#64748b;font-size:12px;margin-top:4px;display:block;">
+                Make sure link permissions are set to "Anyone with the link can view".
+              </small>
+            </div>
+
+            <button type="submit" id="btnSubmitUrl" class="btn-submit">
+              Save Resume Link
+            </button>
+          </form>
+
+          <div style="margin-top:20px;padding:12px;border-radius:8px;background:#f8fafc;font-size:12.5px;color:#64748b;line-height:1.5;">
+            💡 <strong>Automatic Sync:</strong> Once saved here, this resume will be automatically linked whenever you apply for any job in the Job Portal.
+          </div>
+        </div>
+
+        <!-- CARD 2: STUDENT PROFILE & RESUME PREVIEW -->
+        <div class="resume-card">
+          <h2>Student Resume Profile</h2>
+          <p style="font-size:13px;color:#64748b;">
+            This profile information is combined with your resume when reviewed by College Placement and Recruiters.
+          </p>
+
+          <div class="info-list">
+            <div class="info-item">
+              <strong>Student Name:</strong>
+              <span id="profName">—</span>
+            </div>
+            <div class="info-item">
+              <strong>Branch / Discipline:</strong>
+              <span id="profBranch">—</span>
+            </div>
+            <div class="info-item">
+              <strong>Academic CGPA:</strong>
+              <span id="profCgpa" style="font-weight:700;color:#d97706;">—</span>
+            </div>
+            <div class="info-item">
+              <strong>Key Skills:</strong>
+              <span id="profSkills">—</span>
+            </div>
+            <div class="info-item">
+              <strong>Active Resume:</strong>
+              <span id="profResumeStatus">None</span>
+            </div>
+          </div>
+
+          <div id="previewContainer" style="display:none;margin-top:18px;">
+            <div style="font-weight:600;font-size:13px;margin-bottom:6px;color:#475569;">Resume Preview:</div>
+            <div class="preview-frame-container" id="previewFrameWrapper">
+              <iframe id="resumeIframe" class="preview-frame" src=""></iframe>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
+
+<script>
+  "use strict";
+
+  // Check login
+  const session = getSession();
+  if (!session || String(session.role || "").toLowerCase() !== "student" || !session.token) {
+    window.location.replace("../login.html?role=student");
+  }
+
+  const studentId = Number(session.student_id ?? session.studentId);
+  let currentResumeUrl = "";
+  let selectedFile = null;
+
+  function showAlert(msg, type = "success") {
+    const el = document.getElementById("feedbackAlert");
+    el.textContent = msg;
+    el.className = "alert " + type;
+    setTimeout(() => {
+      el.style.display = "none";
+    }, 4500);
+  }
+
+  function switchTab(tab) {
+    const fileTab = document.getElementById("tabFileBtn");
+    const urlTab = document.getElementById("tabUrlBtn");
+    const fileForm = document.getElementById("fileUploadForm");
+    const urlForm = document.getElementById("urlUploadForm");
+
+    if (tab === "file") {
+      fileTab.classList.add("active");
+      urlTab.classList.remove("active");
+      fileForm.style.display = "block";
+      urlForm.style.display = "none";
+    } else {
+      urlTab.classList.add("active");
+      fileTab.classList.remove("active");
+      fileForm.style.display = "none";
+      urlForm.style.display = "block";
+    }
+  }
+
+  function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+      selectedFile = file;
+      document.getElementById("selectedFileName").textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      document.getElementById("btnSubmitFile").disabled = false;
+    }
+  }
+
+  // Drag and drop
+  const dropZone = document.getElementById("dropZone");
+  dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("dragover");
+  });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      document.getElementById("resumeFileInput").files = e.dataTransfer.files;
+      handleFileSelect({ target: { files: e.dataTransfer.files } });
+    }
+  });
+
+  async function loadStudentProfileAndResume() {
+    try {
+      // 1. Get profile
+      const student = await getStudent(studentId);
+      if (student) {
+        document.getElementById("profName").textContent = student.name || "Student";
+        document.getElementById("profBranch").textContent = student.branch || "-";
+        document.getElementById("profCgpa").textContent = student.cgpa != null ? student.cgpa : "-";
+        
+        const skills = Array.isArray(student.skills) ? student.skills : [];
+        document.getElementById("profSkills").textContent = skills.length ? skills.join(", ") : "None specified";
+        
+        currentResumeUrl = student.resume_url || "";
+        updateResumeDisplay(currentResumeUrl);
+      }
+    } catch (err) {
+      console.error("Could not load student resume profile:", err);
+      showAlert("Could not load student profile: " + (err.message || "Error"), "error");
+    }
+  }
+
+  function updateResumeDisplay(url) {
+    const banner = document.getElementById("statusBanner");
+    const bannerTitle = document.getElementById("bannerTitle");
+    const bannerBadge = document.getElementById("bannerBadge");
+    const bannerSubtitle = document.getElementById("bannerSubtitle");
+    const bannerActions = document.getElementById("bannerActions");
+    const btnOpenResume = document.getElementById("btnOpenResume");
+    const profResumeStatus = document.getElementById("profResumeStatus");
+    const previewContainer = document.getElementById("previewContainer");
+    const resumeIframe = document.getElementById("resumeIframe");
+
+    if (url && url.trim()) {
+      banner.classList.add("has-resume");
+      bannerTitle.textContent = "Resume Active & Attached";
+      bannerBadge.textContent = "✓ Uploaded";
+      bannerBadge.className = "badge-status active";
+      bannerSubtitle.textContent = "Your resume is ready and will be seen by both College Placement and Recruiters.";
+      bannerActions.style.display = "block";
+      btnOpenResume.href = url;
+
+      profResumeStatus.innerHTML = `<a href="${url}" target="_blank" rel="noopener" style="color:#16a34a;font-weight:700;">✓ Active Resume Attached ↗</a>`;
+
+      // Pre-fill URL input as well
+      document.getElementById("resumeUrlInput").value = url;
+
+      // Show iframe preview for PDF or web URLs
+      if (url.toLowerCase().endsWith(".pdf") || url.startsWith("http")) {
+        previewContainer.style.display = "block";
+        resumeIframe.src = url;
+      } else {
+        previewContainer.style.display = "none";
+      }
+    } else {
+      banner.classList.remove("has-resume");
+      bannerTitle.textContent = "No Resume Uploaded Yet";
+      bannerBadge.textContent = "Not Uploaded";
+      bannerBadge.className = "badge-status inactive";
+      bannerSubtitle.textContent = "Upload a resume file or enter a public link below.";
+      bannerActions.style.display = "none";
+      profResumeStatus.textContent = "None uploaded";
+      previewContainer.style.display = "none";
+    }
+  }
+
+  // Handle File Submit
+  document.getElementById("fileUploadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!selectedFile) {
+      showAlert("Please select a file to upload.", "error");
+      return;
+    }
+
+    const btn = document.getElementById("btnSubmitFile");
+    btn.disabled = true;
+    btn.textContent = "Uploading Resume...";
+
+    try {
+      const res = await uploadStudentResume(studentId, selectedFile);
+      showAlert("Resume uploaded and saved successfully! 🎉", "success");
+      currentResumeUrl = res.resume_url;
+      updateResumeDisplay(currentResumeUrl);
+      selectedFile = null;
+      document.getElementById("selectedFileName").textContent = "";
+      btn.textContent = "Upload & Save Resume File";
+    } catch (err) {
+      console.error("Upload error:", err);
+      showAlert("Could not upload resume: " + (err.message || "Error"), "error");
+      btn.disabled = false;
+      btn.textContent = "Upload & Save Resume File";
+    }
+  });
+
+  // Handle URL Submit
+  document.getElementById("urlUploadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const url = document.getElementById("resumeUrlInput").value.trim();
+    if (!url) {
+      showAlert("Please enter a valid resume URL.", "error");
+      return;
+    }
+
+    const btn = document.getElementById("btnSubmitUrl");
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+
+    try {
+      const res = await uploadStudentResume(studentId, url);
+      showAlert("Resume link saved successfully! 🎉", "success");
+      currentResumeUrl = res.resume_url;
+      updateResumeDisplay(currentResumeUrl);
+      btn.disabled = false;
+      btn.textContent = "Save Resume Link";
+    } catch (err) {
+      console.error("Save link error:", err);
+      showAlert("Could not save resume link: " + (err.message || "Error"), "error");
+      btn.disabled = false;
+      btn.textContent = "Save Resume Link";
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", loadStudentProfileAndResume);
+</script>
+
+</body>
+</html>

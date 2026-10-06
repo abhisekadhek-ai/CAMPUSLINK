@@ -100,25 +100,14 @@ async function apiPatch(path, body) {
         BASE_URL + path,
         {
             method: "PATCH",
-
             headers: authHeaders({
                 "Content-Type": "application/json"
             }),
-
             body: JSON.stringify(body),
         }
     );
 
     return handleResponse(res, path);
-}
-async function apiPatch(path, body) {
-  const res = await fetch(BASE_URL + path, {
-    method: "PATCH",
-    headers: authHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify(body),
-  });
-
-  return handleResponse(res, path);
 }
 
 
@@ -223,13 +212,58 @@ const createJobApplication =
             data
         );
 
-        const getApprovedJobApplications = () =>
-    apiGet("/recruiter/job-applicants");
+const getApprovedJobApplications = (company = "") =>
+    apiGet("/recruiter/job-applicants" + (company ? `?company=${encodeURIComponent(company)}` : ""));
 
+const updateJobApplicationStatus = (applicationId, status) =>
+    apiPatch(`/job-applications/${applicationId}/status`, { status });
 
 // ==================================================
-// College Approval
+// Student Resume Management
 // ==================================================
+
+async function uploadStudentResume(studentId, fileOrData) {
+    const headers = authHeaders();
+    let body;
+
+    if (fileOrData instanceof FormData) {
+        body = fileOrData;
+        delete headers["Content-Type"];
+    } else if (fileOrData instanceof File) {
+        const formData = new FormData();
+        formData.append("file", fileOrData);
+        body = formData;
+        delete headers["Content-Type"];
+    } else if (typeof fileOrData === "string") {
+        const formData = new FormData();
+        formData.append("resume_url", fileOrData);
+        body = formData;
+        delete headers["Content-Type"];
+    } else if (fileOrData && fileOrData.resume_url) {
+        const formData = new FormData();
+        formData.append("resume_url", fileOrData.resume_url);
+        body = formData;
+        delete headers["Content-Type"];
+    }
+
+    const res = await fetch(`${BASE_URL}/students/${studentId}/resume`, {
+        method: "POST",
+        headers,
+        body,
+    });
+    return handleResponse(res, `/students/${studentId}/resume`);
+}
+
+const getStudentResume = (studentId) =>
+    apiGet(`/students/${studentId}/resume`);
+
+// ==================================================
+// College & Placement Cell
+// ==================================================
+
+const getColleges = () => apiGet("/colleges");
+
+const getCollegeJobApplications = () => apiGet("/college/job-applications");
 
 const updateCollegeApproval =
     (applicationId, approval) =>

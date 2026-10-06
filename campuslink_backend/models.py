@@ -326,6 +326,11 @@ class Student(Base):
         default="Pending",
     )
 
+    resume_url = Column(
+        String,
+        nullable=True,
+    )
+
     created_at = Column(
 
         DateTime,
@@ -387,6 +392,10 @@ class Student(Base):
         cascade="all, delete-orphan",
 
     )
+
+    @property
+    def college_name(self):
+        return self.college.college_name if self.college else None
 
 
 
@@ -1217,6 +1226,14 @@ class JobApplication(Base):
         nullable=False,
 
         default="Pending",
+
+    )
+
+    resume_url = Column(
+
+        String,
+
+        nullable=True,
 
     )
 
