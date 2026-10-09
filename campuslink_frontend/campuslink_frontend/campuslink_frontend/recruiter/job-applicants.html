@@ -390,6 +390,7 @@
           <button class="filter-tab active" data-filter="All" onclick="setFilter('All', this)">All</button>
           <button class="filter-tab" data-filter="Applied" onclick="setFilter('Applied', this)">Applied</button>
           <button class="filter-tab" data-filter="Under Review" onclick="setFilter('Under Review', this)">Under Review</button>
+          <button class="filter-tab" data-filter="Shortlisted" onclick="setFilter('Shortlisted', this)">Shortlisted</button>
           <button class="filter-tab" data-filter="Interview" onclick="setFilter('Interview', this)">Interview</button>
           <button class="filter-tab" data-filter="Selected" onclick="setFilter('Selected', this)">Selected</button>
           <button class="filter-tab" data-filter="Rejected" onclick="setFilter('Rejected', this)">Rejected</button>
@@ -411,18 +412,18 @@
 </div>
 
 <!-- =========================
-     MODAL: SEND SELECTION MAIL TO STUDENT
+     MODAL: SEND SELECTION / SHORTLIST MAIL TO STUDENT
 ========================== -->
 <div id="recruiterEmailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
     <div style="background:#fff; border-radius:16px; width:92%; max-width:560px; padding:26px; box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h2 style="margin:0; font-size:20px; color:#1e1b4b; display:flex; align-items:center; gap:8px;">
-                <span>✉️</span> Mail Selected Student
+                <span>✉️</span> Mail Selected / Shortlisted Student
             </h2>
             <button type="button" onclick="closeRecruiterEmailModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#9ca3af; line-height:1;">&times;</button>
         </div>
         <p style="margin:0 0 16px; color:#4b5563; font-size:13.5px;">
-            Send an official selection offer letter and congratulations email directly to the student.
+            Send an official selection offer letter, shortlist notice, or update email directly to the student's inbox.
         </p>
 
         <div id="emailSendFeedback" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:8px; font-size:13.5px; font-weight:600;"></div>
@@ -434,6 +435,12 @@
             <div style="margin-bottom:14px;">
                 <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Recipient Student</label>
                 <input id="modalRecipientDisplay" type="text" readonly style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px; background:#f8fafc; font-weight:600; color:#1e293b;">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Student Email Address *</label>
+                <input id="modalRecipientEmail" type="email" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px;" placeholder="student@example.com">
+                <small style="color:#64748b; font-size:12px; margin-top:3px; display:block;">An actual live email will be sent directly to this address.</small>
             </div>
 
             <div style="margin-bottom:14px;">
@@ -449,7 +456,7 @@
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
                 <button type="button" class="secondary small" onclick="closeRecruiterEmailModal()">Cancel</button>
                 <button id="modalEmailSubmitBtn" type="submit" style="background:#2563eb; color:#fff; border:none; padding:10px 22px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13.5px; display:inline-flex; align-items:center; gap:6px;">
-                    🚀 Send Selection Email
+                    🚀 Send Email
                 </button>
             </div>
         </form>
@@ -525,7 +532,7 @@
     const subset = selectedCompany === "All" ? apps : apps.filter(a => (a.company || "").toLowerCase() === selectedCompany.toLowerCase());
     document.getElementById("statTotal").textContent = subset.length;
     document.getElementById("statApplied").textContent = subset.filter(a => (a.status || "Applied") === "Applied").length;
-    document.getElementById("statReview").textContent = subset.filter(a => a.status === "Under Review").length;
+    document.getElementById("statReview").textContent = subset.filter(a => a.status === "Under Review" || a.status === "Shortlisted").length;
     document.getElementById("statInterview").textContent = subset.filter(a => a.status === "Interview").length;
     document.getElementById("statSelected").textContent = subset.filter(a => a.status === "Selected").length;
   }
@@ -665,6 +672,15 @@
             <div class="status-control" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <button
                 type="button"
+                style="background:#0284c7;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;opacity:${app.status === 'Shortlisted' ? '0.6' : '1'};"
+                onclick="updateApplicationStatus(${app.id}, 'Shortlisted', this)"
+                title="Shortlist this candidate"
+              >
+                ${app.status === 'Shortlisted' ? '✓ Shortlisted' : '🎯 Shortlist'}
+              </button>
+
+              <button
+                type="button"
                 style="background:#16a34a;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;opacity:${app.status === 'Selected' ? '0.6' : '1'};"
                 onclick="updateApplicationStatus(${app.id}, 'Selected', this)"
                 title="Approve / Accept this candidate and extend offer"
@@ -675,8 +691,8 @@
               <button
                 type="button"
                 style="background:#2563eb;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;"
-                onclick="openRecruiterEmailModal(${app.student_id}, '${escapeHtml(app.student_name).replace(/'/g, "\\'")}', '${escapeHtml(app.job_title).replace(/'/g, "\\'")}', '${escapeHtml(app.company).replace(/'/g, "\\'")}', ${app.id})"
-                title="Send official selection mail to this student"
+                onclick="openRecruiterEmailModal(${app.student_id}, '${escapeHtml(app.student_name).replace(/'/g, "\\'")}', '${escapeHtml(app.job_title).replace(/'/g, "\\'")}', '${escapeHtml(app.company).replace(/'/g, "\\'")}', ${app.id}, '${escapeHtml(app.student_email || '').replace(/'/g, "\\'")}', '${escapeHtml(app.status || '').replace(/'/g, "\\'")}')"
+                title="Send official mail to this student"
               >
                 ✉️ Mail Student
               </button>
@@ -698,6 +714,7 @@
                 >
                   <option value="Applied" ${app.status === "Applied" ? "selected" : ""}>Applied</option>
                   <option value="Under Review" ${app.status === "Under Review" ? "selected" : ""}>Under Review</option>
+                  <option value="Shortlisted" ${app.status === "Shortlisted" ? "selected" : ""}>Shortlisted</option>
                   <option value="Interview" ${app.status === "Interview" ? "selected" : ""}>Interview</option>
                   <option value="Selected" ${app.status === "Selected" ? "selected" : ""}>Selected (Approved)</option>
                   <option value="Rejected" ${app.status === "Rejected" ? "selected" : ""}>Rejected</option>
@@ -738,9 +755,9 @@
               </a>
               <button
                 type="button"
-                onclick="openRecruiterEmailModal(${app.student_id}, '${escapeHtml(app.student_name || 'Student').replace(/'/g, "\\'")}', '${escapeHtml(app.job_title || 'Role').replace(/'/g, "\\'")}', '${escapeHtml(app.company || '').replace(/'/g, "\\'")}', ${app.id})"
+                onclick="openRecruiterEmailModal(${app.student_id}, '${escapeHtml(app.student_name || 'Student').replace(/'/g, "\\'")}', '${escapeHtml(app.job_title || 'Role').replace(/'/g, "\\'")}', '${escapeHtml(app.company || '').replace(/'/g, "\\'")}', ${app.id}, '${escapeHtml(app.student_email || '').replace(/'/g, "\\'")}', '${escapeHtml(app.status || '').replace(/'/g, "\\'")}')"
                 style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;background:#2563eb;color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;"
-                title="Send selection/offer email directly to this student"
+                title="Send selection/shortlist email directly to this student"
               >
                 ✉️ Mail Student
               </button>
@@ -775,7 +792,7 @@
       if (newFeedback) {
         newFeedback.style.display = "inline";
         newFeedback.style.color = "#16a34a";
-        newFeedback.textContent = newStatus === "Selected" ? "Accepted & Selected ✓" : (newStatus === "Rejected" ? "Rejected ✓" : "Status saved ✓");
+        newFeedback.textContent = newStatus === "Selected" ? "Accepted & Selected ✓" : (newStatus === "Shortlisted" ? "Candidate Shortlisted ✓" : (newStatus === "Rejected" ? "Rejected ✓" : "Status saved ✓"));
         setTimeout(() => {
           newFeedback.style.display = "none";
         }, 2500);
@@ -791,12 +808,24 @@
     }
   }
 
-  function openRecruiterEmailModal(studentId, studentName, jobTitle, company, appId) {
+  function openRecruiterEmailModal(studentId, studentName, jobTitle, company, appId, studentEmail, appStatus) {
     document.getElementById("modalStudentId").value = studentId;
     document.getElementById("modalApplicationId").value = appId || "";
     document.getElementById("modalRecipientDisplay").value = `${studentName} (ID: #${studentId})`;
-    document.getElementById("modalEmailSubject").value = `Congratulations! Official Selection Offer from ${company || 'Campus Recruiter'} for ${jobTitle || 'Placement'}`;
-    document.getElementById("modalEmailBody").value = `Dear ${studentName},\n\nWe are delighted to inform you that you have been successfully selected for the position of '${jobTitle || 'Role'}' at ${company || 'our company'} through the CampusLink Placement Drive!\n\nOur Human Resources and Talent Acquisition team will reach out with the formal offer letter, compensation breakdown, and onboarding documentation.\n\nHeartiest congratulations on your selection!\n\nWarm regards,\n${company || 'Campus Recruitment'} Recruitment Team\nCampusLink Placement Network`;
+
+    const emailInput = document.getElementById("modalRecipientEmail");
+    if (emailInput) {
+      emailInput.value = studentEmail || "";
+    }
+
+    const isOffer = (appStatus === "Selected");
+    if (isOffer) {
+      document.getElementById("modalEmailSubject").value = `Congratulations! Official Selection Offer from ${company || 'Campus Recruiter'} for ${jobTitle || 'Placement'}`;
+      document.getElementById("modalEmailBody").value = `Dear ${studentName},\n\nWe are delighted to inform you that you have been successfully selected for the position of '${jobTitle || 'Role'}' at ${company || 'our company'} through the CampusLink Placement Drive!\n\nOur Human Resources and Talent Acquisition team will reach out with the formal offer letter, compensation breakdown, and onboarding documentation.\n\nHeartiest congratulations on your selection!\n\nWarm regards,\n${company || 'Campus Recruitment'} Recruitment Team\nCampusLink Placement Network`;
+    } else {
+      document.getElementById("modalEmailSubject").value = `Congratulations! You have been Shortlisted by ${company || 'Campus Recruiter'} for ${jobTitle || 'Role'}`;
+      document.getElementById("modalEmailBody").value = `Dear ${studentName},\n\nCongratulations! We are pleased to inform you that your application for '${jobTitle || 'Role'}' at ${company || 'our company'} has been shortlisted in the CampusLink Placement Drive.\n\nOur recruitment team will communicate the upcoming interview schedule, time slot, and evaluation criteria shortly.\n\nPlease keep your resume and portfolio updated.\n\nWarm regards,\n${company || 'Campus Recruitment'} Recruitment Team\nCampusLink Placement Network`;
+    }
 
     const feedback = document.getElementById("emailSendFeedback");
     if (feedback) feedback.style.display = "none";
@@ -814,6 +843,7 @@
     e.preventDefault();
     const studentId = Number(document.getElementById("modalStudentId").value);
     const appId = document.getElementById("modalApplicationId").value;
+    const recipientEmail = document.getElementById("modalRecipientEmail") ? document.getElementById("modalRecipientEmail").value.trim() : "";
     const subject = document.getElementById("modalEmailSubject").value.trim();
     const message = document.getElementById("modalEmailBody").value.trim();
     const btn = document.getElementById("modalEmailSubmitBtn");
@@ -826,6 +856,7 @@
       const res = await sendRecruiterEmailToStudent({
         student_id: studentId,
         application_id: appId ? Number(appId) : null,
+        recipient_email: recipientEmail || undefined,
         subject: subject,
         message: message
       });
@@ -834,12 +865,12 @@
         feedback.style.display = "block";
         feedback.style.background = "#dcfce7";
         feedback.style.color = "#166534";
-        feedback.textContent = `✓ ${res.message || "Selection email successfully sent to student!"}`;
+        feedback.textContent = `✓ ${res.message || "Email successfully sent to student!"}`;
       }
 
       setTimeout(() => {
         closeRecruiterEmailModal();
-      }, 1500);
+      }, 2000);
 
     } catch (err) {
       console.error("Email send error:", err);
@@ -851,7 +882,7 @@
       }
     } finally {
       btn.disabled = false;
-      btn.innerHTML = "🚀 Send Selection Email";
+      btn.innerHTML = "🚀 Send Email";
     }
   }
 

@@ -384,6 +384,7 @@ from notifications import (
     notify_drive_announcement,
     notify_offer_status,
     send_welcome_email,
+    send_recruiter_direct_email,
     send_password_reset_otp,
     dispatch_automated_notification,
     auto_notify_shortlist_and_interview,
@@ -739,6 +740,7 @@ class RecruiterEmailPayload(BaseModel):
     application_id: Optional[int] = None
     subject: str
     message: str
+    recipient_email: Optional[str] = None
 
 
 
@@ -4730,8 +4732,8 @@ def send_recruiter_email_to_student(
     user: dict = Depends(current_user),
 ):
     """
-    Sends an official selection / offer email directly to the student from the recruiter.
-    Dispatches to In-App notification, Email channel, and records in audit dispatch log.
+    Sends an official selection / offer / shortlist email directly to the student from the recruiter.
+    Dispatches to In-App notification, real Email channel, and records in audit dispatch log.
     """
     student = db.get(Student, payload.student_id)
     if not student:
@@ -4745,7 +4747,21 @@ def send_recruiter_email_to_student(
 
     # Look up student's actual email or user account email
     student_acc = db.query(UserAccount).filter(UserAccount.student_id == student.id).first()
-    student_email = getattr(student, "email", None) or (student_acc.email if student_acc else None) or f"{student.name.lower().replace(' ', '')}@gmail.com"
+    student_email = (
+        (payload.recipient_email or "").strip()
+        or getattr(student, "email", None)
+        or (student_acc.email if student_acc else None)
+        or f"{student.name.lower().replace(' ', '')}@gmail.com"
+    )
+
+    # Send REAL email directly to the student
+    email_sent = send_recruiter_direct_email(
+        recipient_email=student_email,
+        recipient_name=student.name,
+        subject=payload.subject,
+        message=payload.message,
+        company=recruiter_company,
+    )
 
     notif = dispatch_automated_notification(
         db=db,
@@ -4763,12 +4779,19 @@ def send_recruiter_email_to_student(
             "email_subject": payload.subject,
             "sent_at": datetime.utcnow().isoformat(),
             "dispatch_type": "Recruiter Direct Selection Mail",
+            "email_delivery_status": "Delivered" if email_sent else "Simulated",
         },
     )
 
+    feedback_msg = (
+        f"Email successfully delivered to {student.name} ({student_email})"
+        if email_sent
+        else f"Notification recorded, but live email delivery failed (check recipient email or SMTP settings)."
+    )
+
     return {
-        "success": True,
-        "message": f"Selection email successfully dispatched to {student.name} ({student_email})",
+        "success": email_sent,
+        "message": feedback_msg,
         "notification_id": notif.id,
         "recipient_email": student_email,
         "recipient_name": student.name,
@@ -5432,6 +5455,7 @@ def update_job_application_status(
     allowed_statuses = {
         "Applied",
         "Under Review",
+        "Shortlisted",
         "Interview",
         "Rejected",
         "Selected",
@@ -5442,6 +5466,8 @@ def update_job_application_status(
 
     if status_lower in ("accepted", "accept", "selected", "select", "offer", "hired", "approved", "approve"):
         normalized_status = "Selected"
+    elif status_lower in ("shortlisted", "shortlist"):
+        normalized_status = "Shortlisted"
     elif status_lower in ("rejected", "reject"):
         normalized_status = "Rejected"
     elif status_lower in ("interview", "interviewing"):
@@ -5455,7 +5481,7 @@ def update_job_application_status(
     else:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid status '{raw_status}'. Use one of: Accepted, Selected, Rejected, Interview, Under Review, Applied",
+            detail=f"Invalid status '{raw_status}'. Use one of: Accepted, Selected, Shortlisted, Rejected, Interview, Under Review, Applied",
         )
 
     application = db.get(JobApplication, application_id)
@@ -5473,7 +5499,7 @@ def update_job_application_status(
     try:
         student = db.get(Student, application.student_id)
         if student:
-            if normalized_status in ("Interview", "Under Review"):
+            if normalized_status in ("Interview", "Under Review", "Shortlisted"):
                 auto_notify_shortlist_and_interview(
                     db=db,
                     student=student,
@@ -5592,10 +5618,15 @@ def get_approved_job_applications(
         if application.student_id in seen_students:
             continue
         seen_students.add(application.student_id)
+        
+        student_acc = db.query(UserAccount).filter(UserAccount.student_id == student.id).first()
+        student_email = getattr(student, "email", None) or (student_acc.email if student_acc else None) or ""
+
         results.append({
             "id": application.id,
             "student_id": application.student_id,
             "student_name": student.name,
+            "student_email": student_email,
             "branch": student.branch,
             "cgpa": student.cgpa,
             "skills": student.skills or [],

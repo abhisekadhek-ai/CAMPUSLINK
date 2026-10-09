@@ -64,16 +64,22 @@
   min-width: 70px;
   font-size: 12px;
   color: #8a8f9d;
+  transition: all 0.25s ease;
 }
 
 .progress-step.active {
   color: var(--indigo, #4f46e5);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.progress-step.completed {
+  color: #16a34a;
+  font-weight: 700;
 }
 
 .progress-dot {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -81,12 +87,22 @@
   background: #e5e7eb;
   color: #6b7280;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  transition: all 0.25s ease;
 }
 
 .progress-step.active .progress-dot {
   background: var(--indigo, #4f46e5);
   color: white;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.progress-step.completed .progress-dot {
+  background: #16a34a;
+  color: white;
+  border: 2px solid #15803d;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25);
+  font-size: 14px;
 }
 
 .progress-connector {
@@ -95,6 +111,12 @@
   background: #e5e7eb;
   margin: 0 6px;
   margin-bottom: 20px;
+  transition: all 0.25s ease;
+}
+
+.progress-connector.completed {
+  background: #16a34a;
+  height: 3px;
 }
 
 @media (max-width: 700px) {
@@ -106,6 +128,7 @@
     overflow-x: auto;
     padding-bottom: 8px;
   }
+}
 
 .btn-sm-apply {
   padding: 6px 14px;
@@ -374,31 +397,31 @@
 
       </div>
 
-      <div class="placement-progress-line">
+      <div class="placement-progress-line" id="placementProgressLine">
 
-        <div class="progress-step active">
-          <div class="progress-dot">1</div>
+        <div class="progress-step" id="stepApplied">
+          <div class="progress-dot" id="dotApplied">1</div>
           <span>Applied</span>
         </div>
 
-        <div class="progress-connector"></div>
+        <div class="progress-connector" id="conn1"></div>
 
-        <div class="progress-step">
-          <div class="progress-dot">2</div>
+        <div class="progress-step" id="stepShortlisted">
+          <div class="progress-dot" id="dotShortlisted">2</div>
           <span>Shortlisted</span>
         </div>
 
-        <div class="progress-connector"></div>
+        <div class="progress-connector" id="conn2"></div>
 
-        <div class="progress-step">
-          <div class="progress-dot">3</div>
+        <div class="progress-step" id="stepInterview">
+          <div class="progress-dot" id="dotInterview">3</div>
           <span>Interview</span>
         </div>
 
-        <div class="progress-connector"></div>
+        <div class="progress-connector" id="conn3"></div>
 
-        <div class="progress-step">
-          <div class="progress-dot">4</div>
+        <div class="progress-step" id="stepOffer">
+          <div class="progress-dot" id="dotOffer">4</div>
           <span>Offer</span>
         </div>
 
@@ -487,52 +510,6 @@
       </div>
     </div>
 
-    <!-- APPLY JOB MODAL -->
-    <div id="applyModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-card">
-        <h2 id="modalTitle">Apply for Matched Job</h2>
-        <p>
-          Submit your application to your <strong>College Placement Cell</strong>.
-          Once accepted by the placement cell, your application will be forwarded directly to the recruiter.
-        </p>
-
-        <form id="applyJobModalForm">
-          <div class="modal-form-group">
-            <label for="modalJobTitle">Job Role</label>
-            <input type="text" id="modalJobTitle" required readonly>
-          </div>
-
-          <div class="modal-form-group">
-            <label for="modalCompany">Company</label>
-            <input type="text" id="modalCompany" required readonly>
-          </div>
-
-          <div class="modal-form-group">
-            <label for="modalCollege">College Placement Cell</label>
-            <select id="modalCollege" required>
-              <option value="">Select your College Placement Cell</option>
-            </select>
-          </div>
-
-          <div class="modal-form-group">
-            <label for="modalJobUrl">Job Link</label>
-            <input type="url" id="modalJobUrl" required readonly>
-          </div>
-
-          <div class="modal-notice">
-            📌 <strong>Placement Routing:</strong> When you submit, your application is stored in the <strong>College Placement Cell</strong> with <strong>Pending Approval</strong> status. Once approved by the placement cell, it will go to the recruiter.
-          </div>
-
-          <div id="modalMessage" class="message" style="display:none;margin-bottom:12px;"></div>
-
-          <div class="modal-actions">
-            <button type="button" class="modal-btn-cancel" onclick="closeDashboardApplyModal()">Cancel</button>
-            <button type="submit" class="modal-btn-submit" id="modalSubmitBtn">Submit to Placement Cell</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
     <!-- EDIT PROFILE MODAL -->
     <div id="profileEditModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
       <div class="modal-card">
@@ -615,6 +592,76 @@ function showError(err) {
       Make sure "uvicorn main:app --reload" is running.
     </div>`;
 }
+function updateProgressLineSteps({ applied, shortlisted, interview, offer }) {
+  const stepApplied = document.getElementById("stepApplied");
+  const dotApplied = document.getElementById("dotApplied");
+  const conn1 = document.getElementById("conn1");
+
+  const stepShortlisted = document.getElementById("stepShortlisted");
+  const dotShortlisted = document.getElementById("dotShortlisted");
+  const conn2 = document.getElementById("conn2");
+
+  const stepInterview = document.getElementById("stepInterview");
+  const dotInterview = document.getElementById("dotInterview");
+  const conn3 = document.getElementById("conn3");
+
+  const stepOffer = document.getElementById("stepOffer");
+  const dotOffer = document.getElementById("dotOffer");
+
+  if (!stepApplied || !stepShortlisted || !stepInterview || !stepOffer) return;
+
+  // Reset to default
+  stepApplied.className = "progress-step";
+  dotApplied.textContent = "1";
+  if (conn1) conn1.className = "progress-connector";
+
+  stepShortlisted.className = "progress-step";
+  dotShortlisted.textContent = "2";
+  if (conn2) conn2.className = "progress-connector";
+
+  stepInterview.className = "progress-step";
+  dotInterview.textContent = "3";
+  if (conn3) conn3.className = "progress-connector";
+
+  stepOffer.className = "progress-step";
+  dotOffer.textContent = "4";
+
+  // Applied step
+  if (applied) {
+    stepApplied.classList.add("completed");
+    dotApplied.innerHTML = "✓";
+  } else {
+    stepApplied.classList.add("active");
+  }
+
+  // Shortlisted step
+  if (shortlisted) {
+    if (conn1) conn1.classList.add("completed");
+    stepShortlisted.classList.add("completed");
+    dotShortlisted.innerHTML = "✓";
+  } else if (applied) {
+    stepShortlisted.classList.add("active");
+  }
+
+  // Interview step
+  if (interview) {
+    if (conn2) conn2.classList.add("completed");
+    stepInterview.classList.add("completed");
+    dotInterview.innerHTML = "✓";
+  } else if (shortlisted) {
+    stepInterview.classList.add("active");
+  }
+
+  // Offer step
+  if (offer) {
+    if (conn3) conn3.classList.add("completed");
+    stepOffer.classList.add("completed");
+    dotOffer.innerHTML = "✓";
+  } else if (interview) {
+    stepOffer.classList.add("active");
+  }
+}
+
 async function loadPlacementProgress(id) {
     try {
         // Get this student's real job applications
@@ -627,11 +674,11 @@ async function loadPlacementProgress(id) {
 
         // Count based on current application status
         const shortlistedCount = list.filter(app =>
-            ["Under Review", "Interview", "Selected"].includes(app.status)
+            ["Under Review", "Shortlisted", "Interview", "Selected"].includes(app.status)
         ).length;
 
         const interviewsCount = list.filter(app =>
-            app.status === "Interview"
+            ["Interview", "Selected"].includes(app.status)
         ).length;
 
         const offersCount = list.filter(app =>
@@ -651,6 +698,13 @@ async function loadPlacementProgress(id) {
         document.getElementById("offersCount").textContent =
             offersCount;
 
+        // Update placement progress stepper showing complete symbol
+        updateProgressLineSteps({
+            applied: applicationCount > 0,
+            shortlisted: shortlistedCount > 0,
+            interview: interviewsCount > 0,
+            offer: offersCount > 0
+        });
 
     } catch (err) {
         console.error("Could not load placement progress:", err);
@@ -659,6 +713,7 @@ async function loadPlacementProgress(id) {
         document.getElementById("shortlistedCount").textContent = "0";
         document.getElementById("interviewsCount").textContent = "0";
         document.getElementById("offersCount").textContent = "0";
+        updateProgressLineSteps({ applied: false, shortlisted: false, interview: false, offer: false });
     }
 }
 
@@ -815,13 +870,15 @@ async function loadDashboardColleges() {
     if (Array.isArray(colleges)) {
       availableDashboardColleges = colleges;
       const select = document.getElementById("modalCollege");
-      select.innerHTML = '<option value="">Select your College Placement Cell</option>';
-      colleges.forEach(col => {
-        const opt = document.createElement("option");
-        opt.value = col.id;
-        opt.textContent = `${col.college_name} (${col.college_code})`;
-        select.appendChild(opt);
-      });
+      if (select) {
+        select.innerHTML = '<option value="">Select your College Placement Cell</option>';
+        colleges.forEach(col => {
+          const opt = document.createElement("option");
+          opt.value = col.id;
+          opt.textContent = `${col.college_name} (${col.college_code})`;
+          select.appendChild(opt);
+        });
+      }
     }
   } catch (err) {
     console.error("Could not load colleges for dashboard:", err);
@@ -864,8 +921,10 @@ async function loadMyJobApplications(studentId) {
         recruiterStatusBadge = `<span class="badge ready">🎉 Selected / Offer</span>`;
       } else if (status === "Interview") {
         recruiterStatusBadge = `<span class="badge developing">Interview</span>`;
+      } else if (status === "Shortlisted") {
+        recruiterStatusBadge = `<span class="badge" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;font-weight:700;">🎯 Shortlisted</span>`;
       } else if (status === "Under Review") {
-        recruiterStatusBadge = `<span class="badge" style="background:#e0e7ff;color:#3730a3;">Under Review</span>`;
+        recruiterStatusBadge = `<span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;">🎯 Shortlisted (Under Review)</span>`;
       } else if (status === "Rejected") {
         recruiterStatusBadge = `<span class="badge notready">Rejected</span>`;
       } else {
@@ -899,107 +958,12 @@ async function loadMyJobApplications(studentId) {
   }
 }
 
-function openDashboardApplyModal(role, company) {
-  if (!currentLoadedStudentId) {
-    alert("Please log in as a student.");
-    return;
-  }
-
-  const session = JSON.parse(sessionStorage.getItem("campuslink_session") || "null");
-
-  document.getElementById("modalJobTitle").value = role;
-  document.getElementById("modalCompany").value = company;
-  document.getElementById("modalJobUrl").value = `https://campuslink.local/jobs/${currentLoadedStudentId}/${Date.now()}`;
-
-  const collegeSelect = document.getElementById("modalCollege");
-  if (session && session.college_id) {
-    collegeSelect.value = String(session.college_id);
-  } else if (availableDashboardColleges.length > 0 && !collegeSelect.value) {
-    collegeSelect.value = String(availableDashboardColleges[0].id);
-  }
-
-  const msgBox = document.getElementById("modalMessage");
-  msgBox.style.display = "none";
-  msgBox.textContent = "";
-
-  const submitBtn = document.getElementById("modalSubmitBtn");
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Submit to Placement Cell";
-
-  document.getElementById("applyModal").classList.add("active");
+function goToApplyJob(role, company) {
+  const params = new URLSearchParams();
+  if (role) params.set("role", role);
+  if (company) params.set("company", company);
+  window.location.href = `manual-apply.html?${params.toString()}`;
 }
-
-function closeDashboardApplyModal() {
-  document.getElementById("applyModal").classList.remove("active");
-}
-
-document.getElementById("applyJobModalForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
-
-  if (!currentLoadedStudentId) return;
-
-  const jobTitle = document.getElementById("modalJobTitle").value.trim();
-  const company = document.getElementById("modalCompany").value.trim();
-  const college = document.getElementById("modalCollege").value.trim();
-  const jobUrl = document.getElementById("modalJobUrl").value.trim();
-
-  const msgBox = document.getElementById("modalMessage");
-  const submitBtn = document.getElementById("modalSubmitBtn");
-
-  if (!jobTitle || !company || !college) {
-    msgBox.style.display = "block";
-    msgBox.className = "message error";
-    msgBox.textContent = "Please select your College Placement Cell.";
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Submitting to Placement Cell...";
-
-  try {
-    await createJobApplication(currentLoadedStudentId, {
-      job_title: jobTitle,
-      company: company,
-      college: college,
-      job_url: jobUrl,
-      source: "Matched Roles"
-    });
-
-    msgBox.style.display = "block";
-    msgBox.className = "message success";
-    msgBox.innerHTML = `<strong>Application Stored!</strong> Sent to your College Placement Cell for review.`;
-
-    // Refresh applications and matched table
-    await loadPlacementProgress(currentLoadedStudentId);
-    await loadMyJobApplications(currentLoadedStudentId);
-    await refreshMatchedRoles(currentLoadedStudentId);
-
-    setTimeout(() => {
-      closeDashboardApplyModal();
-    }, 1400);
-
-  } catch (err) {
-    console.error("Dashboard apply error:", err);
-    msgBox.style.display = "block";
-    msgBox.className = "message error";
-    const msg = String(err.message || "");
-    if (msg.includes("409")) {
-      msgBox.textContent = "You have already applied for this job.";
-    } else {
-      msgBox.textContent = "Could not submit application. " + msg;
-    }
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit to Placement Cell";
-  }
-});
-
-// Close modal when clicking outside
-document.getElementById("applyModal").addEventListener("click", function(e) {
-  if (e.target === this) {
-    closeDashboardApplyModal();
-  }
-});
 
 let currentStudentData = null;
 
@@ -1132,7 +1096,7 @@ async function refreshMatchedRoles(id) {
           <button
             type="button"
             class="btn-sm-apply"
-            onclick="openDashboardApplyModal('${escapeHtml(m.role).replace(/'/g, "\\'")}', '${escapeHtml(m.company).replace(/'/g, "\\'")}')"
+            onclick="goToApplyJob('${escapeHtml(m.role || '').replace(/'/g, "\\'")}', '${escapeHtml(m.company || '').replace(/'/g, "\\'")}')"
           >
             Apply Job
           </button>

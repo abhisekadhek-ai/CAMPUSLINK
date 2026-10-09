@@ -1424,7 +1424,7 @@ class JobApplication(Base):
 
             "status IN "
 
-            "('Applied', 'Under Review', 'Interview', "
+            "('Applied', 'Under Review', 'Shortlisted', 'Interview', "
 
             "'Rejected', 'Selected')",
 

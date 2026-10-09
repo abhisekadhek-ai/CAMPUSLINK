@@ -618,10 +618,71 @@ async function loadStudentResume() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function loadQueryParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const roleParam = urlParams.get("role") || urlParams.get("job_title");
+  const companyParam = urlParams.get("company");
+  const studentId = getLoggedInStudentId() || "1001";
+
+  if (roleParam) {
+    const jobTitleInput = document.getElementById("jobTitle");
+    if (jobTitleInput) jobTitleInput.value = roleParam;
+  }
+
+  if (companyParam) {
+    const companyInput = document.getElementById("company");
+    if (companyInput) companyInput.value = companyParam;
+
+    const recruiterSelect = document.getElementById("recruiterSelect");
+    if (recruiterSelect) {
+      let matched = false;
+      for (let i = 0; i < recruiterSelect.options.length; i++) {
+        if (recruiterSelect.options[i].value.toLowerCase() === companyParam.toLowerCase()) {
+          recruiterSelect.selectedIndex = i;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        recruiterSelect.value = "custom";
+      }
+    }
+  }
+
+  const jobUrlInput = document.getElementById("jobUrl");
+  if (jobUrlInput && !jobUrlInput.value && (roleParam || companyParam)) {
+    const safeComp = (companyParam || "recruiter").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const safeRole = (roleParam || "role").toLowerCase().replace(/[^a-z0-9]/g, "-");
+    jobUrlInput.value = `https://campuslink.local/jobs/${safeComp}/${safeRole}-${Date.now()}`;
+  }
+
+  const sourceSelect = document.getElementById("source");
+  if (sourceSelect && (roleParam || companyParam)) {
+    let found = false;
+    for (let opt of sourceSelect.options) {
+      if (opt.value === "Matched Roles") found = true;
+    }
+    if (!found) {
+      const opt = document.createElement("option");
+      opt.value = "Matched Roles";
+      opt.textContent = "Matched Roles";
+      sourceSelect.appendChild(opt);
+    }
+    sourceSelect.value = "Matched Roles";
+  }
+}
+
+function initManualApply() {
   loadColleges();
   loadStudentResume();
-});
+  loadQueryParams();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initManualApply);
+} else {
+  initManualApply();
+}
 
 </script>
 

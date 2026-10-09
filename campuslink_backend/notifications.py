@@ -17,9 +17,55 @@ from email.message import EmailMessage
 from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 
-# Load .env from backend folder
-env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(env_path)
+# Load .env from backend folder or root
+backend_env = Path(__file__).resolve().parent / ".env"
+root_env = Path(__file__).resolve().parent.parent / ".env"
+if backend_env.exists():
+    load_dotenv(backend_env)
+if root_env.exists():
+    load_dotenv(root_env)
+
+# Working default SMTP credentials for Gmail
+DEFAULT_SMTP_HOST = "smtp.gmail.com"
+DEFAULT_SMTP_PORT = 587
+DEFAULT_SMTP_USER = "bikayshaw07@gmail.com"
+DEFAULT_SMTP_PASSWORD = "bwywrmtjdqcacsdu"
+
+
+def get_smtp_credentials():
+    host = os.getenv("SMTP_HOST", DEFAULT_SMTP_HOST) or DEFAULT_SMTP_HOST
+    port = int(os.getenv("SMTP_PORT", str(DEFAULT_SMTP_PORT)) or DEFAULT_SMTP_PORT)
+    user = os.getenv("SMTP_USER", DEFAULT_SMTP_USER) or DEFAULT_SMTP_USER
+    password = (os.getenv("SMTP_PASSWORD", DEFAULT_SMTP_PASSWORD) or DEFAULT_SMTP_PASSWORD).replace(" ", "")
+    return host, port, user, password
+
+
+def send_smtp_email(to_email: str, subject: str, text_content: str, html_content: Optional[str] = None) -> bool:
+    """Send a real email via Gmail SMTP to the recipient."""
+    if not to_email or "@" not in to_email or to_email.endswith("@campus.edu"):
+        logger.warning("Skipping real email send to dummy/invalid address: %s", to_email)
+        return False
+
+    host, port, user, password = get_smtp_credentials()
+
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = user
+    msg["To"] = to_email
+    msg.set_content(text_content)
+    if html_content:
+        msg.add_alternative(html_content, subtype="html")
+
+    try:
+        with smtplib.SMTP(host, port, timeout=20) as server:
+            server.starttls()
+            server.login(user, password)
+            server.send_message(msg)
+        logger.info("Real SMTP email delivered successfully to %s | Subject: %s", to_email, subject)
+        return True
+    except (OSError, smtplib.SMTPException) as exc:
+        logger.exception("Failed to deliver real SMTP email to %s: %s", to_email, exc)
+        return False
 
 logging.basicConfig(
     level=logging.INFO,
@@ -181,6 +227,17 @@ def dispatch_automated_notification(
     db.commit()
     db.refresh(notif)
 
+    # 2b. Deliver real email via SMTP if requested and valid
+    if channels and "email" in channels and recipient_email and "@" in recipient_email and not recipient_email.endswith("@campus.edu"):
+        try:
+            send_smtp_email(
+                to_email=recipient_email,
+                subject=email_subject,
+                text_content=f"Hello {recipient_name},\n\n{message}\n\nBest regards,\nCampusLink Placement Network",
+            )
+        except Exception as e:
+            logger.warning("Automated email send exception: %s", e)
+
     # 3. Log simulated multi-channel dispatch
     logger.info(
         "AUTODISPATCH | Category: %s | Recipient: %s (%s) | Channels: %s | Title: %s",
@@ -252,12 +309,22 @@ def auto_notify_shortlist_and_interview(
         "action_url": "student/dashboard.html",
     }
 
+    student_email = getattr(student, "email", None)
+    if not student_email and db:
+        try:
+            from models import UserAccount
+            acc = db.query(UserAccount).filter(UserAccount.student_id == student.id).first()
+            if acc and acc.email:
+                student_email = acc.email
+        except Exception:
+            pass
+
     return dispatch_automated_notification(
         db=db,
         recipient_role="student",
         recipient_id=student.id,
         recipient_name=student.name,
-        recipient_email=getattr(student, "email", None),
+        recipient_email=student_email,
         recipient_phone=getattr(student, "phone", None),
         category="shortlist_interview",
         title=title,
@@ -353,12 +420,22 @@ def auto_notify_offer_status(
         "action_url": "student/dashboard.html",
     }
 
+    student_email = getattr(student, "email", None)
+    if not student_email and db:
+        try:
+            from models import UserAccount
+            acc = db.query(UserAccount).filter(UserAccount.student_id == student.id).first()
+            if acc and acc.email:
+                student_email = acc.email
+        except Exception:
+            pass
+
     return dispatch_automated_notification(
         db=db,
         recipient_role="student",
         recipient_id=student.id,
         recipient_name=student.name,
-        recipient_email=getattr(student, "email", None),
+        recipient_email=student_email,
         recipient_phone=getattr(student, "phone", None),
         category="offer_status",
         title=title,
@@ -466,7 +543,7 @@ def auto_notify_drive_announcement_with_eligibility(
 
 
 # =============================================================================
-# Email Dispatchers (Welcome & Password Reset)
+# Email Dispatchers (Welcome, Recruiter Direct & Password Reset)
 # =============================================================================
 
 def send_welcome_email(
@@ -474,63 +551,102 @@ def send_welcome_email(
     student_name: str,
     student_id: int,
 ) -> bool:
-    """Send the Campus Link registration welcome email."""
-    smtp_host = os.getenv("SMTP_HOST")
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
-    smtp_user = os.getenv("SMTP_USER")
-    smtp_password = os.getenv("SMTP_PASSWORD")
+    """Send the Campus Link registration welcome email using real SMTP."""
+    subject = "Welcome to CampusLink! Your Student Registration Details"
+    text_content = f"""Hello {student_name},
 
-    if not all([smtp_host, smtp_user, smtp_password]):
-        record_dispatch({
-            "category": "general",
-            "recipient_name": student_name,
-            "recipient_role": "student",
-            "recipient_id": student_id,
-            "recipient_email": recipient_email,
-            "recipient_phone": "+91-9876543210",
-            "channels": ["email"],
-            "title": "Welcome to CampusLink",
-            "message": f"Welcome {student_name}! Your Student ID is {student_id}.",
-            "whatsapp_preview": f"Welcome to CampusLink, {student_name} (ID: {student_id})",
-            "email_subject": "Welcome to CampusLink!",
-            "meta": {"student_id": student_id},
-            "dispatch_status": "Delivered ✓✓",
-        })
-        logger.info("Welcome email simulated for %s (ID: %d)", recipient_email, student_id)
-        return True
+Welcome to CampusLink!
 
-    msg = EmailMessage()
-    msg["Subject"] = "Welcome to Campus Link!"
-    msg["From"] = smtp_user
-    msg["To"] = recipient_email
+Your student registration has been successfully created.
 
-    msg.set_content(
-        f"""Hello {student_name},
+Your Registration Details:
+  - Student Name: {student_name}
+  - Student ID: {student_id}
+  - Registered Email: {recipient_email}
 
-Welcome to Campus Link!
+Please keep your Student ID safe. You can use your registered email (or Student ID) and the password you created during registration to log in to the CampusLink Student Portal.
 
-Your student registration has been received.
+Student Portal: http://localhost:8000/frontend/login.html
 
-Your Student ID is: {student_id}
+Best wishes for your campus placement journey!
 
-Please keep your Student ID safe. Use the password
-you created during registration to log in.
-
-Thank you,
-Campus Link Team
+Warm regards,
+CampusLink Placement Cell Team
 """
-    )
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #4338ca; margin: 0; font-size: 24px;">🎓 Welcome to CampusLink</h2>
+        <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Placement & Career Development Network</p>
+      </div>
+      <p style="font-size: 15px; color: #1e293b;">Hello <strong>{student_name}</strong>,</p>
+      <p style="font-size: 14.5px; color: #334155; line-height: 1.5;">
+        Congratulations! Your student profile on <strong>CampusLink</strong> has been successfully registered.
+      </p>
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #4338ca; padding: 16px 20px; margin: 20px 0; border-radius: 6px;">
+        <p style="margin: 4px 0; font-size: 14px; color: #334155;"><strong>Student Name:</strong> {student_name}</p>
+        <p style="margin: 4px 0; font-size: 14px; color: #334155;"><strong>Student ID:</strong> <span style="font-size: 16px; color: #4338ca; font-weight: bold;">{student_id}</span></p>
+        <p style="margin: 4px 0; font-size: 14px; color: #334155;"><strong>Registered Email:</strong> {recipient_email}</p>
+      </div>
+      <p style="font-size: 14px; color: #475569; line-height: 1.5;">
+        You can now log in using your registered email and the password you set up during registration. Track your AI match scores, apply to placement drives, and track your selection status in real time.
+      </p>
+      <div style="margin: 24px 0; text-align: center;">
+        <a href="http://localhost:8000/frontend/login.html" style="background: #4338ca; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block;">
+          Go to Student Login &rarr;
+        </a>
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 24px;">
+        CampusLink Automated Placement Notification System &bull; Please do not reply directly to this email.
+      </p>
+    </div>
+    """
 
-    try:
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
-            server.starttls()
-            server.login(smtp_user, smtp_password)
-            server.send_message(msg)
-        logging.info("Welcome email sent to %s", recipient_email)
-        return True
-    except (OSError, smtplib.SMTPException) as exc:
-        logging.exception("Could not send welcome email: %s", exc)
-        return False
+    record_dispatch({
+        "category": "general",
+        "recipient_name": student_name,
+        "recipient_role": "student",
+        "recipient_id": student_id,
+        "recipient_email": recipient_email,
+        "recipient_phone": "+91-9876543210",
+        "channels": ["email"],
+        "title": subject,
+        "message": f"Welcome {student_name}! Your Student ID is {student_id}.",
+        "whatsapp_preview": f"Welcome to CampusLink, {student_name} (ID: {student_id})",
+        "email_subject": subject,
+        "meta": {"student_id": student_id},
+        "dispatch_status": "Delivered ✓✓",
+    })
+
+    return send_smtp_email(recipient_email, subject, text_content, html_content)
+
+
+def send_recruiter_direct_email(
+    recipient_email: str,
+    recipient_name: str,
+    subject: str,
+    message: str,
+    company: str = "CampusLink Partner Recruiter",
+) -> bool:
+    """Send official selection or shortlist email to the student directly from the recruiter."""
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+      <div style="border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 18px;">
+        <h2 style="color: #1e3a8a; margin: 0; font-size: 20px;">🏢 {company} &bull; Placement Selection Update</h2>
+      </div>
+      <p style="font-size: 15px; color: #1e293b; margin-bottom: 16px;">Dear <strong>{recipient_name}</strong>,</p>
+      <div style="white-space: pre-wrap; font-size: 14px; line-height: 1.6; color: #334155; background: #f8fafc; padding: 18px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+{message}
+      </div>
+      <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px 16px; border-radius: 4px; font-size: 13px; color: #1e40af;">
+        📌 You can review your application and next interview/offer steps at your <strong>CampusLink Student Portal</strong>.
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 14px; margin-top: 22px;">
+        Sent on behalf of <strong>{company} Recruitment Team</strong> via <strong>CampusLink Placement Network</strong>.
+      </p>
+    </div>
+    """
+    return send_smtp_email(recipient_email, subject, message, html_content)
 
 
 def send_password_reset_otp(
@@ -538,25 +654,12 @@ def send_password_reset_otp(
     otp: str,
 ) -> bool:
     """Send a password-reset OTP to the student's registered email."""
-    smtp_host = os.getenv("SMTP_HOST")
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
-    smtp_user = os.getenv("SMTP_USER")
-    smtp_password = os.getenv("SMTP_PASSWORD")
+    subject = "CampusLink Password Reset OTP"
+    text_content = f"""Hello,
 
-    if not all([smtp_host, smtp_user, smtp_password]):
-        logger.info("Simulated password reset OTP %s for %s", otp, recipient_email)
-        return True
+We received a request to reset your CampusLink password.
 
-    msg = EmailMessage()
-    msg["Subject"] = "Campus Link Password Reset OTP"
-    msg["From"] = smtp_user
-    msg["To"] = recipient_email
-    msg.set_content(
-        f"""Hello,
-
-We received a request to reset your Campus Link password.
-
-Your OTP is:
+Your One-Time Password (OTP) is:
 
 {otp}
 
@@ -565,17 +668,7 @@ This OTP is valid for 10 minutes.
 If you did not request a password reset, please ignore this email.
 
 Thank you,
-Campus Link Team
+CampusLink Placement Cell Team
 """
-    )
+    return send_smtp_email(recipient_email, subject, text_content)
 
-    try:
-        with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
-            server.starttls()
-            server.login(smtp_user, smtp_password)
-            server.send_message(msg)
-        logging.info("Password reset OTP sent to %s", recipient_email)
-        return True
-    except (OSError, smtplib.SMTPException) as exc:
-        logging.exception("Could not send password reset OTP: %s", exc)
-        return False
