@@ -55,26 +55,29 @@ from database import Base
 
 
 class JSONList(TypeDecorator):
-
     """Store Python lists as JSON text in SQLite."""
 
-
-
     impl = Text
-
     cache_ok = True
 
-
-
     def process_bind_param(self, value, dialect):
-
         return json.dumps(value if value is not None else [])
 
+    def process_result_value(self, value, dialect):
+        return json.loads(value) if value else []
 
+
+class JSONDict(TypeDecorator):
+    """Store Python dicts as JSON text in SQLite."""
+
+    impl = Text
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        return json.dumps(value if value is not None else {})
 
     def process_result_value(self, value, dialect):
-
-        return json.loads(value) if value else []
+        return json.loads(value) if value else {}
 
 
 
@@ -276,11 +279,24 @@ class Student(Base):
 
 
 
+    projects = Column(
+
+        JSONList,
+
+        nullable=False,
+
+        default=list,
+
+    )
+
+
+
     mock_interview_score = Column(
 
         Integer,
 
     )
+
 
 
 
@@ -329,6 +345,17 @@ class Student(Base):
     resume_url = Column(
         String,
         nullable=True,
+    )
+
+    resume_text = Column(
+        Text,
+        nullable=True,
+    )
+
+    parsed_resume_data = Column(
+        JSONDict,
+        nullable=False,
+        default=dict,
     )
 
     created_at = Column(
@@ -391,6 +418,18 @@ class Student(Base):
 
         cascade="all, delete-orphan",
 
+    )
+
+    assessment_results = relationship(
+        "AssessmentResult",
+        back_populates="student",
+        cascade="all, delete-orphan",
+    )
+
+    mock_interview_results = relationship(
+        "MockInterviewResult",
+        back_populates="student",
+        cascade="all, delete-orphan",
     )
 
     @property
@@ -509,7 +548,52 @@ class Recruiter(Base):
 
     )
 
+    job_description = Column(
+        Text,
+        nullable=True,
+    )
 
+    responsibilities = Column(
+        JSONList,
+        nullable=False,
+        default=list,
+    )
+
+    max_backlogs = Column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+
+    min_mock_score = Column(
+        Integer,
+        nullable=False,
+        default=50,
+    )
+
+    min_assessment_score = Column(
+        Integer,
+        nullable=False,
+        default=50,
+    )
+
+    location = Column(
+        String,
+        nullable=True,
+        default="On-Campus / Hybrid",
+    )
+
+    experience_level = Column(
+        String,
+        nullable=True,
+        default="Entry Level / Fresher",
+    )
+
+    allowed_batches = Column(
+        JSONList,
+        nullable=False,
+        default=list,
+    )
 
     created_at = Column(
 
@@ -637,6 +721,53 @@ class Drive(Base):
 
         default="Scheduled",
 
+    )
+
+
+
+    resources = Column(
+
+        JSONList,
+
+        nullable=False,
+
+        default=list,
+
+    )
+
+
+
+    interview_panels = Column(
+
+        JSONList,
+
+        nullable=False,
+
+        default=list,
+
+    )
+
+
+
+    infrastructure_capacity = Column(
+
+        Integer,
+
+        nullable=True,
+
+        default=100,
+
+    )
+
+    registration_deadline = Column(
+        String,
+        nullable=True,
+    )
+
+    round_timeline = Column(
+        JSONList,
+        nullable=False,
+        default=list,
     )
 
 
@@ -1301,4 +1432,307 @@ class JobApplication(Base):
 
         ),
 
+    )
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    recipient_role = Column(String, nullable=False, default="student", index=True)  # student, recruiter, admin, all
+    recipient_id = Column(Integer, nullable=True, index=True)
+    recipient_name = Column(String, nullable=True)
+    recipient_email = Column(String, nullable=True)
+    recipient_phone = Column(String, nullable=True)
+
+    category = Column(String, nullable=False, index=True)
+    # categories:
+    # 'shortlist_interview' (Shortlisting and interview schedules)
+    # 'document_deadline' (Document submission deadlines)
+    # 'offer_status' (Offer status updates)
+    # 'drive_announcement' (Drive announcements and eligibility criteria)
+    # 'general'
+
+    title = Column(String, nullable=False)
+    message = Column(Text, nullable=False)
+
+    channels = Column(JSONList, default=list)  # ["in_app", "email", "whatsapp"]
+    dispatch_status = Column(String, default="Delivered")
+
+    email_delivery_status = Column(String, default="Sent")
+    whatsapp_delivery_status = Column(String, default="Delivered")
+
+    meta_data = Column(JSONList, default=dict)
+    deadline_at = Column(DateTime, nullable=True)
+
+    read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+# ============================================================
+# HISTORICAL PLACEMENT RECORD
+# ============================================================
+
+class HistoricalPlacementRecord(Base):
+    __tablename__ = "historical_placement_records"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    batch_year = Column(
+        String,
+        nullable=False,
+        index=True,
+    )  # e.g., "2023-2024", "2024-2025"
+
+    company = Column(
+        String,
+        nullable=False,
+        index=True,
+    )
+
+    role = Column(
+        String,
+        nullable=False,
+    )
+
+    branch = Column(
+        String,
+        nullable=False,
+        index=True,
+    )
+
+    package_ctc_lpa = Column(
+        Float,
+        nullable=False,
+    )
+
+    students_placed = Column(
+        Integer,
+        nullable=False,
+        default=1,
+    )
+
+    hiring_domain = Column(
+        String,
+        nullable=False,
+        index=True,
+    )  # e.g., "Software Engineering", "Cloud & DevOps", "Data & AI"
+
+    key_skills_demanded = Column(
+        JSONList,
+        nullable=False,
+        default=list,
+    )
+
+    avg_cgpa_placed = Column(
+        Float,
+        nullable=False,
+        default=7.5,
+    )
+
+    min_cgpa_placed = Column(
+        Float,
+        nullable=False,
+        default=6.5,
+    )
+
+    selection_ratio_percent = Column(
+        Float,
+        nullable=False,
+        default=15.0,
+    )
+
+    placement_season = Column(
+        String,
+        nullable=False,
+        default="Phase 1 - Autumn",
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+    )
+
+
+# ============================================================
+# ASSESSMENT RESULT
+# ============================================================
+
+class AssessmentResult(Base):
+    __tablename__ = "assessment_results"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    assessment_title = Column(
+        String,
+        nullable=False,
+    )
+
+    assessment_type = Column(
+        String,
+        nullable=False,
+        default="Comprehensive",
+    )  # Coding, Aptitude, Technical MCQ, Comprehensive
+
+    aptitude_score = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )
+
+    coding_score = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )
+
+    technical_score = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )
+
+    total_score = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )
+
+    percentile = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )
+
+    strengths = Column(
+        JSONList,
+        nullable=False,
+        default=list,
+    )
+
+    weaknesses = Column(
+        JSONList,
+        nullable=False,
+        default=list,
+    )
+
+    status = Column(
+        String,
+        nullable=False,
+        default="Completed",
+    )
+
+    completed_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+    )
+
+    student = relationship(
+        "Student",
+        back_populates="assessment_results",
+    )
+
+
+# ============================================================
+# MOCK INTERVIEW RESULT
+# ============================================================
+
+class MockInterviewResult(Base):
+    __tablename__ = "mock_interview_results"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    interview_type = Column(
+        String,
+        nullable=False,
+        default="Technical Mock Round",
+    )  # Technical Mock Round, System Design, HR & Behavioral
+
+    interviewer_name = Column(
+        String,
+        nullable=False,
+        default="Placement Cell Panel",
+    )
+
+    interviewer_designation = Column(
+        String,
+        nullable=True,
+        default="Senior Industry Mentor",
+    )
+
+    technical_rating = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )  # 0-100
+
+    communication_rating = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )  # 0-100
+
+    problem_solving_rating = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )  # 0-100
+
+    overall_score = Column(
+        Float,
+        nullable=False,
+        default=0.0,
+    )  # 0-100
+
+    verdict = Column(
+        String,
+        nullable=False,
+        default="Developing",
+    )  # Exceptional, Ready, Developing, Needs Preparation
+
+    feedback_notes = Column(
+        Text,
+        nullable=True,
+    )
+
+    recommended_actions = Column(
+        JSONList,
+        nullable=False,
+        default=list,
+    )
+
+    conducted_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+    )
+
+    student = relationship(
+        "Student",
+        back_populates="mock_interview_results",
     )

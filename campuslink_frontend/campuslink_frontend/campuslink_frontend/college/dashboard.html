@@ -272,6 +272,117 @@
             border-color: #4f46e5;
         }
 
+        .main-tab-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .main-tab-btn {
+            padding: 12px 22px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #4b5563;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-tab-btn:hover {
+            background: #f9fafb;
+            border-color: #4f46e5;
+            color: #4f46e5;
+        }
+
+        .main-tab-btn.active {
+            background: #4f46e5;
+            color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .drive-student-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #eef2ff;
+            color: #3730a3;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f0fdf4;
+            color: #166534;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background: #fff;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 540px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .form-row {
+            margin-bottom: 14px;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+
+        .form-row input, .form-row select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
         .loading {
             text-align: center;
             padding: 30px;
@@ -363,6 +474,30 @@
 
         </section>
 
+        <!-- PRIMARY DASHBOARD TABS -->
+        <div class="main-tab-bar">
+            <button
+                type="button"
+                id="mainTabApplicationsBtn"
+                class="main-tab-btn active"
+                onclick="switchMainTab('applications')"
+            >
+                📋 Job Applications &amp; Placement Approvals
+            </button>
+            <button
+                type="button"
+                id="mainTabDrivesBtn"
+                class="main-tab-btn"
+                onclick="switchMainTab('drives')"
+            >
+                🚗 Campus Placement Drives (Drive Option)
+            </button>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- JOB APPLICATIONS VIEW SECTION -->
+        <!-- ========================================================= -->
+        <div id="applicationsViewSection">
 
         <!-- SUMMARY CARDS -->
 
@@ -539,7 +674,264 @@
 
         </section>
 
-    </main>
+        </div>
+        <!-- END OF applicationsViewSection -->
+
+
+        <!-- ========================================================= -->
+        <!-- CAMPUS RECRUITMENT DRIVES SECTION (DRIVE OPTION) -->
+        <!-- ========================================================= -->
+        <div id="drivesViewSection" style="display:none;">
+
+            <!-- DRIVE SUMMARY CARDS -->
+            <section class="cards">
+                <div class="card">
+                    <div class="card-title">Total Placement Drives</div>
+                    <div class="card-number" id="totalDrivesCount" style="color:#4f46e5;">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Upcoming / Scheduled</div>
+                    <div class="card-number" id="scheduledDrivesCount" style="color:#16a34a;">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Active Student Schedules</div>
+                    <div class="card-number" id="studentsInDrivesCount" style="color:#0284c7;">0</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Top Recruiters</div>
+                    <div class="card-number" id="topRecruitersCount" style="color:#7c3aed;">5</div>
+                </div>
+            </section>
+
+            <!-- CARD 1: INDIVIDUAL STUDENT DRIVE DATE & LOCATION TRACKER -->
+            <section class="students-section" style="margin-bottom:25px; border-left:4px solid #4f46e5;">
+                <div class="section-header" style="flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <h2 style="display:flex; align-items:center; gap:8px;">
+                            <span>👤</span> Individual Student Drive Tracker
+                            <span style="font-size:12px; background:#e0e7ff; color:#3730a3; padding:3px 8px; border-radius:999px; font-weight:700;">EXTRA FEATURE</span>
+                        </h2>
+                        <p class="muted" style="margin:4px 0 0; font-size:13px;">
+                            Select an individual student to inspect their exact recruitment drive date, time slot, and campus location/venue.
+                        </p>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <button type="button" class="refresh-btn" onclick="openScheduleDriveModal()" style="background:#16a34a;">
+                            ➕ Schedule New Drive
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SELECTOR CONTROLS -->
+                <div style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; align-items:center; background:#f8fafc; padding:16px; border-radius:10px; border:1px solid #e2e8f0;">
+                    <div style="flex:1; min-width:260px;">
+                        <label for="studentDrivePicker" style="display:block; font-size:12.5px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase;">
+                            🔍 Select Individual Student:
+                        </label>
+                        <select id="studentDrivePicker" onchange="onStudentDriveSelected(this.value)" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; background:#fff;">
+                            <option value="">-- Choose an Individual Student --</option>
+                        </select>
+                    </div>
+
+                    <div style="min-width:180px;">
+                        <label for="companyDriveFilter" style="display:block; font-size:12.5px; font-weight:700; color:#374151; margin-bottom:6px; text-transform:uppercase;">
+                            Filter Company:
+                        </label>
+                        <select id="companyDriveFilter" onchange="filterDrivesByCompany(this.value)" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; background:#fff;">
+                            <option value="all">All Companies</option>
+                            <option value="TCS">TCS</option>
+                            <option value="Infosys">Infosys</option>
+                            <option value="Wipro">Wipro</option>
+                            <option value="Google">Google</option>
+                            <option value="Amazon">Amazon</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- INDIVIDUAL STUDENT DRIVE DETAILS CARD -->
+                <div id="individualStudentCard" style="display:none; background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.04); margin-bottom:20px;">
+                    <div id="individualStudentHeader" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid #e2e8f0; padding-bottom:12px;">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <h4 style="margin:0 0 10px; font-size:15px; color:#1f2937;">
+                        📅 Scheduled Recruitment Drives for this Student (Date &amp; Location):
+                    </h4>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Recruiter Company</th>
+                                    <th>Role</th>
+                                    <th>📅 Drive Date</th>
+                                    <th>📍 Location (Venue)</th>
+                                    <th>⏰ Time Slot</th>
+                                    <th>Drive Status</th>
+                                    <th>Placement Stage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="individualStudentDrivesTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="noStudentSelectedMsg" style="text-align:center; padding:24px; color:#6b7280; background:#f9fafb; border-radius:8px; border:1px dashed #cbd5e1;">
+                    👆 Please select an individual student from the dropdown above to view their Drive Date and Location.
+                </div>
+            </section>
+
+            <!-- CARD 2: STUDENT-WISE DRIVE SCHEDULE MATRIX -->
+            <section class="students-section" style="margin-bottom:25px;">
+                <div class="section-header" style="flex-wrap:wrap;">
+                    <div>
+                        <h2>Student-Wise Placement Drive Schedule Matrix</h2>
+                        <p class="muted" style="margin:4px 0 0; font-size:13px;">
+                            Complete matrix displaying the Drive Date and Campus Location for students across companies.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <input
+                            type="text"
+                            id="searchDriveMatrixInput"
+                            placeholder="Search by student, company, venue..."
+                            oninput="filterDriveMatrix()"
+                            style="padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:13.5px; min-width:240px;"
+                        >
+                    </div>
+                </div>
+
+                <div class="table-wrapper" id="driveMatrixWrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Branch &amp; CGPA</th>
+                                <th>Company</th>
+                                <th>📅 Drive Date</th>
+                                <th>📍 Location / Venue</th>
+                                <th>⏰ Time Slot</th>
+                                <th>Drive Status</th>
+                                <th>Routing / Approval Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driveMatrixTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="driveMatrixEmpty" class="empty" style="display:none;">
+                    No drive schedules found matching your query.
+                </div>
+            </section>
+
+            <!-- CARD 3: ALL COMPANY PLACEMENT DRIVES -->
+            <section class="students-section">
+                <div class="section-header">
+                    <div>
+                        <h2>All Campus Recruitment Drives Master Schedule</h2>
+                        <p class="muted" style="margin:4px 0 0; font-size:13px;">
+                            Master schedule of company recruitment drives held on campus.
+                        </p>
+                    </div>
+                    <button type="button" class="refresh-btn" onclick="openScheduleDriveModal()">
+                        ➕ Schedule New Drive
+                    </button>
+                </div>
+
+                <div class="table-wrapper" id="allDrivesWrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Drive #</th>
+                                <th>Company</th>
+                                <th>📅 Date</th>
+                                <th>📍 Location / Venue</th>
+                                <th>⏰ Time Slot</th>
+                                <th>Status</th>
+                                <th>Panels &amp; Capacity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allDrivesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- MODAL: SCHEDULE NEW PLACEMENT DRIVE -->
+        <div id="scheduleDriveModal" class="modal-overlay" role="dialog" aria-modal="true">
+            <div class="modal-card">
+                <h2 style="margin:0 0 6px; font-size:20px; color:#1f2937;">➕ Schedule Campus Recruitment Drive</h2>
+                <p style="margin:0 0 16px; font-size:13px; color:#6b7280;">
+                    Define the drive date, campus location (venue), company recruiter, and time slot.
+                </p>
+
+                <form id="scheduleDriveForm" onsubmit="handleScheduleDriveSubmit(event)">
+                    <div class="form-row">
+                        <label for="newDriveCompany">Company / Recruiter <span style="color:#ef4444;">*</span></label>
+                        <select id="newDriveCompany" required onchange="handleNewDriveCompanyChange(this.value)">
+                            <option value="">-- Select Recruiter Company --</option>
+                            <option value="TCS">🏢 TCS (Tata Consultancy Services / TCE)</option>
+                            <option value="Infosys">🏢 Infosys</option>
+                            <option value="Wipro">🏢 Wipro</option>
+                            <option value="Google">🏢 Google</option>
+                            <option value="Amazon">🏢 Amazon</option>
+                            <option value="custom">Other Company...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row" id="customCompanyRow" style="display:none;">
+                        <label for="newDriveCustomCompany">Custom Company Name</label>
+                        <input type="text" id="newDriveCustomCompany" placeholder="Enter company name">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="newDriveDate">📅 Drive Date <span style="color:#ef4444;">*</span></label>
+                        <input type="date" id="newDriveDate" required>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="newDriveLocation">📍 Location / Venue <span style="color:#ef4444;">*</span></label>
+                        <select id="newDriveLocation" required>
+                            <option value="Main Auditorium">Main Auditorium</option>
+                            <option value="Placement Cell">Placement Cell</option>
+                            <option value="Seminar Hall A">Seminar Hall A</option>
+                            <option value="Seminar Hall B">Seminar Hall B</option>
+                            <option value="Lab 1">Computer Lab 1</option>
+                            <option value="Lab 2">Computer Lab 2</option>
+                            <option value="Tech Park Hall">Tech Park Hall</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="newDriveTimeSlot">⏰ Time Slot <span style="color:#ef4444;">*</span></label>
+                        <select id="newDriveTimeSlot" required>
+                            <option value="09:00-11:00">09:00 AM - 11:00 AM</option>
+                            <option value="10:00-12:00">10:00 AM - 12:00 PM</option>
+                            <option value="11:00-13:00">11:00 AM - 01:00 PM</option>
+                            <option value="14:00-16:00">02:00 PM - 04:00 PM</option>
+                            <option value="15:00-17:00">03:00 PM - 05:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="newDriveCapacity">Capacity (Students)</label>
+                        <input type="number" id="newDriveCapacity" value="100" min="10" max="1000">
+                    </div>
+
+                    <div id="scheduleDriveFeedback" style="display:none; margin-bottom:14px; padding:10px; border-radius:6px; font-size:13px;"></div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
+                        <button type="button" onclick="closeScheduleDriveModal()" style="padding:9px 16px; border:1px solid #d1d5db; background:#fff; border-radius:8px; cursor:pointer;">Cancel</button>
+                        <button type="submit" id="scheduleDriveSubmitBtn" style="padding:9px 20px; background:#4f46e5; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;">Save &amp; Schedule Drive</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
 </div>
 
@@ -1037,6 +1429,434 @@
         }
     );
 
+
+    // =========================================================
+    // CAMPUS RECRUITMENT DRIVES & INDIVIDUAL STUDENT TRACKER
+    // =========================================================
+
+    let currentMainTab = "applications";
+    let allDrivesList = [];
+    let allStudentDrivesList = [];
+    let allCollegeStudents = [];
+    let selectedStudentId = null;
+
+    function switchMainTab(tab) {
+        currentMainTab = tab;
+        const appSec = document.getElementById("applicationsViewSection");
+        const driveSec = document.getElementById("drivesViewSection");
+        const appTabBtn = document.getElementById("mainTabApplicationsBtn");
+        const driveTabBtn = document.getElementById("mainTabDrivesBtn");
+
+        if (tab === "applications") {
+            appSec.style.display = "block";
+            driveSec.style.display = "none";
+            appTabBtn.className = "main-tab-btn active";
+            driveTabBtn.className = "main-tab-btn";
+            loadStudents();
+        } else {
+            appSec.style.display = "none";
+            driveSec.style.display = "block";
+            appTabBtn.className = "main-tab-btn";
+            driveTabBtn.className = "main-tab-btn active";
+            loadDrivesSection();
+        }
+    }
+
+    async function loadDrivesSection() {
+        try {
+            clearMessage();
+            const [drives, studentDrives, collegeStudents] = await Promise.all([
+                getDrives().catch(() => []),
+                getCollegeStudentDrives().catch(() => []),
+                getCollegeStudents().catch(() => [])
+            ]);
+
+            allDrivesList = Array.isArray(drives) ? drives : [];
+            allStudentDrivesList = Array.isArray(studentDrives) ? studentDrives : [];
+            allCollegeStudents = Array.isArray(collegeStudents) && collegeStudents.length > 0 ? collegeStudents : [];
+
+            // Update summary cards
+            document.getElementById("totalDrivesCount").textContent = allDrivesList.length;
+            const scheduledCount = allDrivesList.filter(d => (d.status || "").toLowerCase() === "scheduled").length;
+            document.getElementById("scheduledDrivesCount").textContent = scheduledCount;
+
+            const distinctStudentIds = new Set(allStudentDrivesList.map(sd => sd.student_id));
+            document.getElementById("studentsInDrivesCount").textContent = Math.max(distinctStudentIds.size, allCollegeStudents.length);
+
+            // Populate Student Picker Dropdown with student names
+            populateStudentDrivePicker();
+
+            // Render All Drives Table
+            renderAllDrivesTable(allDrivesList);
+
+            // Render Student-Wise Drive Matrix
+            renderDriveMatrix(allStudentDrivesList);
+
+            // If a student was already selected, refresh their view
+            if (selectedStudentId) {
+                await onStudentDriveSelected(selectedStudentId);
+            }
+
+        } catch (err) {
+            console.error("Error loading drives section:", err);
+            showMessage("Could not load drives data: " + (err.message || "Network error"), "error");
+        }
+    }
+
+    function populateStudentDrivePicker() {
+        const picker = document.getElementById("studentDrivePicker");
+        if (!picker) return;
+
+        // If allCollegeStudents is empty, fallback to studentMap from studentDrives & collegeApplications
+        if (!allCollegeStudents || allCollegeStudents.length === 0) {
+            const studentMap = new Map();
+            allStudentDrivesList.forEach(item => {
+                if (!studentMap.has(item.student_id)) {
+                    studentMap.set(item.student_id, {
+                        id: item.student_id,
+                        name: item.student_name,
+                        branch: item.branch,
+                        cgpa: item.cgpa
+                    });
+                }
+            });
+            allCollegeApplications.forEach(app => {
+                if (!studentMap.has(app.student_id)) {
+                    studentMap.set(app.student_id, {
+                        id: app.student_id,
+                        name: app.student_name,
+                        branch: app.branch,
+                        cgpa: app.cgpa
+                    });
+                }
+            });
+            allCollegeStudents = Array.from(studentMap.values()).sort((a, b) => a.id - b.id);
+        }
+
+        picker.innerHTML = '<option value="">-- Choose an Individual Student --</option>';
+        allCollegeStudents.forEach(st => {
+            const opt = document.createElement("option");
+            opt.value = st.id;
+            opt.textContent = `${st.name || "Student #" + st.id} (ID: #${st.id} | ${st.branch || "General"} | CGPA: ${st.cgpa ?? "-"})`;
+            picker.appendChild(opt);
+        });
+
+        if (selectedStudentId) {
+            picker.value = selectedStudentId;
+        }
+    }
+
+    async function onStudentDriveSelected(studentId) {
+        selectedStudentId = studentId ? Number(studentId) : null;
+        const card = document.getElementById("individualStudentCard");
+        const emptyMsg = document.getElementById("noStudentSelectedMsg");
+        const headerEl = document.getElementById("individualStudentHeader");
+        const tbody = document.getElementById("individualStudentDrivesTable");
+
+        if (!selectedStudentId) {
+            card.style.display = "none";
+            emptyMsg.style.display = "block";
+            return;
+        }
+
+        const student = allCollegeStudents.find(s => s.id === selectedStudentId);
+        if (!student) {
+            card.style.display = "none";
+            emptyMsg.style.display = "block";
+            return;
+        }
+
+        emptyMsg.style.display = "none";
+        card.style.display = "block";
+
+        // Filter or fetch drives for this student
+        let studentDrives = allStudentDrivesList.filter(sd => sd.student_id === selectedStudentId);
+        try {
+            const specificDrives = await getCollegeStudentDrives(selectedStudentId);
+            if (Array.isArray(specificDrives) && specificDrives.length > 0) {
+                studentDrives = specificDrives;
+            }
+        } catch (e) {
+            console.warn("Could not fetch specific student drives:", e);
+        }
+
+        headerEl.innerHTML = `
+            <div>
+                <h3 style="margin:0 0 4px; font-size:18px; color:#1e1b4b;">
+                    👤 ${escapeHtml(student.name)}
+                </h3>
+                <div style="font-size:13px; color:#6b7280;">
+                    Student ID: <strong>#${escapeHtml(String(student.id))}</strong> &bull;
+                    Branch: <strong>${escapeHtml(student.branch || "-")}</strong> &bull;
+                    CGPA: <strong>${escapeHtml(String(student.cgpa ?? "-"))}</strong>
+                </div>
+            </div>
+            <div>
+                <span style="background:#e0e7ff; color:#3730a3; padding:6px 14px; border-radius:999px; font-weight:700; font-size:13px;">
+                    🎯 ${studentDrives.length} Drives Available / Scheduled
+                </span>
+            </div>
+        `;
+
+        if (studentDrives.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty" style="padding:20px; text-align:center;">
+                        No placement drives currently mapped for this student. Schedule a new drive or have the student apply for open roles.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = studentDrives.map(d => {
+            const approval = d.college_approval || "Eligible";
+            let stageBadge = "";
+            if (approval === "Approved") {
+                stageBadge = `<span style="background:#dcfce7; color:#166534; font-weight:700; padding:4px 8px; border-radius:6px; font-size:12px;">✅ Placement Approved &bull; Sent to Recruiter</span>`;
+            } else if (approval === "Pending") {
+                stageBadge = `<span style="background:#fef3c7; color:#92400e; font-weight:700; padding:4px 8px; border-radius:6px; font-size:12px;">⏳ Pending Approval by Cell</span>`;
+            } else if (approval === "Rejected") {
+                stageBadge = `<span style="background:#fee2e2; color:#991b1b; font-weight:700; padding:4px 8px; border-radius:6px; font-size:12px;">❌ Rejected by Placement</span>`;
+            } else {
+                stageBadge = `<span style="background:#f1f5f9; color:#475569; font-weight:600; padding:4px 8px; border-radius:6px; font-size:12px;">🎯 Eligible Campus Drive</span>`;
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <strong style="color:#1e293b; font-size:14px;">🏢 ${escapeHtml(d.company)}</strong>
+                        <div style="font-size:11.5px; color:#6b7280;">Drive #${escapeHtml(String(d.drive_id))}</div>
+                    </td>
+                    <td>${escapeHtml(d.role || "Software Engineer")}</td>
+                    <td>
+                        <span class="date-badge">📅 ${escapeHtml(d.date || "-")}</span>
+                    </td>
+                    <td>
+                        <span class="location-badge">📍 ${escapeHtml(d.location || d.venue || "Campus Venue")}</span>
+                    </td>
+                    <td class="mono" style="font-size:13px; font-weight:600;">
+                        ⏰ ${escapeHtml(d.time_slot || "-")}
+                    </td>
+                    <td>
+                        <span class="status ${getStatusClass(d.drive_status)}">${escapeHtml(d.drive_status || "Scheduled")}</span>
+                    </td>
+                    <td>
+                        ${stageBadge}
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function renderDriveMatrix(list) {
+        const tbody = document.getElementById("driveMatrixTableBody");
+        const emptyEl = document.getElementById("driveMatrixEmpty");
+        const wrapperEl = document.getElementById("driveMatrixWrapper");
+        if (!tbody) return;
+
+        if (!list || list.length === 0) {
+            wrapperEl.style.display = "none";
+            emptyEl.style.display = "block";
+            return;
+        }
+
+        wrapperEl.style.display = "block";
+        emptyEl.style.display = "none";
+
+        tbody.innerHTML = list.map(item => {
+            const approval = item.college_approval || "Eligible";
+            let routingText = "";
+            if (approval === "Approved") {
+                routingText = `<span style="color:#166534; font-weight:700; font-size:12.5px;">✅ Approved &bull; Forwarded to ${escapeHtml(item.company)}</span>`;
+            } else if (approval === "Pending") {
+                routingText = `<span style="color:#92400e; font-weight:600; font-size:12px;">⏳ Held &bull; Cell Review Pending</span>`;
+            } else if (approval === "Rejected") {
+                routingText = `<span style="color:#991b1b; font-weight:600; font-size:12px;">❌ Rejected</span>`;
+            } else {
+                routingText = `<span style="color:#475569; font-size:12px;">🎯 Eligible Student</span>`;
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <strong>${escapeHtml(item.student_name)}</strong>
+                        <br>
+                        <small style="color:#6b7280;">ID: #${escapeHtml(String(item.student_id))}</small>
+                    </td>
+                    <td>
+                        ${escapeHtml(item.branch || "-")}
+                        <br>
+                        <small style="color:#6b7280;">CGPA: <strong>${escapeHtml(String(item.cgpa ?? "-"))}</strong></small>
+                    </td>
+                    <td>
+                        <strong>🏢 ${escapeHtml(item.company)}</strong>
+                        <br>
+                        <small style="color:#6b7280;">${escapeHtml(item.role || "")}</small>
+                    </td>
+                    <td>
+                        <span class="date-badge">📅 ${escapeHtml(item.date || "-")}</span>
+                    </td>
+                    <td>
+                        <span class="location-badge">📍 ${escapeHtml(item.location || item.venue || "-")}</span>
+                    </td>
+                    <td class="mono" style="font-size:13px; font-weight:600;">
+                        ⏰ ${escapeHtml(item.time_slot || "-")}
+                    </td>
+                    <td>
+                        <span class="status ${getStatusClass(item.drive_status)}">${escapeHtml(item.drive_status || "Scheduled")}</span>
+                    </td>
+                    <td>
+                        ${routingText}
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function filterDriveMatrix() {
+        const query = (document.getElementById("searchDriveMatrixInput").value || "").toLowerCase().trim();
+        if (!query) {
+            renderDriveMatrix(allStudentDrivesList);
+            return;
+        }
+
+        const filtered = allStudentDrivesList.filter(item => {
+            return (
+                (item.student_name || "").toLowerCase().includes(query) ||
+                String(item.student_id).includes(query) ||
+                (item.company || "").toLowerCase().includes(query) ||
+                (item.location || "").toLowerCase().includes(query) ||
+                (item.date || "").includes(query)
+            );
+        });
+
+        renderDriveMatrix(filtered);
+    }
+
+    function filterDrivesByCompany(company) {
+        if (!company || company === "all") {
+            renderDriveMatrix(allStudentDrivesList);
+        } else {
+            const filtered = allStudentDrivesList.filter(d => 
+                (d.company || "").toLowerCase().includes(company.toLowerCase())
+            );
+            renderDriveMatrix(filtered);
+        }
+    }
+
+    function renderAllDrivesTable(drives) {
+        const tbody = document.getElementById("allDrivesTableBody");
+        if (!tbody) return;
+
+        if (!drives || drives.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="empty">No drives scheduled.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = drives.map(d => {
+            return `
+                <tr>
+                    <td class="mono"><strong>#${escapeHtml(String(d.id))}</strong></td>
+                    <td>
+                        <strong>🏢 ${escapeHtml(d.company)}</strong>
+                    </td>
+                    <td>
+                        <span class="date-badge">📅 ${escapeHtml(d.date)}</span>
+                    </td>
+                    <td>
+                        <span class="location-badge">📍 ${escapeHtml(d.venue)}</span>
+                    </td>
+                    <td class="mono" style="font-size:13px; font-weight:600;">
+                        ⏰ ${escapeHtml(d.time_slot)}
+                    </td>
+                    <td>
+                        <span class="status ${getStatusClass(d.status)}">${escapeHtml(d.status || "Scheduled")}</span>
+                    </td>
+                    <td style="font-size:12.5px; color:#4b5563;">
+                        Capacity: <strong>${d.infrastructure_capacity || 100}</strong> candidates
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    // Modal helpers for Drive Scheduling
+    function openScheduleDriveModal() {
+        const modal = document.getElementById("scheduleDriveModal");
+        if (!modal) return;
+        document.getElementById("newDriveDate").value = new Date().toISOString().split("T")[0];
+        document.getElementById("scheduleDriveFeedback").style.display = "none";
+        modal.style.display = "flex";
+    }
+
+    function closeScheduleDriveModal() {
+        const modal = document.getElementById("scheduleDriveModal");
+        if (modal) modal.style.display = "none";
+    }
+
+    function handleNewDriveCompanyChange(val) {
+        const row = document.getElementById("customCompanyRow");
+        if (val === "custom") {
+            row.style.display = "block";
+            document.getElementById("newDriveCustomCompany").required = true;
+        } else {
+            row.style.display = "none";
+            document.getElementById("newDriveCustomCompany").required = false;
+        }
+    }
+
+    async function handleScheduleDriveSubmit(event) {
+        event.preventDefault();
+        const feedback = document.getElementById("scheduleDriveFeedback");
+        const btn = document.getElementById("scheduleDriveSubmitBtn");
+        feedback.style.display = "none";
+
+        let companyVal = document.getElementById("newDriveCompany").value;
+        if (companyVal === "custom") {
+            companyVal = document.getElementById("newDriveCustomCompany").value.trim();
+        }
+
+        if (!companyVal) {
+            feedback.style.display = "block";
+            feedback.style.background = "#fee2e2";
+            feedback.style.color = "#991b1b";
+            feedback.textContent = "Please select or enter a recruiter company.";
+            return;
+        }
+
+        const date = document.getElementById("newDriveDate").value;
+        const venue = document.getElementById("newDriveLocation").value;
+        const timeSlot = document.getElementById("newDriveTimeSlot").value;
+        const capacity = parseInt(document.getElementById("newDriveCapacity").value) || 100;
+
+        btn.disabled = true;
+        btn.textContent = "Scheduling Drive...";
+
+        try {
+            await createDrive({
+                company: companyVal,
+                date: date,
+                venue: venue,
+                time_slot: timeSlot,
+                infrastructure_capacity: capacity
+            });
+
+            closeScheduleDriveModal();
+            showMessage(`🎉 Successfully scheduled placement drive for ${companyVal} on ${date} at ${venue}!`, "success");
+            await loadDrivesSection();
+
+        } catch (err) {
+            console.error("Error creating drive:", err);
+            feedback.style.display = "block";
+            feedback.style.background = "#fee2e2";
+            feedback.style.color = "#991b1b";
+            feedback.textContent = "Could not schedule drive: " + (err.message || "Server error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Save & Schedule Drive";
+        }
+    }
 
     // -------------------------------------------------
     // INITIAL LOAD

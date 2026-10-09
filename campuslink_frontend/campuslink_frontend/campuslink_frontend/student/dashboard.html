@@ -266,7 +266,7 @@
           <div>
             <span class="badge" id="scoreBadge">–</span>
             <p class="muted" style="font-size:13px;margin-top:8px;">
-              CGPA, certifications, mock-interview score, minus any backlog penalty.
+              CGPA, skills, certifications, projects, and interview performance, minus backlog penalty.
             </p>
           </div>
         </div>
@@ -275,11 +275,67 @@
       </div>
 
       <div class="panel">
-        <div class="panel-title">Profile</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="panel-title" style="margin-bottom:0;">Profile</div>
+          <button type="button" onclick="openProfileEditModal()" style="padding:6px 12px;background:#4f46e5;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+            ✏️ Edit Projects &amp; Certifications
+          </button>
+        </div>
         <div id="profileBox" style="font-size:13.5px;"></div>
       </div>
 
     </div>
+
+    <!-- ======================================================== -->
+    <!-- MULTI-SOURCE INTEGRATED EMPLOYABILITY & DRIVE CALENDAR -->
+    <!-- ======================================================== -->
+    <div class="panel" id="multiSourceStudentPanel" style="border: 2px solid #6366f1; background: #fafbff; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+        <div>
+          <div class="panel-title" style="margin: 0; font-size: 17px; color: #1e1b4b; display: flex; align-items: center; gap: 8px;">
+            <span>🚀</span> Multi-Source Employability Intelligence
+            <span style="background: #10b981; color: white; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 10px;">INTEGRATED</span>
+          </div>
+          <span class="muted" style="font-size: 12.5px;">Synthesizing Academic Data, Parsed Resume ATS, Diagnostic Assessment, Mock Interview, &amp; Historical Benchmarks</span>
+        </div>
+        <div id="msStudentTierBadge" style="font-size: 12px; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 4px 10px; border-radius: 12px;"></div>
+      </div>
+
+      <!-- 4 Core Pillars Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 16px;" id="msPillarsGrid">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Historical Cohort Benchmark Banner -->
+      <div id="msHistBenchmarkBanner" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Placement Drive Calendar Agenda for Student -->
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h4 style="margin: 0; font-size: 14px; color: #1e293b;">📅 Eligible Placement Drive Calendar:</h4>
+          <span class="muted" style="font-size: 12px;">Round schedules, venues, and registration deadlines</span>
+        </div>
+        <div style="overflow-x: auto;">
+          <table style="font-size: 12.5px;">
+            <thead>
+              <tr>
+                <th>Company &amp; Role</th>
+                <th>Drive Date &amp; Slot</th>
+                <th>Venue</th>
+                <th>Registration Deadline</th>
+                <th>Eligibility &amp; Action</th>
+              </tr>
+            </thead>
+            <tbody id="msDriveCalendarBody">
+              <tr><td colspan="5" class="empty">Loading drive calendar agenda...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- PLACEMENT PROGRESS -->
     <div class="panel" id="placementProgressPanel">
 
@@ -477,12 +533,47 @@
       </div>
     </div>
 
+    <!-- EDIT PROFILE MODAL -->
+    <div id="profileEditModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
+      <div class="modal-card">
+        <h2 id="profileEditTitle">Update Student Profile</h2>
+        <p>
+          Update your skills, certifications, and key projects to boost your readiness score and recruiter matching.
+        </p>
+
+        <form id="profileEditModalForm">
+          <div class="modal-form-group">
+            <label for="editSkills">Skills (comma-separated)</label>
+            <input type="text" id="editSkills" placeholder="Python, React, SQL, Machine Learning...">
+          </div>
+
+          <div class="modal-form-group">
+            <label for="editCertifications">Certifications (comma-separated)</label>
+            <input type="text" id="editCertifications" placeholder="AWS Certified Cloud Practitioner, Google Data Analytics...">
+          </div>
+
+          <div class="modal-form-group">
+            <label for="editProjects">Key Projects (comma-separated or one per line)</label>
+            <textarea id="editProjects" rows="4" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;box-sizing:border-box;font-family:inherit;font-size:13.5px;" placeholder="AI Placement Portal, E-Commerce Microservices, Distributed Cache..."></textarea>
+          </div>
+
+          <div id="profileEditMessage" class="message" style="display:none;margin-bottom:12px;"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="closeProfileEditModal()">Cancel</button>
+            <button type="submit" class="modal-btn-submit" id="profileEditSubmitBtn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </main>
 </div>
 
 <!-- EXISTING API FILE -->
 <script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
+<script src="../js/notifications-ui.js" defer></script>
 
 <script>
 async function init() {
@@ -910,6 +1001,77 @@ document.getElementById("applyModal").addEventListener("click", function(e) {
   }
 });
 
+let currentStudentData = null;
+
+function openProfileEditModal() {
+  if (!currentStudentData) return;
+  const skills = Array.isArray(currentStudentData.skills) ? currentStudentData.skills.join(", ") : "";
+  const certs = Array.isArray(currentStudentData.certifications) ? currentStudentData.certifications.join(", ") : "";
+  const projs = Array.isArray(currentStudentData.projects) ? currentStudentData.projects.join(", ") : "";
+
+  document.getElementById("editSkills").value = skills;
+  document.getElementById("editCertifications").value = certs;
+  document.getElementById("editProjects").value = projs;
+
+  const msg = document.getElementById("profileEditMessage");
+  if (msg) {
+    msg.style.display = "none";
+    msg.textContent = "";
+  }
+  document.getElementById("profileEditModal").classList.add("active");
+}
+
+function closeProfileEditModal() {
+  document.getElementById("profileEditModal").classList.remove("active");
+}
+
+document.getElementById("profileEditModalForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  if (!currentLoadedStudentId) return;
+
+  const btn = document.getElementById("profileEditSubmitBtn");
+  const msg = document.getElementById("profileEditMessage");
+
+  const parseList = (str) =>
+    (str || "")
+      .split(/[,\n]/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+  const skills = parseList(document.getElementById("editSkills").value);
+  const certifications = parseList(document.getElementById("editCertifications").value);
+  const projects = parseList(document.getElementById("editProjects").value);
+
+  btn.disabled = true;
+  btn.textContent = "Saving...";
+
+  try {
+    await updateStudentProfile(currentLoadedStudentId, { skills, certifications, projects });
+    msg.style.display = "block";
+    msg.className = "message ok";
+    msg.textContent = "Profile updated successfully! Recalculating readiness score...";
+
+    setTimeout(async () => {
+      closeProfileEditModal();
+      await loadStudent(currentLoadedStudentId);
+    }, 800);
+  } catch (err) {
+    console.error("Profile edit error:", err);
+    msg.style.display = "block";
+    msg.className = "message error";
+    msg.textContent = "Failed to update profile: " + (err.message || err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Save Changes";
+  }
+});
+
+document.getElementById("profileEditModal").addEventListener("click", function(e) {
+  if (e.target === this) {
+    closeProfileEditModal();
+  }
+});
+
 async function refreshMatchedRoles(id) {
   const matches = await getStudentMatches(id);
 
@@ -925,6 +1087,9 @@ async function refreshMatchedRoles(id) {
       );
 
       let actionMarkup = "";
+      const statusLower = String(m.status || "").toLowerCase();
+      const isNotEligible = statusLower.includes("not eligible") || statusLower.includes("below threshold");
+
       if (existingApp) {
         const approval = existingApp.college_approval || "Pending";
         if (approval === "Approved") {
@@ -933,6 +1098,34 @@ async function refreshMatchedRoles(id) {
           actionMarkup = `<span class="cell-badge rejected">❌ Rejected</span>`;
         } else {
           actionMarkup = `<span class="cell-badge pending">⏳ Pending Cell</span>`;
+        }
+      } else if (isNotEligible) {
+        // NOT ELIGIBLE: Hide Apply button and recommend skills to improve
+        if (missingSkills.length > 0) {
+          actionMarkup = `
+            <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:6px 10px; text-align:left; max-width:240px;">
+              <div style="font-size:11px; font-weight:700; color:#b45309; margin-bottom:3px; display:flex; align-items:center; gap:4px;">
+                <span>⚠️</span> Not Eligible to Apply
+              </div>
+              <div style="font-size:11px; color:#78350f; margin-bottom:4px; line-height:1.3;">
+                <strong>Skill Recommendation:</strong> Learn these to qualify:
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:3px;">
+                ${missingSkills.slice(0, 3).map(sk => `<span class="tag missing" style="font-size:10.5px; padding:2px 6px;">${escapeHtml(sk)}</span>`).join("")}
+              </div>
+            </div>
+          `;
+        } else {
+          actionMarkup = `
+            <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:6px 10px; text-align:left; max-width:240px;">
+              <div style="font-size:11px; font-weight:700; color:#b45309; margin-bottom:2px;">
+                <span>⚠️</span> Not Eligible
+              </div>
+              <div style="font-size:11px; color:#78350f; line-height:1.3;">
+                Improve CGPA or Mock Interview benchmark to unlock this role.
+              </div>
+            </div>
+          `;
         }
       } else {
         actionMarkup = `
@@ -990,6 +1183,98 @@ async function refreshMatchedRoles(id) {
     `;
 }
 
+async function loadMultiSourceStudentData(studentId) {
+  try {
+    const data = await getStudentMultiSourceProfile(studentId);
+    if (!data || data.error) return;
+
+    const b = data.multi_source_breakdown;
+
+    // 1. Tier Badge
+    const tierBadge = document.getElementById("msStudentTierBadge");
+    if (tierBadge) {
+      tierBadge.textContent = `${data.employability_tier} (${data.holistic_employability_score}/100)`;
+    }
+
+    // 2. Pillars Grid
+    const pillars = document.getElementById("msPillarsGrid");
+    if (pillars && b) {
+      pillars.innerHTML = `
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; border-left:3px solid #2563eb;">
+          <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">1. Academic Index</div>
+          <div style="font-size:15px; font-weight:700; color:#1e293b; margin:2px 0;">${b.academic_source.effective_academic_index}<span style="font-size:11px; font-weight:400; color:#64748b;">/100</span></div>
+          <div style="font-size:11.5px; color:#475569;">CGPA ${b.academic_source.cgpa} · ${b.academic_source.backlogs} Backlogs</div>
+        </div>
+
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; border-left:3px solid #0891b2;">
+          <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">2. Resume &amp; ATS Score</div>
+          <div style="font-size:15px; font-weight:700; color:#1e293b; margin:2px 0;">${b.resume_source.ats_compatibility_score}%</div>
+          <div style="font-size:11.5px; color:#475569;">${b.resume_source.project_count} Projects · ${b.resume_source.certification_count} Certifications</div>
+        </div>
+
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; border-left:3px solid #9333ea;">
+          <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">3. Diagnostic Assessment</div>
+          <div style="font-size:15px; font-weight:700; color:#1e293b; margin:2px 0;">${b.assessment_source.total_score}<span style="font-size:11px; font-weight:400; color:#64748b;">/100</span> (${b.assessment_source.percentile}th %tile)</div>
+          <div style="font-size:11.5px; color:#475569;">Coding: ${b.assessment_source.coding_score} · Aptitude: ${b.assessment_source.aptitude_score}</div>
+        </div>
+
+        <div style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; border-left:3px solid #d97706;">
+          <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">4. Mock Interview Panel</div>
+          <div style="font-size:15px; font-weight:700; color:#1e293b; margin:2px 0;">${b.mock_interview_source.overall_score}<span style="font-size:11px; font-weight:400; color:#64748b;">/100</span></div>
+          <div style="font-size:11.5px; color:#475569;">Tech: ${b.mock_interview_source.technical_rating} · Verdict: <strong>${escapeHtml(b.mock_interview_source.verdict)}</strong></div>
+        </div>
+      `;
+    }
+
+    // 3. Historical Cohort Benchmark Banner
+    const histBanner = document.getElementById("msHistBenchmarkBanner");
+    if (histBanner && b.historical_benchmark_source) {
+      histBanner.innerHTML = `
+        <div>
+          <span style="font-weight:700; color:#1e40af; font-size:13.5px;">📈 Historical Cohort Prediction (${escapeHtml(data.branch)} Placements):</span>
+          <div style="font-size:12.5px; color:#1e3a8a; margin-top:2px;">
+            Predicted Placement Probability: <strong>${data.predicted_placement_probability_percent}%</strong> · Estimated Package Band: <strong>${data.expected_salary_band_lpa}</strong>
+          </div>
+        </div>
+        <span style="font-size:12px; background:#dbeafe; color:#1e40af; padding:4px 10px; border-radius:12px; font-weight:600;">
+          Past Batch Branch Avg: ₹${b.historical_benchmark_source.historical_branch_avg_ctc} LPA
+        </span>
+      `;
+    }
+
+    // 4. Drive Calendar Agenda
+    const driveBody = document.getElementById("msDriveCalendarBody");
+    if (driveBody && data.drive_calendar_agenda) {
+      if (!data.drive_calendar_agenda.length) {
+        driveBody.innerHTML = '<tr><td colspan="5" class="empty">No placement drives currently scheduled.</td></tr>';
+      } else {
+        driveBody.innerHTML = data.drive_calendar_agenda.map(ev => `
+          <tr>
+            <td>
+              <div style="font-weight:700; color:#1e293b;">${escapeHtml(ev.company)}</div>
+              <div style="font-size:11.5px; color:#64748b;">${escapeHtml(ev.role)}</div>
+            </td>
+            <td>
+              <div>${escapeHtml(ev.date)}</div>
+              <div style="font-size:11px; color:#64748b;">${escapeHtml(ev.time_slot)}</div>
+            </td>
+            <td>${escapeHtml(ev.venue)}</td>
+            <td><span style="color:#b45309; font-weight:600;">${escapeHtml(ev.registration_deadline)}</span></td>
+            <td>
+              <span style="font-weight:700; font-size:11.5px; color:${ev.student_eligibility_status.includes('Eligible to Register') ? '#16a34a' : '#dc2626'};">
+                ${escapeHtml(ev.student_eligibility_status)}
+              </span>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+  } catch (err) {
+    console.error("Error loading student multi-source data:", err);
+  }
+}
+
 async function loadStudent(id) {
   currentLoadedStudentId = id;
   try {
@@ -1010,12 +1295,14 @@ async function loadStudent(id) {
     badge.textContent = r.label;
     badge.className = "badge " + badgeClass(r.label);
 
-    const b = r.breakdown;
+    const b = r.breakdown || {};
 
     const rows = [
-      ["CGPA", b.cgpa, 40],
-      ["Certifications", b.certifications, 20],
-      ["Mock interview", b.mock_interview, 30]
+      ["CGPA", b.cgpa ?? 0, 30],
+      ["Skills", b.skills ?? 0, 15],
+      ["Certifications", b.certifications ?? 0, 15],
+      ["Projects", b.projects ?? 0, 15],
+      ["Mock interview", b.mock_interview ?? 0, 25]
     ];
 
     document.getElementById("breakdown").innerHTML =
@@ -1029,43 +1316,66 @@ async function loadStudent(id) {
             </div>
           </div>
 
-          <div class="bar-val">${val}</div>
+          <div class="bar-val">${val}/${max}</div>
         </div>
       `).join("") +
       (
         b.backlog_penalty
           ? `<div class="alert" style="margin-top:10px;">
-               Backlog penalty: ${b.backlog_penalty} points
+               Backlog penalty: -${b.backlog_penalty} points
              </div>`
           : ""
       );
 
     // Student profile.
+    currentStudentData = s;
     const skills = Array.isArray(s.skills) ? s.skills : [];
     const certifications = Array.isArray(s.certifications)
       ? s.certifications
       : [];
+    const projects = Array.isArray(s.projects) ? s.projects : [];
+
+    const skillsHtml = skills.length
+      ? skills.map(sk => `<span class="badge" style="background:#e0e7ff;color:#3730a3;font-size:11.5px;padding:3px 8px;margin:2px;border-radius:4px;">${escapeHtml(sk)}</span>`).join(" ")
+      : `<span class="muted">No skills listed</span>`;
+
+    const certsHtml = certifications.length
+      ? certifications.map(c => `<span class="badge" style="background:#fef3c7;color:#92400e;font-size:11.5px;padding:3px 8px;margin:2px;border-radius:4px;">📜 ${escapeHtml(c)}</span>`).join(" ")
+      : `<span class="muted">—</span>`;
+
+    const projectsHtml = projects.length
+      ? projects.map(p => `<span class="badge" style="background:#dcfce7;color:#166534;font-size:11.5px;padding:3px 8px;margin:2px;border-radius:4px;">💻 ${escapeHtml(p)}</span>`).join(" ")
+      : `<span class="muted">No projects listed</span>`;
 
     document.getElementById("profileBox").innerHTML = `
-      <div style="margin-bottom:10px;">
-        ${csv(skills)}
+      <div style="margin-bottom:12px;">
+        <div style="font-weight:600;font-size:12px;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Skills</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${skillsHtml}</div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="font-weight:600;font-size:12px;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Key Projects</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${projectsHtml}</div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="font-weight:600;font-size:12px;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Certifications</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${certsHtml}</div>
       </div>
 
       <table>
         <tr>
-          <td class="muted">Certifications</td>
+          <td class="muted" style="width:130px;">Mock Interview</td>
           <td>
+            <strong>${escapeHtml(s.mock_interview_score ?? "—")}/100</strong>
             ${
-              certifications.length
-                ? escapeHtml(certifications.join(", "))
-                : "—"
+              (s.mock_interview_score ?? 0) >= 75
+                ? `<span class="badge ok" style="margin-left:6px;font-size:11px;">Exceptional</span>`
+                : (s.mock_interview_score ?? 0) >= 60
+                ? `<span class="badge" style="background:#eff6ff;color:#1d4ed8;margin-left:6px;font-size:11px;">Meets Benchmark</span>`
+                : `<span class="badge warn" style="margin-left:6px;font-size:11px;">Below Benchmark (&lt;60)</span>`
             }
           </td>
-        </tr>
-
-        <tr>
-          <td class="muted">Mock interview</td>
-          <td>${escapeHtml(s.mock_interview_score ?? "—")}/100</td>
         </tr>
 
         <tr>
@@ -1085,6 +1395,9 @@ async function loadStudent(id) {
         </tr>
       </table>
     `;
+
+    // Load Multi-Source Integrated Employability & Drive Calendar
+    await loadMultiSourceStudentData(id);
 
     // Load placement progress & my applications
     await loadPlacementProgress(id);

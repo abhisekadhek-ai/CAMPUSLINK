@@ -410,6 +410,52 @@
 
 </div>
 
+<!-- =========================
+     MODAL: SEND SELECTION MAIL TO STUDENT
+========================== -->
+<div id="recruiterEmailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
+    <div style="background:#fff; border-radius:16px; width:92%; max-width:560px; padding:26px; box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h2 style="margin:0; font-size:20px; color:#1e1b4b; display:flex; align-items:center; gap:8px;">
+                <span>✉️</span> Mail Selected Student
+            </h2>
+            <button type="button" onclick="closeRecruiterEmailModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#9ca3af; line-height:1;">&times;</button>
+        </div>
+        <p style="margin:0 0 16px; color:#4b5563; font-size:13.5px;">
+            Send an official selection offer letter and congratulations email directly to the student.
+        </p>
+
+        <div id="emailSendFeedback" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:8px; font-size:13.5px; font-weight:600;"></div>
+
+        <form id="recruiterEmailForm" onsubmit="handleSendRecruiterEmail(event)">
+            <input type="hidden" id="modalStudentId">
+            <input type="hidden" id="modalApplicationId">
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Recipient Student</label>
+                <input id="modalRecipientDisplay" type="text" readonly style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px; background:#f8fafc; font-weight:600; color:#1e293b;">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Email Subject *</label>
+                <input id="modalEmailSubject" type="text" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px;">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Email Body / Message *</label>
+                <textarea id="modalEmailBody" rows="7" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:13.5px; font-family:inherit; line-height:1.5;"></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
+                <button type="button" class="secondary small" onclick="closeRecruiterEmailModal()">Cancel</button>
+                <button id="modalEmailSubmitBtn" type="submit" style="background:#2563eb; color:#fff; border:none; padding:10px 22px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13.5px; display:inline-flex; align-items:center; gap:6px;">
+                    🚀 Send Selection Email
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="../js/api.js"></script>
 <script src="../js/auth.js"></script>
 
@@ -427,11 +473,13 @@
 
     try {
       errorBox.innerHTML = "";
-      allApplications = await getApprovedJobApplications();
-
-      if (!Array.isArray(allApplications)) {
-        allApplications = [];
-      }
+      const rawApps = await getApprovedJobApplications();
+      const seenIds = new Set();
+      allApplications = (Array.isArray(rawApps) ? rawApps : []).filter(app => {
+        if (seenIds.has(app.student_id)) return false;
+        seenIds.add(app.student_id);
+        return true;
+      });
 
       populateCompanyDropdown(allApplications);
       updateStats(allApplications);
@@ -626,6 +674,15 @@
 
               <button
                 type="button"
+                style="background:#2563eb;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;"
+                onclick="openRecruiterEmailModal(${app.student_id}, '${escapeHtml(app.student_name).replace(/'/g, "\\'")}', '${escapeHtml(app.job_title).replace(/'/g, "\\'")}', '${escapeHtml(app.company).replace(/'/g, "\\'")}', ${app.id})"
+                title="Send official selection mail to this student"
+              >
+                ✉️ Mail Student
+              </button>
+
+              <button
+                type="button"
                 style="background:#dc2626;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;opacity:${app.status === 'Rejected' ? '0.6' : '1'};"
                 onclick="updateApplicationStatus(${app.id}, 'Rejected', this)"
                 title="Reject this application"
@@ -679,6 +736,14 @@
               >
                 Student Profile &rarr;
               </a>
+              <button
+                type="button"
+                onclick="openRecruiterEmailModal(${app.student_id}, '${escapeHtml(app.student_name || 'Student').replace(/'/g, "\\'")}', '${escapeHtml(app.job_title || 'Role').replace(/'/g, "\\'")}', '${escapeHtml(app.company || '').replace(/'/g, "\\'")}', ${app.id})"
+                style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;background:#2563eb;color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;"
+                title="Send selection/offer email directly to this student"
+              >
+                ✉️ Mail Student
+              </button>
             </div>
           </div>
         </div>
@@ -723,6 +788,70 @@
         feedback.textContent = "Failed: " + (err.message || "Error");
       }
       alert("Could not update status: " + (err.message || "Unknown error"));
+    }
+  }
+
+  function openRecruiterEmailModal(studentId, studentName, jobTitle, company, appId) {
+    document.getElementById("modalStudentId").value = studentId;
+    document.getElementById("modalApplicationId").value = appId || "";
+    document.getElementById("modalRecipientDisplay").value = `${studentName} (ID: #${studentId})`;
+    document.getElementById("modalEmailSubject").value = `Congratulations! Official Selection Offer from ${company || 'Campus Recruiter'} for ${jobTitle || 'Placement'}`;
+    document.getElementById("modalEmailBody").value = `Dear ${studentName},\n\nWe are delighted to inform you that you have been successfully selected for the position of '${jobTitle || 'Role'}' at ${company || 'our company'} through the CampusLink Placement Drive!\n\nOur Human Resources and Talent Acquisition team will reach out with the formal offer letter, compensation breakdown, and onboarding documentation.\n\nHeartiest congratulations on your selection!\n\nWarm regards,\n${company || 'Campus Recruitment'} Recruitment Team\nCampusLink Placement Network`;
+
+    const feedback = document.getElementById("emailSendFeedback");
+    if (feedback) feedback.style.display = "none";
+
+    const modal = document.getElementById("recruiterEmailModal");
+    if (modal) modal.style.display = "flex";
+  }
+
+  function closeRecruiterEmailModal() {
+    const modal = document.getElementById("recruiterEmailModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  async function handleSendRecruiterEmail(e) {
+    e.preventDefault();
+    const studentId = Number(document.getElementById("modalStudentId").value);
+    const appId = document.getElementById("modalApplicationId").value;
+    const subject = document.getElementById("modalEmailSubject").value.trim();
+    const message = document.getElementById("modalEmailBody").value.trim();
+    const btn = document.getElementById("modalEmailSubmitBtn");
+    const feedback = document.getElementById("emailSendFeedback");
+
+    try {
+      btn.disabled = true;
+      btn.textContent = "Sending Email...";
+
+      const res = await sendRecruiterEmailToStudent({
+        student_id: studentId,
+        application_id: appId ? Number(appId) : null,
+        subject: subject,
+        message: message
+      });
+
+      if (feedback) {
+        feedback.style.display = "block";
+        feedback.style.background = "#dcfce7";
+        feedback.style.color = "#166534";
+        feedback.textContent = `✓ ${res.message || "Selection email successfully sent to student!"}`;
+      }
+
+      setTimeout(() => {
+        closeRecruiterEmailModal();
+      }, 1500);
+
+    } catch (err) {
+      console.error("Email send error:", err);
+      if (feedback) {
+        feedback.style.display = "block";
+        feedback.style.background = "#fee2e2";
+        feedback.style.color = "#991b1b";
+        feedback.textContent = "Failed to send email: " + (err.message || "Error");
+      }
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = "🚀 Send Selection Email";
     }
   }
 

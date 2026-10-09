@@ -159,7 +159,12 @@
 </div>
 
 <script>
-  const API_BASE = "http://127.0.0.1:8000";
+  const API_BASE = (function() {
+    const stored = localStorage.getItem("campuslink_backend_url");
+    if (stored) return stored.replace(/\/+$/, "");
+    if (window.location.protocol === "http:" || window.location.protocol === "https:") return window.location.origin;
+    return "http://127.0.0.1:8000";
+  })();
 
   const resultsBox = document.getElementById("jobResults");
   const messageBox = document.getElementById("jobMessage");

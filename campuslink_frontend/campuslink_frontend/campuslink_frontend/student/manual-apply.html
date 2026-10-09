@@ -193,18 +193,25 @@
 
 
         <div class="form-group">
-
-          <label for="company">
-            Company
-          </label>
-
+          <label for="companySelect">Specific Recruiter / Company <span style="color:#ef4444;">*</span></label>
+          <select id="companySelect" onchange="onRecruiterSelect(this.value)" style="margin-bottom:8px;">
+            <option value="">-- Mention Specific Recruiter --</option>
+            <option value="TCS">🏢 TCS (Tata Consultancy Services / TCE)</option>
+            <option value="Infosys">🏢 Infosys</option>
+            <option value="Wipro">🏢 Wipro</option>
+            <option value="Google">🏢 Google</option>
+            <option value="Amazon">🏢 Amazon</option>
+            <option value="custom">Other Company (Type below)</option>
+          </select>
           <input
             id="company"
             type="text"
-            placeholder="Example: TCS"
+            placeholder="Recruiter Company (e.g. TCS, Infosys, Wipro, Google, Amazon)"
             required
           >
-
+          <small style="color:#596579;font-size:12px;margin-top:5px;display:block;line-height:1.4;">
+            📌 <strong>Placement Routing Notice:</strong> When you submit, your job application will first go to your <strong>College Placement Section</strong> with <strong>Pending Approval</strong>. After the College Placement Section approves your request, this application will go to the specific recruiter mentioned above.
+          </small>
         </div>
         <div class="form-group">
 
@@ -430,6 +437,17 @@ async function loadColleges() {
 }
 
 loadColleges();
+
+window.onRecruiterSelect = function(val) {
+  const companyInput = document.getElementById("company");
+  if (val && val !== "custom") {
+    companyInput.value = val;
+  } else if (val === "custom") {
+    companyInput.value = "";
+    companyInput.focus();
+  }
+};
+
 form.addEventListener("submit", async function(event) {
 
   event.preventDefault();
@@ -522,9 +540,10 @@ form.addEventListener("submit", async function(event) {
 
     message.innerHTML =
       `
-        Application submitted successfully. 
-        Your application is now
-        <strong>Pending College Approval</strong> in your placement cell.
+        <strong>✅ Application Submitted to College Placement Section!</strong><br>
+        Your application for <strong>${escapeHtml(jobTitle)}</strong> has been sent to your <strong>College Placement Section</strong> for review.<br>
+        Status: <span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;font-weight:700;">⏳ Pending College Approval</span><br><br>
+        📌 Once approved by the placement section, this application and your resume will automatically reach the <strong>${escapeHtml(company)}</strong> recruiter.
         <br><br>
         <a href="dashboard.html" style="color:#16804a;font-weight:600;text-decoration:underline;">
           View in Dashboard &amp; Track Status &rarr;

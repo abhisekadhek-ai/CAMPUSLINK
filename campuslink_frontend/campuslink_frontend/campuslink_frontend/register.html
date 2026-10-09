@@ -121,6 +121,20 @@
         </div>
 
         <div class="form-group">
+          <label for="projects">Key Projects</label>
+          <textarea
+            id="projects"
+            name="projects"
+            rows="3"
+            placeholder="AI Placement Portal, E-Commerce App, IoT Sensor Network"
+          ></textarea>
+          <small class="help-text">
+            Enter academic or personal projects, separated by commas.
+            Leave blank if you do not have any.
+          </small>
+        </div>
+
+        <div class="form-group">
           <label for="mockInterviewScore">
             Mock Interview Score (0–100)
           </label>
@@ -199,8 +213,14 @@
   </main>
 
   <script>
-    // Your existing FastAPI registration endpoint.
-    const API_URL = "http://127.0.0.1:8000/auth/register/student";
+    // Dynamic FastAPI registration endpoint (works across local and network devices)
+    const resolveBase = () => {
+      const stored = localStorage.getItem("campuslink_backend_url");
+      if (stored) return stored.replace(/\/+$/, "");
+      if (window.location.protocol === "http:" || window.location.protocol === "https:") return window.location.origin;
+      return "http://127.0.0.1:8000";
+    };
+    const API_URL = resolveBase() + "/auth/register/student";
     
 
     const form = document.getElementById("registerForm");
@@ -233,6 +253,8 @@
       const skillsValue = document.getElementById("skills").value;
       const certificationsValue =
         document.getElementById("certifications").value;
+      const projectsValue =
+        (document.getElementById("projects") ? document.getElementById("projects").value : "");
       const scoreValue =
         document.getElementById("mockInterviewScore").value;
       const email = document.getElementById("email").value.trim();
@@ -279,17 +301,17 @@
       }
 
       const payload = {
-    name: name,
-    branch: branch,
-    cgpa: cgpa,
-    backlogs: backlogs,
-    skills: commaSeparatedList(skillsValue),
-    certifications: commaSeparatedList(certificationsValue),
-    mock_interview_score: mockInterviewScore,
-    email: email,
-    password: password,
-  
-};
+        name: name,
+        branch: branch,
+        cgpa: cgpa,
+        backlogs: backlogs,
+        skills: commaSeparatedList(skillsValue),
+        certifications: commaSeparatedList(certificationsValue),
+        projects: commaSeparatedList(projectsValue),
+        mock_interview_score: mockInterviewScore,
+        email: email,
+        password: password,
+      };
 
       registerButton.disabled = true;
       registerButton.textContent = "Registering...";

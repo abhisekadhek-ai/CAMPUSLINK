@@ -49,10 +49,11 @@ def _as_list(value):
 
 
 def build_student_doc(student):
-    skills = _as_list(student["skills"])
-    certs = _as_list(student["certifications"])
-    # repeat skills once more so they weigh slightly more than certifications
-    return " ".join(skills + skills + certs)
+    skills = _as_list(student.get("skills"))
+    certs = _as_list(student.get("certifications"))
+    projects = _as_list(student.get("projects"))
+    # repeat skills once more so they weigh slightly more than certifications and projects
+    return " ".join(skills + skills + certs + projects)
 
 
 def build_recruiter_doc(recruiter):

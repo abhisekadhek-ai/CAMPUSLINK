@@ -15,6 +15,154 @@
     rel="stylesheet"
     href="../css/style.css"
   >
+  <style>
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: #fff;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 26px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-form-group {
+      margin-bottom: 14px;
+    }
+    .modal-form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #374151;
+    }
+    .modal-form-group input, .modal-form-group select, .modal-form-group textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 13.5px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-btn-cancel {
+      padding: 9px 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .modal-btn-submit {
+      padding: 9px 20px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Conflict Management & Tabs */
+    .conflict-tab-btn {
+      padding: 6px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      font-size: 12.5px;
+      background: #f8fafc;
+      color: #475569;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .conflict-tab-btn:hover {
+      background: #edf2f7;
+      color: #1e293b;
+    }
+    .conflict-tab-btn.active {
+      background: #1e293b;
+      color: #fff;
+      border-color: #1e293b;
+      font-weight: 600;
+    }
+    .conflict-card {
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border-left: 4px solid #ef4444;
+      background: #fff;
+      border-top: 1px solid #f1f5f9;
+      border-right: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .conflict-card.critical {
+      border-left-color: #dc2626;
+      background: #fffdfd;
+    }
+    .conflict-card.warning {
+      border-left-color: #f59e0b;
+      background: #fffefb;
+    }
+    .conflict-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .conflict-cat-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 2.5px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .cat-overlapping { background: #fee2e2; color: #991b1b; }
+    .cat-venue { background: #ffedd5; color: #9a3412; }
+    .cat-student { background: #f3e8ff; color: #6b21a8; }
+    .cat-panel { background: #fef3c7; color: #92400e; }
+    .tag-chip {
+      background: #f1f5f9;
+      color: #475569;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: monospace;
+    }
+  </style>
 </head>
 
 
@@ -194,51 +342,226 @@
 
 
 
-    <!-- Drive Schedule -->
+    <!-- ======================================================== -->
+    <!-- MULTI-SOURCE DATA INTEGRATION & PLACEMENT INTELLIGENCE ENGINE -->
+    <!-- ======================================================== -->
+    <div class="panel" id="multiSourceEnginePanel" style="border: 2px solid #6366f1; background: #fafbff; border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+      
+      <!-- Panel Header with Engine Pulse -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-bottom: 18px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <div class="panel-title" style="margin: 0; font-size: 19px; color: #1e1b4b; display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 22px;">⚙️</span> Multi-Source Data Integration Engine
+            </div>
+            <span style="background: #10b981; color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; letter-spacing: 0.5px;">ACTIVE &amp; SYNCHRONIZED</span>
+            <span style="background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px;">6 DATA SOURCES LINKED</span>
+          </div>
+          <p class="muted" style="margin: 0; font-size: 13.5px; color: #475569;">
+            Unified intelligence engine integrating <strong>Student Academic &amp; Resume Data</strong>, <strong>Recruiter JDs &amp; Eligibility Criteria</strong>, <strong>Placement Drive Calendars</strong>, <strong>Historical Placement Records</strong>, and <strong>Diagnostic Assessment &amp; Mock-Interview Results</strong>.
+          </p>
+        </div>
+        <button type="button" onclick="refreshMultiSourceData()" style="padding: 7px 14px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          🔄 Sync All Sources
+        </button>
+      </div>
+
+      <!-- 6 Source Integration Health Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px;" id="sourceStatusGrid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Command Center Navigation Tabs -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 18px;">
+        <button type="button" class="conflict-tab-btn active" id="tabBtnHist" onclick="setMultiSourceTab('historical')">
+          📈 Historical Placement Records (4 Years)
+        </button>
+        <button type="button" class="conflict-tab-btn" id="tabBtnCal" onclick="setMultiSourceTab('calendar')">
+          📅 Integrated Drive Calendar Matrix
+        </button>
+        <button type="button" class="conflict-tab-btn" id="tabBtnCandidate" onclick="setMultiSourceTab('candidate')">
+          🎓 360° Multi-Source Student Diagnostic
+        </button>
+        <button type="button" class="conflict-tab-btn" id="tabBtnMatcher" onclick="setMultiSourceTab('matcher')">
+          ⚡ Deep Multi-Factor Job Fit Matcher
+        </button>
+      </div>
+
+      <!-- TAB 1: Historical Placement Records & Trends -->
+      <div id="msViewHistorical" style="display: block;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h4 style="margin: 0; font-size: 15px; color: #1e293b;">Multi-Year Placement Records &amp; Salary Quartiles</h4>
+            <span class="muted" style="font-size: 12.5px;">Analyzed across academic batches 2021-2022 to 2024-2025</span>
+          </div>
+          <div id="histSummaryStats" style="display: flex; gap: 14px; font-size: 13px; font-weight: 600; color: #4338ca;"></div>
+        </div>
+
+        <!-- Yearly Trend Table -->
+        <div style="overflow-x: auto; margin-bottom: 16px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Batch Year</th>
+                <th>Total Placements Recorded</th>
+                <th>Active Recruiters</th>
+                <th>Average CTC (LPA)</th>
+                <th>Highest Package (LPA)</th>
+                <th>Lowest Package (LPA)</th>
+              </tr>
+            </thead>
+            <tbody id="histYearlyTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Branch Insights & Top Demanded Skills Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;">
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
+            <div style="font-size: 13.5px; font-weight: 700; margin-bottom: 10px; color: #1e293b;">Branch-wise Average CTC Benchmark</div>
+            <div id="histBranchList" style="font-size: 13px;"></div>
+          </div>
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
+            <div style="font-size: 13.5px; font-weight: 700; margin-bottom: 10px; color: #1e293b;">Hiring Domain Distribution &amp; Top Demanded Skills</div>
+            <div id="histDomainSkillList" style="font-size: 13px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Integrated Drive Calendar Matrix -->
+      <div id="msViewCalendar" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h4 style="margin: 0; font-size: 15px; color: #1e293b;">Unified Placement Drive Calendar Matrix</h4>
+            <span class="muted" style="font-size: 12.5px;">Linked with recruiter eligibility rules, registration deadlines, and candidate volumes</span>
+          </div>
+          <input type="text" id="calendarFilterInput" placeholder="Filter company, role, or date..." oninput="filterCalendarTable()" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; max-width: 250px;">
+        </div>
+
+        <div style="overflow-x: auto; max-height: 480px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Company &amp; Role</th>
+                <th>Date &amp; Time Slot</th>
+                <th>Venue &amp; Capacity</th>
+                <th>Registration Deadline</th>
+                <th>Eligible Students</th>
+                <th>Rounds Breakdown</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="calendarMatrixBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: 360° Candidate Multi-Source Diagnostic -->
+      <div id="msViewCandidate" style="display: none;">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+          <input type="number" id="candidateDiagnosticId" placeholder="Enter Student ID (e.g. 1, 25, 100)" min="1" value="1" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; width: 220px;">
+          <button type="button" onclick="runStudentDiagnostic()" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+            🔍 Ingest &amp; Analyze Student Data
+          </button>
+        </div>
+        <div id="candidateDiagnosticResult"></div>
+      </div>
+
+      <!-- TAB 4: Deep Multi-Factor Job Fit Matcher -->
+      <div id="msViewMatcher" style="display: none;">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+          <input type="number" id="matchStudentInput" placeholder="Student ID (e.g. 1)" min="1" value="1" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; width: 160px;">
+          <input type="number" id="matchRecruiterInput" placeholder="Recruiter ID (e.g. 1)" min="1" value="1" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13.5px; width: 160px;">
+          <button type="button" onclick="runJobFitMatcher()" style="padding: 8px 16px; background: #16a34a; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+            ⚡ Run Deep Multi-Source Matching
+          </button>
+        </div>
+        <div id="jobFitMatcherResult"></div>
+      </div>
+
+    </div>
+
+
+
+    <!-- Drive Schedule & Conflict Management -->
 
     <div class="panel">
 
-      <div class="panel-title">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+        <div>
+          <div class="panel-title" style="margin-bottom:4px;">
+            Drive Schedule &amp; Conflict Management
+            <span class="ai-chip" style="background:#e0e7ff; color:#3730a3; font-size:11px; font-weight:700; padding:2px 7px; border-radius:4px; margin-left:8px;">REAL-TIME AI</span>
+          </div>
+          <p class="muted" style="margin:0; font-size:13px;">
+            Automated conflict checks for overlapping company drives, venue/resource double-bookings, simultaneous student shortlists, and interview-panel/infrastructure capacity.
+          </p>
+        </div>
 
-        Drive schedule
-
-        <span
-          class="muted"
-          style="font-size:12.5px;font-weight:400;"
-        >
-          conflicts flagged automatically
-        </span>
-
+        <button type="button" onclick="openScheduleDriveModal()" style="padding:8px 16px; background:#2563eb; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          ➕ Schedule Placement Drive
+        </button>
       </div>
 
 
-      <div id="conflictsBox"></div>
+      <!-- Category Filter Tabs -->
+      <div id="conflictFilterTabs" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+        <button type="button" class="conflict-tab-btn active" data-category="all" onclick="filterConflicts('all')">
+          All Conflicts (<span id="countAll">0</span>)
+        </button>
+        <button type="button" class="conflict-tab-btn" data-category="overlapping_company_drives" onclick="filterConflicts('overlapping_company_drives')">
+          🏢 Overlapping Drives (<span id="countOverlapping">0</span>)
+        </button>
+        <button type="button" class="conflict-tab-btn" data-category="venue_and_resource_double_booking" onclick="filterConflicts('venue_and_resource_double_booking')">
+          📍 Venue &amp; Resources (<span id="countVenue">0</span>)
+        </button>
+        <button type="button" class="conflict-tab-btn" data-category="student_simultaneous_drives" onclick="filterConflicts('student_simultaneous_drives')">
+          👨‍🎓 Simultaneous Students (<span id="countStudent">0</span>)
+        </button>
+        <button type="button" class="conflict-tab-btn" data-category="interview_panel_and_infrastructure" onclick="filterConflicts('interview_panel_and_infrastructure')">
+          👥 Panels &amp; Infrastructure (<span id="countPanel">0</span>)
+        </button>
+      </div>
 
 
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>Company</th>
-
-            <th>Date</th>
-
-            <th>Time slot</th>
-
-            <th>Venue</th>
-
-            <th>Status</th>
-
-          </tr>
-
-        </thead>
+      <!-- Conflicts Container -->
+      <div id="conflictsBox" style="margin-bottom:20px;"></div>
 
 
-        <tbody id="drivesBody"></tbody>
+      <!-- Table Header & Controls -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="margin:0; font-size:15px; font-weight:600; color:#1e293b;">Scheduled Campus Placement Drives</h3>
+        <span class="muted" id="drivesCountLabel" style="font-size:12.5px;"></span>
+      </div>
 
-      </table>
+
+      <div style="overflow-x:auto;">
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Company</th>
+
+              <th>Date</th>
+
+              <th>Time slot</th>
+
+              <th>Venue &amp; Resources</th>
+
+              <th>Interview Panels &amp; Capacity</th>
+
+              <th>Status</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="drivesBody"></tbody>
+
+        </table>
+      </div>
 
     </div>
 
@@ -337,6 +660,256 @@
 
     </div>
 
+    <!-- Automated Communication & Notification Center -->
+    <div class="panel" style="margin-top:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+        <div>
+          <div class="panel-title" style="margin-bottom:4px;">
+            Automated Communication &amp; Notification Hub
+            <span class="ai-chip" style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700; padding:2px 7px; border-radius:4px; margin-left:8px;">MULTI-CHANNEL ENGINE</span>
+          </div>
+          <p class="muted" style="margin:0; font-size:13px;">
+            Replaces manual email/WhatsApp coordination with automated, targeted notifications for shortlisting &amp; interviews, document deadlines, offer updates, and drive announcements.
+          </p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" onclick="openBroadcastDeadlineModal()" style="padding:8px 14px; background:#dc2626; color:#fff; border:none; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+            ⏰ Broadcast Document Deadline
+          </button>
+          <button type="button" onclick="openScheduleInterviewModal()" style="padding:8px 14px; background:#4f46e5; color:#fff; border:none; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+            🎯 Schedule Interview Round
+          </button>
+          <button type="button" onclick="triggerSeedAutomation()" style="padding:8px 12px; background:#0284c7; color:#fff; border:none; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer;">
+            ⚡ Trigger Demo Batch
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Summary Metric Cards -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:18px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">🎯 Interview Schedules</div>
+          <div style="font-size:20px; font-weight:800; color:#1e293b; margin-top:4px;" id="statCountInterview">0</div>
+          <div style="font-size:11px; color:#15803d; margin-top:2px;">Automated WhatsApp &amp; Email dispatches</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">⏰ Document Deadlines</div>
+          <div style="font-size:20px; font-weight:800; color:#1e293b; margin-top:4px;" id="statCountDeadline">0</div>
+          <div style="font-size:11px; color:#b91c1c; margin-top:2px;">Targeted countdown reminders</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">🎉 Offer Updates</div>
+          <div style="font-size:20px; font-weight:800; color:#1e293b; margin-top:4px;" id="statCountOffer">0</div>
+          <div style="font-size:11px; color:#15803d; margin-top:2px;">Real-time acceptance notifications</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">📢 Targeted Drive Alerts</div>
+          <div style="font-size:20px; font-weight:800; color:#1e293b; margin-top:4px;" id="statCountDrive">0</div>
+          <div style="font-size:11px; color:#b45309; margin-top:2px;">Filtered by CGPA/Backlog eligibility</div>
+        </div>
+      </div>
+
+      <!-- Live Automated Dispatch Log -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h3 style="margin:0; font-size:14.5px; font-weight:700; color:#1e293b;">Automated Multi-Channel Dispatch Log (Live)</h3>
+        <span class="muted" style="font-size:12px;" id="dispatchLogSummaryLabel">Active dispatches</span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Channel &amp; Status</th>
+              <th>Recipient</th>
+              <th>Category</th>
+              <th>Notification Subject &amp; Details</th>
+              <th>Dispatch Time</th>
+            </tr>
+          </thead>
+          <tbody id="dispatchLogBody">
+            <tr>
+              <td colspan="5" class="empty">Loading automated dispatch records...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SCHEDULE DRIVE MODAL -->
+    <div id="scheduleDriveModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="scheduleDriveTitle">
+      <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h2 id="scheduleDriveTitle" style="margin:0; font-size:19px;">Schedule Placement Drive</h2>
+          <button type="button" onclick="closeScheduleDriveModal()" style="border:none;background:none;font-size:22px;cursor:pointer;color:#9ca3af;line-height:1;">&times;</button>
+        </div>
+        <p style="margin:0 0 16px; font-size:13px; color:#6b7280; line-height:1.5;">
+          Schedule an on-campus placement drive. The AI engine continuously verifies overlapping drives, venue/resource collisions, student simultaneous shortlists, and panel availability.
+        </p>
+
+        <form id="scheduleDriveForm">
+          <div class="modal-form-group">
+            <label for="driveCompany">Company Name</label>
+            <input type="text" id="driveCompany" placeholder="e.g. Google, Microsoft, TCS, Infosys" required oninput="triggerConflictCheck()">
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="modal-form-group">
+              <label for="driveDate">Drive Date</label>
+              <input type="date" id="driveDate" required onchange="triggerConflictCheck()">
+            </div>
+            <div class="modal-form-group">
+              <label for="driveTimeSlot">Time Slot</label>
+              <select id="driveTimeSlot" required onchange="triggerConflictCheck()">
+                <option value="09:00 - 13:00">09:00 - 13:00 (Morning Slot)</option>
+                <option value="14:00 - 18:00">14:00 - 18:00 (Afternoon Slot)</option>
+                <option value="09:00 - 17:00">09:00 - 17:00 (Full Day)</option>
+                <option value="10:00 - 16:00">10:00 - 16:00</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="driveVenue">Campus Venue</label>
+            <select id="driveVenue" required onchange="onVenueChange(); triggerConflictCheck();">
+              <option value="Auditorium">Auditorium (Main Stage AV, 250 Capacity)</option>
+              <option value="Lab 1">Lab 1 (60 Systems LAN, 60 Capacity)</option>
+              <option value="Lab 2">Lab 2 (45 Systems Terminal, 45 Capacity)</option>
+              <option value="Placement Cell">Placement Cell (Interview Chamber, 30 Capacity)</option>
+              <option value="Seminar Hall A">Seminar Hall A (Presentation Screen, 120 Capacity)</option>
+              <option value="Seminar Hall B">Seminar Hall B (Smart Board, 80 Capacity)</option>
+            </select>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="driveResources">Allocated Campus Resources (comma-separated)</label>
+            <input type="text" id="driveResources" placeholder="Main Stage AV System, Projector Array" oninput="triggerConflictCheck()">
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="modal-form-group">
+              <label for="drivePanels">Interview Panels (comma-separated)</label>
+              <input type="text" id="drivePanels" placeholder="Technical Panel A, HR Panel A" oninput="triggerConflictCheck()">
+            </div>
+            <div class="modal-form-group">
+              <label for="driveCapacity">Infrastructure Capacity</label>
+              <input type="number" id="driveCapacity" min="1" max="500" value="250" oninput="triggerConflictCheck()">
+            </div>
+          </div>
+
+          <!-- Real-Time Conflict Preview in Modal -->
+          <div id="modalConflictPreview" style="margin-top:12px; margin-bottom:14px; font-size:12.5px;"></div>
+
+          <div id="modalScheduleMessage" class="message" style="display:none;margin-bottom:12px;"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="closeScheduleDriveModal()">Cancel</button>
+            <button type="submit" class="modal-btn-submit" id="btnSubmitDrive">Confirm &amp; Schedule Drive</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- BROADCAST DOCUMENT DEADLINE MODAL -->
+    <div id="broadcastDeadlineModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="deadlineModalTitle">
+      <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h2 id="deadlineModalTitle" style="margin:0; font-size:18px;">⏰ Broadcast Document Deadline</h2>
+          <button type="button" onclick="closeBroadcastDeadlineModal()" style="border:none;background:none;font-size:22px;cursor:pointer;color:#9ca3af;line-height:1;">&times;</button>
+        </div>
+        <p style="margin:0 0 16px; font-size:13px; color:#6b7280; line-height:1.45;">
+          Dispatches automated targeted reminders across In-App, Email, and WhatsApp to applicants, replacing manual calls and messaging.
+        </p>
+
+        <form id="broadcastDeadlineForm">
+          <div class="modal-form-group">
+            <label for="deadlineCompany">Company Name</label>
+            <input type="text" id="deadlineCompany" placeholder="e.g. Google, Microsoft, TCS" required>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="deadlineRole">Role / Position</label>
+            <input type="text" id="deadlineRole" placeholder="e.g. Software Engineer, Data Analyst" value="Shortlisted Role">
+          </div>
+
+          <div class="modal-form-group">
+            <label for="deadlineDocuments">Mandatory Documents Required (comma-separated)</label>
+            <input type="text" id="deadlineDocuments" placeholder="Updated Resume, Degree Transcripts, Government ID, Placement NOC" value="Updated Resume, Degree Transcripts, Government ID" required>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="deadlineDateInput">Strict Submission Deadline Date &amp; Time</label>
+            <input type="text" id="deadlineDateInput" placeholder="e.g. 2026-10-20 18:00 IST" required>
+          </div>
+
+          <div id="deadlineFormMsg" class="message" style="display:none;margin-bottom:12px;"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="closeBroadcastDeadlineModal()">Cancel</button>
+            <button type="submit" class="modal-btn-submit" id="btnSubmitDeadline">Broadcast Automated Alerts</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- SCHEDULE INTERVIEW ROUND MODAL -->
+    <div id="scheduleInterviewModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="interviewModalTitle">
+      <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h2 id="interviewModalTitle" style="margin:0; font-size:18px;">🎯 Schedule Interview Round &amp; Auto-Notify</h2>
+          <button type="button" onclick="closeScheduleInterviewModal()" style="border:none;background:none;font-size:22px;cursor:pointer;color:#9ca3af;line-height:1;">&times;</button>
+        </div>
+        <p style="margin:0 0 16px; font-size:13px; color:#6b7280; line-height:1.45;">
+          Instantly schedules the candidate's interview round and dispatches automated WhatsApp &amp; Email invites with slot and venue instructions.
+        </p>
+
+        <form id="scheduleInterviewForm">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="modal-form-group">
+              <label for="interviewStudentId">Student ID</label>
+              <input type="number" id="interviewStudentId" placeholder="e.g. 1, 2" min="1" value="1" required>
+            </div>
+            <div class="modal-form-group">
+              <label for="interviewCompany">Company Name</label>
+              <input type="text" id="interviewCompany" placeholder="e.g. Google, TCS" required>
+            </div>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="interviewRole">Role</label>
+            <input type="text" id="interviewRole" placeholder="e.g. Software Engineer" required>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="modal-form-group">
+              <label for="interviewDate">Interview Date</label>
+              <input type="date" id="interviewDate" required>
+            </div>
+            <div class="modal-form-group">
+              <label for="interviewTimeSlot">Time Slot</label>
+              <input type="text" id="interviewTimeSlot" placeholder="10:00 AM - 11:30 AM" value="10:00 AM - 11:30 AM" required>
+            </div>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="interviewVenue">Venue / Meeting URL</label>
+            <input type="text" id="interviewVenue" placeholder="Placement Chamber 1 / https://meet.google.com/xyz" value="Placement Cell Chamber A" required>
+          </div>
+
+          <div class="modal-form-group">
+            <label for="interviewGuidelines">Preparation Guidelines</label>
+            <textarea id="interviewGuidelines" rows="2" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;box-sizing:border-box;font-family:inherit;font-size:13px;">Bring 2 hard copies of updated resume, college ID, and prepare DSA / Core fundamentals.</textarea>
+          </div>
+
+          <div id="interviewFormMsg" class="message" style="display:none;margin-bottom:12px;"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="modal-btn-cancel" onclick="closeScheduleInterviewModal()">Cancel</button>
+            <button type="submit" class="modal-btn-submit" id="btnSubmitInterview">Schedule &amp; Auto-Dispatch Invite</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
   </main>
 
@@ -347,6 +920,7 @@
 <script src="../js/auth.js"></script>
 
 <script src="../js/api.js"></script>
+<script src="../js/notifications-ui.js" defer></script>
 
 
 <script>
@@ -976,118 +1550,11 @@ async function loadDashboard() {
     // DRIVES AND CONFLICTS
     // ========================================
 
-    const drives =
-      await getDrives();
+    allDrives = await getDrives();
+    allConflicts = await getDriveConflicts();
 
-
-    const conflicts =
-      await getDriveConflicts();
-
-
-    document
-      .getElementById("conflictsBox")
-      .innerHTML =
-
-      conflicts.length
-
-        ? conflicts
-            .map(
-              c =>
-
-                `<div class="alert">
-
-                  ⚠
-                  ${escapeHtml(c.reason)}
-
-                </div>`
-
-            )
-            .join("")
-
-        :
-
-      `
-
-        <div class="alert ok">
-
-          No scheduling conflicts detected.
-
-        </div>
-
-      `;
-
-
-
-    document
-      .getElementById("drivesBody")
-      .innerHTML =
-
-      drives
-
-        .map(
-          d => `
-
-            <tr>
-
-              <td>
-
-                <strong>
-                  ${escapeHtml(d.company)}
-                </strong>
-
-              </td>
-
-
-              <td class="mono">
-                ${escapeHtml(d.date)}
-              </td>
-
-
-              <td class="mono">
-                ${escapeHtml(d.time_slot)}
-              </td>
-
-
-              <td>
-                ${escapeHtml(d.venue)}
-              </td>
-
-
-              <td>
-
-                <span
-                  class="badge ${badgeClass(d.status)}"
-                >
-
-                  ${escapeHtml(d.status)}
-
-                </span>
-
-              </td>
-
-            </tr>
-
-          `
-        )
-
-        .join("")
-
-        ||
-
-      `
-
-        <tr>
-
-          <td
-            colspan="5"
-            class="empty"
-          >
-            No drives scheduled yet.
-          </td>
-
-        </tr>
-
-      `;
+    updateConflictStatsAndRender();
+    renderDrivesTable();
 
 
 
@@ -1279,6 +1746,7 @@ async function loadDashboard() {
 
       `;
 
+    await loadCommunicationAutomationData();
 
   } catch (err) {
 
@@ -1321,10 +1789,1062 @@ async function changeStatus(
 
 
 // ========================================
+// CONFLICT MANAGEMENT & DRIVE SCHEDULING
+// ========================================
+
+let allDrives = [];
+let allConflicts = [];
+let currentConflictCategory = "all";
+let showAllConflicts = false;
+
+function updateConflictStatsAndRender() {
+  const catCounts = {
+    all: allConflicts.length,
+    overlapping_company_drives: 0,
+    venue_and_resource_double_booking: 0,
+    student_simultaneous_drives: 0,
+    interview_panel_and_infrastructure: 0
+  };
+
+  allConflicts.forEach(c => {
+    if (catCounts[c.category] !== undefined) {
+      catCounts[c.category]++;
+    }
+  });
+
+  const setEl = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  setEl("countAll", catCounts.all);
+  setEl("countOverlapping", catCounts.overlapping_company_drives);
+  setEl("countVenue", catCounts.venue_and_resource_double_booking);
+  setEl("countStudent", catCounts.student_simultaneous_drives);
+  setEl("countPanel", catCounts.interview_panel_and_infrastructure);
+
+  renderConflictsList();
+}
+
+function filterConflicts(category) {
+  currentConflictCategory = category;
+  document.querySelectorAll("#conflictFilterTabs .conflict-tab-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-category") === category);
+  });
+  renderConflictsList();
+}
+
+function toggleShowAllConflicts() {
+  showAllConflicts = !showAllConflicts;
+  renderConflictsList();
+}
+
+function renderConflictsList() {
+  const box = document.getElementById("conflictsBox");
+  if (!box) return;
+
+  const filtered = currentConflictCategory === "all"
+    ? allConflicts
+    : allConflicts.filter(c => c.category === currentConflictCategory);
+
+  if (!filtered.length) {
+    box.innerHTML = `
+      <div class="alert ok" style="padding:12px 16px;border-radius:8px;">
+        ✅ No scheduling conflicts detected in this category.
+      </div>
+    `;
+    return;
+  }
+
+  const limit = showAllConflicts ? filtered.length : Math.min(filtered.length, 6);
+  const displayed = filtered.slice(0, limit);
+
+  const getCatBadge = (cat) => {
+    switch (cat) {
+      case "overlapping_company_drives":
+        return `<span class="conflict-cat-badge cat-overlapping">🏢 Overlapping Drives</span>`;
+      case "venue_and_resource_double_booking":
+        return `<span class="conflict-cat-badge cat-venue">📍 Venue &amp; Resources</span>`;
+      case "student_simultaneous_drives":
+        return `<span class="conflict-cat-badge cat-student">👨‍🎓 Simultaneous Students</span>`;
+      case "interview_panel_and_infrastructure":
+        return `<span class="conflict-cat-badge cat-panel">👥 Panels &amp; Infrastructure</span>`;
+      default:
+        return `<span class="conflict-cat-badge cat-overlapping">⚠ Conflict</span>`;
+    }
+  };
+
+  let html = displayed.map(c => {
+    const isCritical = c.severity === "critical";
+    const sevBadge = isCritical
+      ? `<span class="badge" style="background:#fee2e2;color:#991b1b;font-weight:700;font-size:10.5px;">CRITICAL</span>`
+      : `<span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;font-size:10.5px;">WARNING</span>`;
+
+    let metaChips = [];
+    if (c.date) metaChips.push(`<span class="tag-chip">📅 ${escapeHtml(c.date)}</span>`);
+    if (c.venue) metaChips.push(`<span class="tag-chip">📍 ${escapeHtml(c.venue)}</span>`);
+    if (c.time_slot_a) metaChips.push(`<span class="tag-chip">⏰ ${escapeHtml(c.time_slot_a)}</span>`);
+    if (c.student_name) metaChips.push(`<span class="tag-chip">👤 ${escapeHtml(c.student_name)} (ID: ${c.student_id})</span>`);
+    if (Array.isArray(c.resources) && c.resources.length) metaChips.push(`<span class="tag-chip">🛠 ${escapeHtml(c.resources.join(", "))}</span>`);
+    if (Array.isArray(c.panels) && c.panels.length) metaChips.push(`<span class="tag-chip">👥 Panels: ${escapeHtml(c.panels.join(", "))}</span>`);
+    if (c.capacity) metaChips.push(`<span class="tag-chip">Capacity: ${c.capacity}</span>`);
+
+    return `
+      <div class="conflict-card ${isCritical ? 'critical' : 'warning'}">
+        <div class="conflict-card-header">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            ${getCatBadge(c.category)}
+            <strong style="font-size:13.5px;color:#1e293b;">${escapeHtml(c.title || "Scheduling Collision")}</strong>
+          </div>
+          <div>${sevBadge}</div>
+        </div>
+        <div style="font-size:13px;color:#334155;line-height:1.5;margin-bottom:6px;">
+          ${escapeHtml(c.reason)}
+        </div>
+        ${metaChips.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${metaChips.join("")}</div>` : ""}
+      </div>
+    `;
+  }).join("");
+
+  if (filtered.length > 6) {
+    html += `
+      <div style="text-align:center;margin-top:10px;">
+        <button type="button" onclick="toggleShowAllConflicts()" class="conflict-tab-btn" style="border:1px solid #cbd5e1;background:#fff;">
+          ${showAllConflicts ? `▲ Show top 6 conflicts` : `▼ Show all ${filtered.length} conflicts in this category`}
+        </button>
+      </div>
+    `;
+  }
+
+  box.innerHTML = html;
+}
+
+function renderDrivesTable() {
+  const tbody = document.getElementById("drivesBody");
+  const countLabel = document.getElementById("drivesCountLabel");
+  if (countLabel) countLabel.textContent = `${allDrives.length} drives scheduled`;
+  if (!tbody) return;
+
+  if (!allDrives.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">No placement drives scheduled yet.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = allDrives.map(d => {
+    const res = Array.isArray(d.resources) ? d.resources : [];
+    const panels = Array.isArray(d.interview_panels) ? d.interview_panels : [];
+    const cap = d.infrastructure_capacity || "—";
+
+    const resHtml = res.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;">${res.map(r => `<span class="tag-chip" style="font-size:10.5px;">${escapeHtml(r)}</span>`).join("")}</div>`
+      : "";
+
+    const panelHtml = panels.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:2px;">${panels.map(p => `<span class="badge" style="font-size:10.5px;background:#f3e8ff;color:#6b21a8;padding:2px 5px;">${escapeHtml(p)}</span>`).join("")}</div>`
+      : `<span class="muted">—</span>`;
+
+    return `
+      <tr>
+        <td>
+          <strong>${escapeHtml(d.company)}</strong>
+        </td>
+        <td class="mono">${escapeHtml(d.date)}</td>
+        <td class="mono">${escapeHtml(d.time_slot)}</td>
+        <td>
+          <div><strong>${escapeHtml(d.venue)}</strong></div>
+          ${resHtml}
+        </td>
+        <td>
+          ${panelHtml}
+          <div style="font-size:11.5px;color:#64748b;margin-top:3px;">Capacity: <strong>${cap} candidates</strong></div>
+        </td>
+        <td>
+          <span class="badge ${badgeClass(d.status)}">
+            ${escapeHtml(d.status)}
+          </span>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+const VENUE_DEFAULTS = {
+  "Auditorium": {
+    resources: "Main Stage AV System, Projector Array, Acoustic PA",
+    panels: "Technical Panel A, Technical Panel B, HR Panel A",
+    capacity: 250
+  },
+  "Lab 1": {
+    resources: "Lab 1 Workstations (60 Systems), High-Speed LAN, Projector",
+    panels: "Technical Panel 1, Technical Panel 2",
+    capacity: 60
+  },
+  "Lab 2": {
+    resources: "Lab 2 Workstations (45 Systems), Coding Assessment Terminal, AV System",
+    panels: "Technical Panel 3, HR Panel B",
+    capacity: 45
+  },
+  "Placement Cell": {
+    resources: "Interview Chamber A, Video Conference System",
+    panels: "Panel Alpha, Executive HR Panel",
+    capacity: 30
+  },
+  "Seminar Hall A": {
+    resources: "Presentation Screen, Wireless Mic System",
+    panels: "Technical Panel 4, Management Panel",
+    capacity: 120
+  },
+  "Seminar Hall B": {
+    resources: "Smart Board, PA System",
+    panels: "Panel Beta, HR Panel C",
+    capacity: 80
+  }
+};
+
+function onVenueChange() {
+  const v = document.getElementById("driveVenue").value;
+  const cfg = VENUE_DEFAULTS[v];
+  if (cfg) {
+    document.getElementById("driveResources").value = cfg.resources;
+    document.getElementById("drivePanels").value = cfg.panels;
+    document.getElementById("driveCapacity").value = cfg.capacity;
+  }
+}
+
+function openScheduleDriveModal() {
+  document.getElementById("scheduleDriveForm").reset();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById("driveDate").value = tomorrow.toISOString().split("T")[0];
+  document.getElementById("driveVenue").value = "Auditorium";
+  onVenueChange();
+  document.getElementById("modalConflictPreview").innerHTML = "";
+  document.getElementById("modalScheduleMessage").style.display = "none";
+  document.getElementById("scheduleDriveModal").classList.add("active");
+  triggerConflictCheck();
+}
+
+function closeScheduleDriveModal() {
+  document.getElementById("scheduleDriveModal").classList.remove("active");
+}
+
+let conflictCheckTimeout = null;
+function triggerConflictCheck() {
+  clearTimeout(conflictCheckTimeout);
+  conflictCheckTimeout = setTimeout(performConflictCheck, 350);
+}
+
+async function performConflictCheck() {
+  const company = document.getElementById("driveCompany").value.trim();
+  const date = document.getElementById("driveDate").value.trim();
+  const time_slot = document.getElementById("driveTimeSlot").value.trim();
+  const venue = document.getElementById("driveVenue").value.trim();
+  const previewBox = document.getElementById("modalConflictPreview");
+
+  if (!company || !date || !time_slot || !venue) {
+    previewBox.innerHTML = "";
+    return;
+  }
+
+  const resources = (document.getElementById("driveResources").value || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+  const interview_panels = (document.getElementById("drivePanels").value || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+  const infrastructure_capacity = parseInt(document.getElementById("driveCapacity").value, 10) || 80;
+
+  previewBox.innerHTML = `<span class="muted">Running AI conflict detection on proposed drive...</span>`;
+
+  try {
+    const conflicts = await checkDriveConflicts({
+      company,
+      date,
+      time_slot,
+      venue,
+      resources,
+      interview_panels,
+      infrastructure_capacity,
+      status: "Scheduled"
+    });
+
+    const relevant = conflicts.filter(c =>
+      c.company_a === company || c.company_b === company || c.company === company
+    );
+
+    if (!relevant.length) {
+      previewBox.innerHTML = `
+        <div class="alert ok" style="padding:10px 14px;border-radius:8px;margin:0;">
+          ✅ <strong>No conflicts detected!</strong> Venue, resources, panels, and slot are free on ${escapeHtml(date)}.
+        </div>
+      `;
+    } else {
+      previewBox.innerHTML = `
+        <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:12px;color:#991b1b;">
+          <div style="font-weight:700;margin-bottom:6px;">⚠️ ${relevant.length} Scheduling Conflict(s) Detected:</div>
+          ${relevant.map(c => `
+            <div style="font-size:12px;margin-bottom:4px;line-height:1.4;">
+              • <strong>[${c.severity.toUpperCase()}]</strong> ${escapeHtml(c.reason)}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+  } catch (err) {
+    previewBox.innerHTML = `<span class="muted" style="color:#ef4444;">Could not check conflicts: ${escapeHtml(err.message || String(err))}</span>`;
+  }
+}
+
+document.getElementById("scheduleDriveForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById("btnSubmitDrive");
+  const msg = document.getElementById("modalScheduleMessage");
+
+  const company = document.getElementById("driveCompany").value.trim();
+  const date = document.getElementById("driveDate").value.trim();
+  const time_slot = document.getElementById("driveTimeSlot").value.trim();
+  const venue = document.getElementById("driveVenue").value.trim();
+  const resources = (document.getElementById("driveResources").value || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+  const interview_panels = (document.getElementById("drivePanels").value || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+  const infrastructure_capacity = parseInt(document.getElementById("driveCapacity").value, 10) || 80;
+
+  btn.disabled = true;
+  btn.textContent = "Scheduling Drive...";
+
+  try {
+    await createDrive({
+      company,
+      date,
+      time_slot,
+      venue,
+      resources,
+      interview_panels,
+      infrastructure_capacity,
+      status: "Scheduled"
+    });
+
+    msg.style.display = "block";
+    msg.className = "message ok";
+    msg.textContent = `Placement drive for '${company}' scheduled successfully!`;
+
+    setTimeout(async () => {
+      closeScheduleDriveModal();
+      await loadDashboard();
+    }, 900);
+  } catch (err) {
+    msg.style.display = "block";
+    msg.className = "message error";
+    msg.textContent = "Failed to schedule drive: " + (err.message || err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Confirm & Schedule Drive";
+  }
+});
+
+document.getElementById("scheduleDriveModal").addEventListener("click", function(e) {
+  if (e.target === this) {
+    closeScheduleDriveModal();
+  }
+});
+
+// ========================================
+// AUTOMATED COMMUNICATION & NOTIFICATION HUB
+// ========================================
+
+function getNotifCategoryChip(cat) {
+  switch (cat) {
+    case "shortlist_interview":
+    case "interview_schedule":
+      return `<span class="badge" style="background:#e0e7ff;color:#4338ca;font-weight:700;">🎯 Interview</span>`;
+    case "document_deadline":
+      return `<span class="badge" style="background:#fee2e2;color:#b91c1c;font-weight:700;">⏰ Deadline</span>`;
+    case "offer_status":
+      return `<span class="badge" style="background:#dcfce7;color:#15803d;font-weight:700;">🎉 Offer</span>`;
+    case "drive_announcement":
+      return `<span class="badge" style="background:#fef3c7;color:#b45309;font-weight:700;">📢 Drive Alert</span>`;
+    default:
+      return `<span class="badge" style="background:#f1f5f9;color:#475569;">${escapeHtml(cat || "Notice")}</span>`;
+  }
+}
+
+async function loadCommunicationAutomationData() {
+  try {
+    const notifData = await getNotifications();
+    const notifs = (notifData && notifData.notifications) || [];
+
+    let interviewCount = 0;
+    let deadlineCount = 0;
+    let offerCount = 0;
+    let driveCount = 0;
+
+    notifs.forEach(n => {
+      if (n.category === "shortlist_interview" || n.category === "interview_schedule") interviewCount++;
+      else if (n.category === "document_deadline") deadlineCount++;
+      else if (n.category === "offer_status") offerCount++;
+      else if (n.category === "drive_announcement") driveCount++;
+    });
+
+    const elInterview = document.getElementById("statCountInterview");
+    if (elInterview) elInterview.textContent = interviewCount;
+    const elDeadline = document.getElementById("statCountDeadline");
+    if (elDeadline) elDeadline.textContent = deadlineCount;
+    const elOffer = document.getElementById("statCountOffer");
+    if (elOffer) elOffer.textContent = offerCount;
+    const elDrive = document.getElementById("statCountDrive");
+    if (elDrive) elDrive.textContent = driveCount;
+
+    // Load dispatch log
+    const logData = await getDispatchLog();
+    const logs = (logData && logData.logs) || [];
+    const summaryLabel = document.getElementById("dispatchLogSummaryLabel");
+    if (summaryLabel) summaryLabel.textContent = `${logs.length} automated dispatches`;
+
+    const tbody = document.getElementById("dispatchLogBody");
+    if (tbody) {
+      if (!logs.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">No automated communication logs yet. Use the buttons above or schedule drives to trigger automated dispatches.</td></tr>`;
+      } else {
+        tbody.innerHTML = logs.slice(0, 15).map(item => {
+          const n = item.notification || {};
+          const wp = item.whatsapp || {};
+          const em = item.email || {};
+
+          const catBadge = getNotifCategoryChip(n.category || item.category);
+
+          const channelsHtml = `
+            <div style="display:flex;flex-direction:column;gap:3px;">
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#047857;">
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;"></span>
+                💬 WA: ${escapeHtml(wp.delivery_status || "Sent ✓✓")}
+              </span>
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#1d4ed8;">
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#3b82f6;"></span>
+                📧 Email: ${escapeHtml(em.status || "Dispatched")}
+              </span>
+            </div>
+          `;
+
+          const recipientHtml = `
+            <div>
+              <strong>${escapeHtml(n.recipient_name || item.recipient_name || "Recipient")}</strong>
+              <div class="muted" style="font-size:11.5px;">${escapeHtml(n.recipient_email || item.recipient_email || "")}</div>
+              <div class="muted" style="font-size:11.5px;">📱 ${escapeHtml(n.recipient_phone || item.recipient_phone || "")}</div>
+            </div>
+          `;
+
+          const subjectHtml = `
+            <div>
+              <strong style="color:#0f172a;font-size:13px;">${escapeHtml(n.title || item.title || "")}</strong>
+              <div style="font-size:12px;color:#475569;margin-top:2px;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                ${escapeHtml(n.message || item.message || "")}
+              </div>
+            </div>
+          `;
+
+          const timeStr = item.timestamp
+            ? item.timestamp
+            : (item.dispatched_at
+                ? new Date(item.dispatched_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                : "Just now");
+
+          return `
+            <tr>
+              <td>${channelsHtml}</td>
+              <td>${recipientHtml}</td>
+              <td>${catBadge}</td>
+              <td>${subjectHtml}</td>
+              <td class="mono" style="font-size:11.5px;white-space:nowrap;">${timeStr}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+    }
+  } catch (e) {
+    console.error("Failed to load communication automation data:", e);
+  }
+}
+
+function openBroadcastDeadlineModal() {
+  document.getElementById("broadcastDeadlineForm").reset();
+  const nextWeek = new Date();
+  nextWeek.setDate(nextWeek.getDate() + 5);
+  nextWeek.setHours(18, 0, 0, 0);
+  document.getElementById("deadlineDateInput").value = nextWeek.toISOString().replace("T", " ").slice(0, 16) + " IST";
+  document.getElementById("deadlineFormMsg").style.display = "none";
+  document.getElementById("broadcastDeadlineModal").classList.add("active");
+}
+
+function closeBroadcastDeadlineModal() {
+  document.getElementById("broadcastDeadlineModal").classList.remove("active");
+}
+
+const deadlineModalEl = document.getElementById("broadcastDeadlineModal");
+if (deadlineModalEl) {
+  deadlineModalEl.addEventListener("click", function(e) {
+    if (e.target === this) closeBroadcastDeadlineModal();
+  });
+}
+
+const broadcastDeadlineFormEl = document.getElementById("broadcastDeadlineForm");
+if (broadcastDeadlineFormEl) {
+  broadcastDeadlineFormEl.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("btnSubmitDeadline");
+    const msg = document.getElementById("deadlineFormMsg");
+    btn.disabled = true;
+    btn.textContent = "Broadcasting Alerts...";
+    msg.style.display = "none";
+
+    const company = document.getElementById("deadlineCompany").value.trim();
+    const role = document.getElementById("deadlineRole").value.trim();
+    const rawDocs = document.getElementById("deadlineDocuments").value.trim();
+    const deadline = document.getElementById("deadlineDateInput").value.trim();
+    const required_documents = rawDocs.split(",").map(d => d.trim()).filter(Boolean);
+
+    try {
+      const res = await sendDocumentDeadline({
+        company,
+        role,
+        documents: required_documents,
+        deadline_date: deadline
+      });
+      msg.style.display = "block";
+      msg.className = "message ok";
+      msg.textContent = res.message || "Targeted document deadline broadcast dispatched successfully!";
+      setTimeout(async () => {
+        closeBroadcastDeadlineModal();
+        await loadCommunicationAutomationData();
+        if (window.refreshNotificationsUI) window.refreshNotificationsUI();
+        if (window.refreshNotificationUI) window.refreshNotificationUI();
+      }, 900);
+    } catch (err) {
+      msg.style.display = "block";
+      msg.className = "message error";
+      msg.textContent = "Failed to broadcast deadline: " + (err.message || err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Broadcast Automated Alerts";
+    }
+  });
+}
+
+function openScheduleInterviewModal() {
+  document.getElementById("scheduleInterviewForm").reset();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 2);
+  document.getElementById("interviewDate").value = tomorrow.toISOString().split("T")[0];
+  document.getElementById("interviewTimeSlot").value = "10:00 AM - 11:30 AM";
+  document.getElementById("interviewVenue").value = "Placement Cell Chamber A / Google Meet";
+  document.getElementById("interviewFormMsg").style.display = "none";
+  document.getElementById("scheduleInterviewModal").classList.add("active");
+}
+
+function closeScheduleInterviewModal() {
+  document.getElementById("scheduleInterviewModal").classList.remove("active");
+}
+
+const scheduleInterviewModalEl = document.getElementById("scheduleInterviewModal");
+if (scheduleInterviewModalEl) {
+  scheduleInterviewModalEl.addEventListener("click", function(e) {
+    if (e.target === this) closeScheduleInterviewModal();
+  });
+}
+
+const scheduleInterviewFormEl = document.getElementById("scheduleInterviewForm");
+if (scheduleInterviewFormEl) {
+  scheduleInterviewFormEl.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("btnSubmitInterview");
+    const msg = document.getElementById("interviewFormMsg");
+    btn.disabled = true;
+    btn.textContent = "Scheduling & Dispatching...";
+    msg.style.display = "none";
+
+    const student_id = parseInt(document.getElementById("interviewStudentId").value, 10);
+    const company = document.getElementById("interviewCompany").value.trim();
+    const role = document.getElementById("interviewRole").value.trim();
+    const interview_date = document.getElementById("interviewDate").value.trim();
+    const time_slot = document.getElementById("interviewTimeSlot").value.trim();
+    const venue = document.getElementById("interviewVenue").value.trim();
+    const guidelines = document.getElementById("interviewGuidelines").value.trim();
+
+    try {
+      const res = await scheduleInterviewRound({
+        student_id,
+        company,
+        role,
+        interview_date,
+        time_slot,
+        venue,
+        guidelines
+      });
+      msg.style.display = "block";
+      msg.className = "message ok";
+      msg.textContent = res.message || "Interview scheduled and automated invites dispatched!";
+      setTimeout(async () => {
+        closeScheduleInterviewModal();
+        await loadCommunicationAutomationData();
+        if (window.refreshNotificationUI) window.refreshNotificationUI();
+      }, 900);
+    } catch (err) {
+      msg.style.display = "block";
+      msg.className = "message error";
+      msg.textContent = "Failed to schedule interview: " + (err.message || err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Schedule & Auto-Dispatch Invite";
+    }
+  });
+}
+
+async function triggerSeedAutomation() {
+  try {
+    const res = await seedSampleAutomation();
+    alert(res.message || "Automated notifications generated across all 4 channels!");
+    await loadCommunicationAutomationData();
+    if (window.refreshNotificationUI) window.refreshNotificationUI();
+  } catch (err) {
+    alert("Error seeding automation: " + (err.message || err));
+  }
+}
+
+// ============================================================
+// MULTI-SOURCE DATA INTEGRATION ENGINE CONTROLLER
+// ============================================================
+let multiSourceCalendarData = [];
+
+function setMultiSourceTab(tab) {
+  const tabs = ['historical', 'calendar', 'candidate', 'matcher'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+    const view = document.getElementById('msView' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.classList.remove('active');
+    if (view) view.style.display = 'none';
+  });
+
+  const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  const activeView = document.getElementById('msView' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (activeBtn) activeBtn.classList.add('active');
+  if (activeView) activeView.style.display = 'block';
+
+  if (tab === 'candidate' && !document.getElementById('candidateDiagnosticResult').innerHTML) {
+    runStudentDiagnostic();
+  }
+  if (tab === 'matcher' && !document.getElementById('jobFitMatcherResult').innerHTML) {
+    runJobFitMatcher();
+  }
+}
+
+async function refreshMultiSourceData() {
+  await loadMultiSourceData();
+}
+
+async function loadMultiSourceData() {
+  try {
+    // 1. Status and 6 Source Cards
+    const status = await getMultiSourceEngineStatus();
+    renderSourceStatusGrid(status);
+
+    // 2. Historical Trends
+    const hist = await getHistoricalPlacementTrends();
+    renderHistoricalTrends(hist);
+
+    // 3. Drive Calendar Matrix
+    multiSourceCalendarData = await getDriveCalendarMatrix();
+    renderDriveCalendarMatrix(multiSourceCalendarData);
+
+  } catch (err) {
+    console.error("Multi-source engine load error:", err);
+  }
+}
+
+function renderSourceStatusGrid(status) {
+  const grid = document.getElementById('sourceStatusGrid');
+  if (!grid || !status || !status.sources) return;
+
+  const s = status.sources;
+  const cards = [
+    {
+      icon: "🎓",
+      title: "1. Academic Data",
+      count: `${s.source_1_academic_data.total_records} Students`,
+      sub: "CGPA, Backlogs, Branch",
+      color: "#2563eb",
+      badge: "100% Verified"
+    },
+    {
+      icon: "📄",
+      title: "2. Resume & ATS Data",
+      count: `${s.source_2_resume_data.total_records} Resumes`,
+      sub: "Parsed Skills & ATS Index",
+      color: "#0891b2",
+      badge: `${s.source_2_resume_data.coverage_percent}% Integrated`
+    },
+    {
+      icon: "💼",
+      title: "3. Recruiter JDs & Criteria",
+      count: `${s.source_3_job_description_criteria.total_records} Roles`,
+      sub: "Full JDs, Max Backlogs, Cutoffs",
+      color: "#4f46e5",
+      badge: "Eligibility Matrix Live"
+    },
+    {
+      icon: "📅",
+      title: "4. Drive Calendars",
+      count: `${s.source_4_drive_calendars.total_records} Drives`,
+      sub: "Schedules, Rounds, Deadlines",
+      color: "#d97706",
+      badge: "Conflict Aware"
+    },
+    {
+      icon: "📈",
+      title: "5. Historical Records",
+      count: `${s.source_5_historical_records.total_records} Benchmarks`,
+      sub: "4 Batches (2021-2025)",
+      color: "#16a34a",
+      badge: "Predictive Trained"
+    },
+    {
+      icon: "🎯",
+      title: "6. Assessment & Mocks",
+      count: `${s.source_6_assessments_and_mocks.assessment_records} Tests / Mocks`,
+      sub: "Coding, Aptitude & Feedback",
+      color: "#9333ea",
+      badge: "Multi-factor Scoring"
+    }
+  ];
+
+  grid.innerHTML = cards.map(c => `
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+        <span style="font-size: 18px;">${c.icon}</span>
+        <span style="font-size: 10px; font-weight: 700; background: #f1f5f9; color: ${c.color}; padding: 2px 6px; border-radius: 4px;">${c.badge}</span>
+      </div>
+      <div>
+        <div style="font-size: 12px; color: #64748b; font-weight: 600;">${c.title}</div>
+        <div style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 2px 0;">${c.count}</div>
+        <div style="font-size: 11px; color: #94a3b8;">${c.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderHistoricalTrends(hist) {
+  if (!hist) return;
+  const summaryBox = document.getElementById('histSummaryStats');
+  if (summaryBox) {
+    summaryBox.innerHTML = `
+      <span>Average CTC: <strong>₹${hist.overall_average_ctc_lpa} LPA</strong></span>
+      <span>Peak CTC: <strong>₹${hist.overall_max_ctc_lpa} LPA</strong></span>
+      <span>Total Placed: <strong>${hist.total_students_represented}</strong></span>
+    `;
+  }
+
+  const tbody = document.getElementById('histYearlyTableBody');
+  if (tbody && hist.year_wise_trends) {
+    tbody.innerHTML = hist.year_wise_trends.map(y => `
+      <tr>
+        <td><strong>${escapeHtml(y.batch_year)}</strong></td>
+        <td>${y.total_placed} candidates</td>
+        <td>${y.active_recruiters_count} companies</td>
+        <td><span style="font-weight:700; color:#16a34a;">₹${y.average_ctc_lpa} LPA</span></td>
+        <td>₹${y.highest_ctc_lpa} LPA</td>
+        <td>₹${y.lowest_ctc_lpa} LPA</td>
+      </tr>
+    `).join('');
+  }
+
+  const branchList = document.getElementById('histBranchList');
+  if (branchList && hist.branch_wise_insights) {
+    branchList.innerHTML = hist.branch_wise_insights.map(b => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0; border-bottom: 1px dashed #e2e8f0;">
+        <span><strong>${escapeHtml(b.branch)}</strong> (${b.students_placed} placed, avg CGPA ${b.average_cgpa})</span>
+        <span style="font-weight:700; color:#4338ca;">Avg ₹${b.average_ctc_lpa} LPA <span style="font-weight:400; color:#64748b; font-size:11px;">(Max ₹${b.highest_ctc_lpa})</span></span>
+      </div>
+    `).join('');
+  }
+
+  const domainSkillList = document.getElementById('histDomainSkillList');
+  if (domainSkillList) {
+    const domainsHtml = (hist.domain_demand_distribution || []).slice(0, 4).map(d =>
+      `<span style="display:inline-block; background:#eef2ff; color:#3730a3; padding:2px 8px; border-radius:12px; font-size:11.5px; margin:2px 4px 2px 0;">${escapeHtml(d.domain)} (${d.placements})</span>`
+    ).join('');
+
+    const skillsHtml = (hist.top_skills_in_demand || []).slice(0, 8).map(s =>
+      `<span style="display:inline-block; background:#f0fdf4; color:#166534; padding:2px 8px; border-radius:12px; font-size:11.5px; margin:2px 4px 2px 0;">${escapeHtml(s.skill)}</span>`
+    ).join('');
+
+    domainSkillList.innerHTML = `
+      <div style="margin-bottom: 8px;">
+        <div style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Top Hiring Domains:</div>
+        ${domainsHtml}
+      </div>
+      <div>
+        <div style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Demanded Technical Skills:</div>
+        ${skillsHtml}
+      </div>
+    `;
+  }
+}
+
+function renderDriveCalendarMatrix(drives) {
+  const tbody = document.getElementById('calendarMatrixBody');
+  if (!tbody) return;
+
+  if (!drives || !drives.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No placement drives found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = drives.slice(0, 20).map(d => {
+    const rounds = (d.rounds_timeline || []).map(r => r.round).join(" → ") || "Standard Multi-round Drive";
+    return `
+      <tr>
+        <td>
+          <div style="font-weight:700; color:#1e293b;">${escapeHtml(d.company)}</div>
+          <div style="font-size:12px; color:#64748b;">${escapeHtml(d.role)}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(d.date)}</div>
+          <div style="font-size:11.5px; color:#64748b;">${escapeHtml(d.time_slot)}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(d.venue)}</div>
+          <div style="font-size:11.5px; color:#64748b;">Capacity: ${d.infrastructure_capacity}</div>
+        </td>
+        <td>
+          <span style="font-size:12px; color:#b45309; font-weight:600;">${escapeHtml(d.registration_deadline)}</span>
+        </td>
+        <td>
+          <span style="background:#ecfdf5; color:#065f46; font-weight:700; padding:2px 8px; border-radius:4px; font-size:12px;">
+            ${d.eligible_students_count} eligible
+          </span>
+          <div style="font-size:10.5px; color:#64748b; margin-top:2px;">Util: ${d.capacity_utilization_ratio}</div>
+        </td>
+        <td style="font-size:11.5px; color:#475569; max-width:240px;">
+          ${escapeHtml(rounds)}
+        </td>
+        <td>
+          <span class="badge ${badgeClass(d.status)}">${escapeHtml(d.status)}</span>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterCalendarTable() {
+  const q = (document.getElementById('calendarFilterInput').value || "").toLowerCase();
+  const filtered = multiSourceCalendarData.filter(d =>
+    d.company.toLowerCase().includes(q) ||
+    d.role.toLowerCase().includes(q) ||
+    d.date.toLowerCase().includes(q)
+  );
+  renderDriveCalendarMatrix(filtered);
+}
+
+async function runStudentDiagnostic() {
+  const idInput = document.getElementById('candidateDiagnosticId');
+  const resBox = document.getElementById('candidateDiagnosticResult');
+  const studentId = parseInt(idInput.value, 10);
+  if (!studentId) {
+    resBox.innerHTML = '<div class="alert danger">Please enter a valid Student ID</div>';
+    return;
+  }
+
+  resBox.innerHTML = '<div class="muted">Integrating and analyzing multi-source data for Student #' + studentId + '...</div>';
+  try {
+    const data = await getStudentMultiSourceProfile(studentId);
+    const b = data.multi_source_breakdown;
+
+    resBox.innerHTML = `
+      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-top: 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; border-bottom:1px solid #f1f5f9; padding-bottom:12px; margin-bottom:14px;">
+          <div>
+            <h3 style="margin:0; font-size:17px; color:#1e1b4b;">${escapeHtml(data.name)} <span style="font-weight:400; color:#64748b; font-size:13px;">(#${data.student_id} · ${escapeHtml(data.branch)})</span></h3>
+            <div style="font-size:12.5px; color:#64748b; margin-top:3px;">College: ${escapeHtml(data.college_name)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:24px; font-weight:800; color:#4338ca;">${data.holistic_employability_score}<span style="font-size:14px; font-weight:500; color:#64748b;">/100</span></div>
+            <span style="background:#e0e7ff; color:#3730a3; font-weight:700; font-size:11.5px; padding:3px 8px; border-radius:12px;">${escapeHtml(data.employability_tier)}</span>
+          </div>
+        </div>
+
+        <!-- 5-Way Source Diagnostic Grid -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px;">
+          <!-- Academic -->
+          <div style="background:#f8fafc; border-radius:8px; padding:10px; border-left:3px solid #2563eb;">
+            <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">1. Academic Profile</div>
+            <div style="font-size:14px; font-weight:700; color:#1e293b; margin-top:3px;">CGPA ${b.academic_source.cgpa} · ${b.academic_source.backlogs} Backlogs</div>
+            <div style="font-size:11.5px; color:#475569;">Effective Academic Index: <strong>${b.academic_source.effective_academic_index}/100</strong></div>
+          </div>
+          <!-- Resume -->
+          <div style="background:#f8fafc; border-radius:8px; padding:10px; border-left:3px solid #0891b2;">
+            <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">2. Resume &amp; ATS Score</div>
+            <div style="font-size:14px; font-weight:700; color:#1e293b; margin-top:3px;">ATS Index: ${b.resume_source.ats_compatibility_score}%</div>
+            <div style="font-size:11.5px; color:#475569;">${b.resume_source.project_count} Projects · ${b.resume_source.certification_count} Certifications</div>
+          </div>
+          <!-- Assessment -->
+          <div style="background:#f8fafc; border-radius:8px; padding:10px; border-left:3px solid #9333ea;">
+            <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">3. Diagnostic Assessment</div>
+            <div style="font-size:14px; font-weight:700; color:#1e293b; margin-top:3px;">Total ${b.assessment_source.total_score}/100 (${b.assessment_source.percentile}th %tile)</div>
+            <div style="font-size:11.5px; color:#475569;">Coding: ${b.assessment_source.coding_score} · Aptitude: ${b.assessment_source.aptitude_score}</div>
+          </div>
+          <!-- Mock Interview -->
+          <div style="background:#f8fafc; border-radius:8px; padding:10px; border-left:3px solid #d97706;">
+            <div style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700;">4. Mock Interview Panel</div>
+            <div style="font-size:14px; font-weight:700; color:#1e293b; margin-top:3px;">Rating: ${b.mock_interview_source.overall_score}/100</div>
+            <div style="font-size:11.5px; color:#475569;">Tech: ${b.mock_interview_source.technical_rating} · Comm: ${b.mock_interview_source.communication_rating}</div>
+          </div>
+        </div>
+
+        <!-- Predictive Historical Benchmark Box -->
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <span style="font-weight:700; color:#1e40af; font-size:13.5px;">📈 Historical Cohort Prediction (${data.branch} Placements):</span>
+            <div style="font-size:12.5px; color:#1e3a8a; margin-top:2px;">
+              Predicted Placement Probability: <strong>${data.predicted_placement_probability_percent}%</strong> · Estimated Package Band: <strong>${data.expected_salary_band_lpa}</strong>
+            </div>
+          </div>
+          <span style="font-size:12px; background:#dbeafe; color:#1e40af; padding:3px 10px; border-radius:12px; font-weight:600;">
+            Branch Hist Avg: ₹${b.historical_benchmark_source.historical_branch_avg_ctc} LPA
+          </span>
+        </div>
+
+        <!-- Drive Calendar Agenda for Student -->
+        <div>
+          <h4 style="margin:0 0 8px 0; font-size:13.5px; color:#1e293b;">📅 Eligible Placement Drive Calendar Agenda:</h4>
+          <div style="overflow-x:auto;">
+            <table style="font-size:12.5px;">
+              <thead>
+                <tr>
+                  <th>Company &amp; Role</th>
+                  <th>Date &amp; Slot</th>
+                  <th>Venue</th>
+                  <th>Registration Deadline</th>
+                  <th>Eligibility Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(data.drive_calendar_agenda || []).map(ev => `
+                  <tr>
+                    <td><strong>${escapeHtml(ev.company)}</strong> · ${escapeHtml(ev.role)}</td>
+                    <td>${escapeHtml(ev.date)} (${escapeHtml(ev.time_slot)})</td>
+                    <td>${escapeHtml(ev.venue)}</td>
+                    <td><span style="color:#b45309; font-weight:600;">${escapeHtml(ev.registration_deadline)}</span></td>
+                    <td><span style="font-weight:700; color:${ev.student_eligibility_status.includes('Eligible to Register') ? '#16a34a' : '#dc2626'};">${escapeHtml(ev.student_eligibility_status)}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    `;
+  } catch (err) {
+    resBox.innerHTML = '<div class="alert danger">Error running student diagnostic: ' + (err.message || err) + '</div>';
+  }
+}
+
+async function runJobFitMatcher() {
+  const sInput = document.getElementById('matchStudentInput');
+  const rInput = document.getElementById('matchRecruiterInput');
+  const resBox = document.getElementById('jobFitMatcherResult');
+
+  const sId = parseInt(sInput.value, 10);
+  const rId = parseInt(rInput.value, 10);
+
+  if (!sId || !rId) {
+    resBox.innerHTML = '<div class="alert danger">Please enter both Student ID and Recruiter ID</div>';
+    return;
+  }
+
+  resBox.innerHTML = '<div class="muted">Running deep multi-source job matching between Student #' + sId + ' and Recruiter #' + rId + '...</div>';
+  try {
+    const data = await getJobMatchMultiSource(sId, rId);
+    const eb = data.eligibility_breakdown;
+    const sa = data.skill_and_resume_analysis;
+
+    resBox.innerHTML = `
+      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-top: 10px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; border-bottom:1px solid #f1f5f9; padding-bottom:12px; margin-bottom:14px;">
+          <div>
+            <h3 style="margin:0; font-size:16px; color:#1e1b4b;">
+              ${escapeHtml(data.student_name)} ➔ ${escapeHtml(data.company)} (${escapeHtml(data.role)})
+            </h3>
+            <div style="font-size:12.5px; color:#64748b; margin-top:3px;">
+              Location: ${escapeHtml(data.job_location)} · Experience: ${escapeHtml(data.experience_level)}
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:24px; font-weight:800; color:#4338ca;">${data.fit_score}<span style="font-size:14px; font-weight:500; color:#64748b;">/100</span></div>
+            <span class="badge ${data.badge_class === 'danger' ? 'noteligible' : (data.badge_class === 'warning' ? 'below' : 'ready')}">${escapeHtml(data.status)}</span>
+          </div>
+        </div>
+
+        <!-- Multi-Gate Eligibility Checklist -->
+        <div style="margin-bottom:14px;">
+          <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:#64748b; margin-bottom:6px;">Multi-Gate Criteria Evaluation:</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:${eb.cgpa_check.passed ? '#dcfce7; color:#166534;' : '#fee2e2; color:#991b1b;'} font-weight:600;">
+              ${eb.cgpa_check.passed ? '✓' : '✗'} CGPA: ${eb.cgpa_check.student_value} (Min: ${eb.cgpa_check.required})
+            </span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:${eb.backlog_check.passed ? '#dcfce7; color:#166534;' : '#fee2e2; color:#991b1b;'} font-weight:600;">
+              ${eb.backlog_check.passed ? '✓' : '✗'} Backlogs: ${eb.backlog_check.student_value} (Max: ${eb.backlog_check.max_allowed})
+            </span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:${eb.branch_check.passed ? '#dcfce7; color:#166534;' : '#fee2e2; color:#991b1b;'} font-weight:600;">
+              ${eb.branch_check.passed ? '✓' : '✗'} Branch: ${eb.branch_check.student_branch}
+            </span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:${eb.assessment_check.passed ? '#dcfce7; color:#166534;' : '#fef3c7; color:#92400e;'} font-weight:600;">
+              ${eb.assessment_check.passed ? '✓' : '⚠'} Assessment: ${eb.assessment_check.student_score} (Bench: ${eb.assessment_check.benchmark})
+            </span>
+            <span style="font-size:12px; padding:4px 10px; border-radius:6px; background:${eb.mock_interview_check.passed ? '#dcfce7; color:#166534;' : '#fef3c7; color:#92400e;'} font-weight:600;">
+              ${eb.mock_interview_check.passed ? '✓' : '⚠'} Mock Interview: ${eb.mock_interview_check.student_score} (Bench: ${eb.mock_interview_check.benchmark})
+            </span>
+          </div>
+        </div>
+
+        <!-- Semantic Relevance and Skill Breakdown -->
+        <div style="background:#f8fafc; border-radius:8px; padding:12px; margin-bottom:12px;">
+          <div style="font-size:13px; font-weight:600; color:#1e293b; margin-bottom:4px;">
+            Resume-to-JD Semantic Relevance: <span style="color:#2563eb;">${sa.semantic_similarity_percent}%</span> · Skill Coverage: <span style="color:#16a34a;">${sa.skill_coverage_percent}%</span>
+          </div>
+          <div style="font-size:12.5px; color:#475569;">
+            ${sa.missing_skills.length ? 'Missing Skills: <strong style="color:#dc2626;">' + escapeHtml(sa.missing_skills.join(', ')) + '</strong>' : '<strong style="color:#16a34a;">All required technical skills covered!</strong>'}
+          </div>
+        </div>
+
+        <!-- Explainable Natural Language Reason -->
+        <div style="background:#fdf4ff; border-left:3px solid #a855f7; border-radius:4px; padding:10px 14px; font-size:13px; color:#581c87;">
+          <strong>Explainable Synthesis:</strong> ${escapeHtml(data.explanation)}
+        </div>
+
+      </div>
+    `;
+  } catch (err) {
+    resBox.innerHTML = '<div class="alert danger">Error running job fit match: ' + (err.message || err) + '</div>';
+  }
+}
+
+// ========================================
 // START DASHBOARD
 // ========================================
 
-loadDashboard();
+loadDashboard().then(() => {
+  loadMultiSourceData();
+});
 
 </script>
 

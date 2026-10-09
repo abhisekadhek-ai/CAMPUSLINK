@@ -183,7 +183,12 @@
 
 <script>
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = (function() {
+    const stored = localStorage.getItem("campuslink_backend_url");
+    if (stored) return stored.replace(/\/+$/, "");
+    if (window.location.protocol === "http:" || window.location.protocol === "https:") return window.location.origin;
+    return "http://127.0.0.1:8000";
+})();
 
 const chatBox = document.getElementById("chatBox");
 const questionInput = document.getElementById("questionInput");

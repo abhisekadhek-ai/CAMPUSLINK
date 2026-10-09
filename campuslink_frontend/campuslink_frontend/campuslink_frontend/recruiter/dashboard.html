@@ -442,12 +442,24 @@
         </div>
 
         <!-- =========================
-             YOUR ROLE
+             YOUR ROLES (SUPPORT MULTIPLE ROLES)
         ========================== -->
         <div class="panel">
 
-            <div class="panel-title">
-                Your Open Role
+            <div class="panel-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span>Your Posted Job Roles</span>
+                    <span id="roleCountBadge" class="badge ready" style="font-size:12px; padding:2px 8px;">1 Role</span>
+                </div>
+
+                <button
+                    type="button"
+                    id="openPostRoleBtn"
+                    onclick="openPostRoleModal()"
+                    style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:var(--indigo, #4f46e5); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:600; font-size:13px; box-shadow:0 2px 6px rgba(79,70,229,0.25);"
+                >
+                    ➕ Post Another Role
+                </button>
             </div>
 
 
@@ -503,6 +515,10 @@
                         </th>
 
                         <th>
+                            Interview Performance
+                        </th>
+
+                        <th>
                             Coverage
                         </th>
 
@@ -532,12 +548,103 @@
 
 </div>
 
+<!-- =========================
+     MODAL: POST ANOTHER ROLE
+========================== -->
+<div id="postRoleModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.55); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
+    <div style="background:#fff; border-radius:16px; width:92%; max-width:520px; padding:26px; box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h2 style="margin:0; font-size:20px; color:var(--ink, #111827);">Post Another Role</h2>
+            <button type="button" onclick="closePostRoleModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#9ca3af; line-height:1;">&times;</button>
+        </div>
+        <p style="margin:0 0 16px; color:#4b5563; font-size:13.5px;">
+            Post an additional job opening for <strong id="modalCompanyName" style="color:var(--indigo, #4f46e5);">Your Company</strong>.
+        </p>
+
+        <div id="postRoleFeedback" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:8px; font-size:13.5px; font-weight:500;"></div>
+
+        <form id="postRoleForm" onsubmit="handlePostRoleSubmit(event)">
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Role Title *</label>
+                <input id="newRoleTitle" type="text" placeholder="e.g. Full Stack Developer, Data Analyst" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px;">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Required Skills * (comma-separated)</label>
+                <input id="newRoleSkills" type="text" placeholder="e.g. Python, React, SQL, FastAPI" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                <small style="color:#6b7280; font-size:12px;">Enter skills required from students.</small>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Minimum CGPA</label>
+                    <input id="newRoleMinCgpa" type="number" step="0.1" min="0" max="10" value="0" placeholder="e.g. 7.0" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Eligible Branches</label>
+                    <input id="newRoleBranches" type="text" placeholder="e.g. CSE, IT, ECE" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px;">
+                    <small style="color:#6b7280; font-size:11.5px;">Leave blank for all branches</small>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="secondary small" onclick="closePostRoleModal()">Cancel</button>
+                <button id="submitNewRoleBtn" type="submit" style="background:var(--indigo,#4f46e5); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;">Post Role</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- =========================
+     MODAL: SEND SELECTION MAIL TO STUDENT
+========================== -->
+<div id="recruiterEmailModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.6); z-index:9999; justify-content:center; align-items:center; backdrop-filter:blur(3px);">
+    <div style="background:#fff; border-radius:16px; width:92%; max-width:560px; padding:26px; box-shadow:0 20px 40px rgba(0,0,0,0.2); position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h2 style="margin:0; font-size:20px; color:#1e1b4b; display:flex; align-items:center; gap:8px;">
+                <span>✉️</span> Mail Selected Student
+            </h2>
+            <button type="button" onclick="closeRecruiterEmailModal()" style="background:none; border:none; font-size:26px; cursor:pointer; color:#9ca3af; line-height:1;">&times;</button>
+        </div>
+        <p style="margin:0 0 16px; color:#4b5563; font-size:13.5px;">
+            Send an official selection offer letter and congratulations email directly to the student.
+        </p>
+
+        <div id="emailSendFeedback" style="display:none; margin-bottom:14px; padding:10px 14px; border-radius:8px; font-size:13.5px; font-weight:600;"></div>
+
+        <form id="recruiterEmailForm" onsubmit="handleSendRecruiterEmail(event)">
+            <input type="hidden" id="modalStudentId">
+            <input type="hidden" id="modalApplicationId">
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Recipient Student</label>
+                <input id="modalRecipientDisplay" type="text" readonly style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px; background:#f8fafc; font-weight:600; color:#1e293b;">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Email Subject *</label>
+                <input id="modalEmailSubject" type="text" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:14px;">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:600; margin-bottom:5px; color:#374151;">Email Body / Message *</label>
+                <textarea id="modalEmailBody" rows="7" required style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box; font-size:13.5px; font-family:inherit; line-height:1.5;"></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
+                <button type="button" class="secondary small" onclick="closeRecruiterEmailModal()">Cancel</button>
+                <button id="modalEmailSubmitBtn" type="submit" style="background:#2563eb; color:#fff; border:none; padding:10px 22px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13.5px; display:inline-flex; align-items:center; gap:6px;">
+                    🚀 Send Selection Email
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
      API
 ========================== -->
 
 <script src="../js/api.js"></script>
+<script src="../js/notifications-ui.js" defer></script>
 
 
 <!-- =========================
@@ -584,24 +691,19 @@ if (
 
 
 /* =========================
-   CURRENT RECRUITER ID
+   CURRENT RECRUITER & ROLES STATE
 ========================= */
 
 let currentRecruiterId =
-
-    recruiterSession
-    &&
-    recruiterSession.recruiter_id
-        ? Number(
-            recruiterSession.recruiter_id
-        )
+    recruiterSession && recruiterSession.recruiter_id
+        ? Number(recruiterSession.recruiter_id)
         : null;
 
+let currentRecruiter = null;
+let companyRoles = [];
+let selectedRoleId = currentRecruiterId;
 
-console.log(
-    "Logged-in recruiter ID:",
-    currentRecruiterId
-);
+console.log("Logged-in recruiter ID:", currentRecruiterId);
 
 
 /* =========================
@@ -609,542 +711,333 @@ console.log(
 ========================= */
 
 function showError(error) {
-
-    console.error(
-        "Recruiter dashboard error:",
-        error
-    );
-
-
-    document.getElementById(
-        "errorBox"
-    ).innerHTML =
-
-        `
+    console.error("Recruiter dashboard error:", error);
+    document.getElementById("errorBox").innerHTML = `
         <div class="alert">
-
-            ${escapeHtml(
-                error &&
-                error.message
-                    ? error.message
-                    : "Something went wrong."
-            )}
-
+            ${escapeHtml(error && error.message ? error.message : "Something went wrong.")}
         </div>
-        `;
-
+    `;
 }
 
 
 /* =========================
-   LOAD RECRUITER
+   LOAD RECRUITER & ROLES
 ========================= */
 
 async function loadRecruiter() {
-
     if (!currentRecruiterId) {
-
         throw new Error(
             "Recruiter ID is missing from your login session. Please log out and log in again."
         );
-
     }
 
+    const recruiters = await getRecruiters();
+    let recruiter = recruiters.find(
+        r => Number(r.id) === Number(currentRecruiterId)
+    );
 
-    /*
-     * Get recruiter records from
-     * existing backend API.
-     *
-     * Then select ONLY the logged-in
-     * recruiter's record.
-     */
-
-    const recruiters =
-        await getRecruiters();
-
-
-    const recruiter =
-        recruiters.find(
-            r =>
-                Number(r.id) ===
-                Number(currentRecruiterId)
-        );
-
+    if (!recruiter && recruiters.length > 0) {
+        recruiter = recruiters[0];
+    }
 
     if (!recruiter) {
-
-        throw new Error(
-            "Recruiter profile not found."
-        );
-
+        throw new Error("Recruiter profile not found.");
     }
 
+    currentRecruiter = recruiter;
 
-    /*
-     * Display company.
-     */
+    // Display company
+    document.getElementById("companyName").textContent =
+        recruiter.company || "Company";
 
-    document.getElementById(
-        "companyName"
-    ).textContent =
+    // Display role
+    document.getElementById("recruiterRole").textContent =
+        recruiter.role || "Recruiter";
 
-        recruiter.company ||
-        "Company";
+    // Display recruiter ID
+    document.getElementById("recruiterIdText").textContent =
+        "Recruiter ID: " + recruiter.id;
 
+    // Display company badge
+    document.getElementById("companyBadge").textContent =
+        recruiter.company || "Recruiter";
 
-    /*
-     * Display role.
-     */
+    // Load all roles for this company
+    try {
+        const roles = await getRecruiterRoles();
+        if (Array.isArray(roles) && roles.length > 0) {
+            companyRoles = roles;
+        } else {
+            companyRoles = recruiters.filter(
+                r => (r.company || "").trim().toLowerCase() === (recruiter.company || "").trim().toLowerCase()
+            );
+        }
+    } catch (e) {
+        console.warn("Could not fetch recruiter roles:", e);
+        companyRoles = recruiters.filter(
+            r => (r.company || "").trim().toLowerCase() === (recruiter.company || "").trim().toLowerCase()
+        );
+    }
 
-    document.getElementById(
-        "recruiterRole"
-    ).textContent =
+    if (!companyRoles || companyRoles.length === 0) {
+        companyRoles = [recruiter];
+    }
 
-        recruiter.role ||
-        "Recruiter";
+    const badge = document.getElementById("roleCountBadge");
+    if (badge) {
+        badge.textContent = `${companyRoles.length} ${companyRoles.length === 1 ? 'Role' : 'Roles'}`;
+    }
 
-
-    /*
-     * Display recruiter ID.
-     */
-
-    document.getElementById(
-        "recruiterIdText"
-    ).textContent =
-
-        "Recruiter ID: " +
-        recruiter.id;
-
-
-    /*
-     * Display company badge.
-     */
-
-    document.getElementById(
-        "companyBadge"
-    ).textContent =
-
-        recruiter.company ||
-        "Recruiter";
-
-
-    /*
-     * Display role card.
-     */
-
-    renderRole(recruiter);
-
+    renderRolesList(companyRoles);
 }
 
 
 /* =========================
-   RENDER ROLE
+   RENDER ROLES LIST
 ========================= */
 
-function renderRole(recruiter) {
+function renderRolesList(roles) {
+    const container = document.getElementById("roleContainer");
+    if (!container) return;
 
-    const container =
-        document.getElementById(
-            "roleContainer"
-        );
+    if (!roles || roles.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                No roles posted yet. Click <strong>Post Another Role</strong> above to add one.
+            </div>
+        `;
+        return;
+    }
 
+    container.innerHTML = roles.map(r => {
+        const isSelected = Number(r.id) === Number(selectedRoleId);
+        const skills = Array.isArray(r.required_skills) ? r.required_skills : [];
+        const branches = Array.isArray(r.eligible_branches) ? r.eligible_branches : [];
 
-    const skills =
-
-        Array.isArray(
-            recruiter.required_skills
-        )
-            ? recruiter.required_skills
-            : [];
-
-
-    const branches =
-
-        Array.isArray(
-            recruiter.eligible_branches
-        )
-            ? recruiter.eligible_branches
-            : [];
-
-
-    container.innerHTML =
-
-        `
-        <div class="role-card">
-
-            <div class="role-card-header">
+        return `
+        <div class="role-card" style="border:${isSelected ? '2px solid var(--indigo, #4f46e5)' : '1px solid var(--border, #e5e7eb)'}; border-radius:14px; padding:20px; background:${isSelected ? 'rgba(79, 70, 229, 0.02)' : 'var(--card, #fff)'}; margin-bottom:18px; box-shadow:${isSelected ? '0 4px 14px rgba(79, 70, 229, 0.1)' : 'none'};">
+            <div class="role-card-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <h2 style="margin:0 0 4px; font-size:18px;">${escapeHtml(r.role || "Open Role")}</h2>
+                        ${isSelected ? '<span class="badge ready" style="font-size:11px; padding:2px 7px;">Viewing Candidates</span>' : ''}
+                    </div>
+                    <p class="role-company" style="margin:0; font-size:13.5px; color:var(--ink-soft, #6b7280);">
+                        ${escapeHtml(r.company || "")} · Role ID: <strong>#${escapeHtml(String(r.id))}</strong>
+                    </p>
+                </div>
 
                 <div>
-
-                    <h2>
-
-                        ${escapeHtml(
-                            recruiter.role ||
-                            "Open Role"
-                        )}
-
-                    </h2>
-
-
-                    <p class="role-company">
-
-                        ${escapeHtml(
-                            recruiter.company ||
-                            ""
-                        )}
-
-                    </p>
-
+                    <button
+                        class="${isSelected ? 'btn-primary' : 'secondary'} small"
+                        style="${isSelected ? 'background:var(--indigo, #4f46e5); color:#fff; border:none; padding:7px 14px; border-radius:8px; font-weight:600; cursor:pointer;' : 'cursor:pointer;'}"
+                        onclick="viewCandidates(${Number(r.id)}, '${escapeHtml(r.role || "Open Role")}')"
+                    >
+                        ${isSelected ? '✓ Viewing This Role' : 'View Candidates &rarr;'}
+                    </button>
                 </div>
-
-
-                <button
-                    class="secondary small"
-                    onclick="viewCandidates(
-                        ${Number(recruiter.id)},
-                        '${escapeHtml(
-                            recruiter.role ||
-                            "Open Role"
-                        )}'
-                    )"
-                >
-                    View Candidates
-                </button>
-
             </div>
 
-
-            <div class="role-grid">
-
+            <div class="role-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-top:16px;">
                 <div class="role-detail">
-
-                    <span
-                        class="role-detail-label"
-                    >
-                        Required Skills
+                    <span class="role-detail-label" style="display:block; font-size:12px; color:#6b7280; font-weight:600; text-transform:uppercase;">Required Skills</span>
+                    <span class="role-detail-value" style="display:block; margin-top:4px;">
+                        ${skills.length ? csv(skills) : "Not specified"}
                     </span>
-
-
-                    <span
-                        class="role-detail-value"
-                    >
-
-                        ${
-                            skills.length
-                                ? csv(skills)
-                                : "Not specified"
-                        }
-
-                    </span>
-
                 </div>
 
-
                 <div class="role-detail">
-
-                    <span
-                        class="role-detail-label"
-                    >
-                        Minimum CGPA
+                    <span class="role-detail-label" style="display:block; font-size:12px; color:#6b7280; font-weight:600; text-transform:uppercase;">Minimum CGPA</span>
+                    <span class="role-detail-value" style="display:block; margin-top:4px; font-weight:600;">
+                        ${r.min_cgpa ?? "-"}
                     </span>
-
-
-                    <span
-                        class="role-detail-value"
-                    >
-
-                        ${
-                            recruiter.min_cgpa ??
-                            "-"
-                        }
-
-                    </span>
-
                 </div>
 
-
                 <div class="role-detail">
-
-                    <span
-                        class="role-detail-label"
-                    >
-                        Eligible Branches
+                    <span class="role-detail-label" style="display:block; font-size:12px; color:#6b7280; font-weight:600; text-transform:uppercase;">Eligible Branches</span>
+                    <span class="role-detail-value" style="display:block; margin-top:4px;">
+                        ${branches.length ? branches.map(b => escapeHtml(b)).join(", ") : "All branches"}
                     </span>
-
-
-                    <span
-                        class="role-detail-value"
-                    >
-
-                        ${
-                            branches.length
-                                ? branches
-                                    .map(
-                                        b =>
-                                            escapeHtml(b)
-                                    )
-                                    .join(", ")
-                                : "All branches"
-                        }
-
-                    </span>
-
                 </div>
-
             </div>
-
         </div>
         `;
-
+    }).join("");
 }
 
 
 /* =========================
-   VIEW CANDIDATES
+   POST ANOTHER ROLE (MODAL)
 ========================= */
 
-async function viewCandidates(
-    recruiterId,
-    title
-) {
+function openPostRoleModal() {
+    const modal = document.getElementById("postRoleModal");
+    if (!modal) return;
+    document.getElementById("modalCompanyName").textContent =
+        currentRecruiter ? currentRecruiter.company : "Your Company";
+    document.getElementById("newRoleTitle").value = "";
+    document.getElementById("newRoleSkills").value = "";
+    document.getElementById("newRoleMinCgpa").value = "0";
+    document.getElementById("newRoleBranches").value = "";
+    document.getElementById("postRoleFeedback").style.display = "none";
+    modal.style.display = "flex";
+}
+
+function closePostRoleModal() {
+    const modal = document.getElementById("postRoleModal");
+    if (modal) modal.style.display = "none";
+}
+
+async function handlePostRoleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById("submitNewRoleBtn");
+    const feedback = document.getElementById("postRoleFeedback");
+    feedback.style.display = "none";
+
+    const role = document.getElementById("newRoleTitle").value.trim();
+    const skillsRaw = document.getElementById("newRoleSkills").value.trim();
+    const minCgpa = parseFloat(document.getElementById("newRoleMinCgpa").value) || 0;
+    const branchesRaw = document.getElementById("newRoleBranches").value.trim();
+
+    if (!role) {
+        feedback.style.display = "block";
+        feedback.style.background = "#fee2e2";
+        feedback.style.color = "#991b1b";
+        feedback.textContent = "Please enter a role title.";
+        return;
+    }
+
+    const skills = skillsRaw.split(",").map(s => s.trim()).filter(Boolean);
+    const branches = branchesRaw ? branchesRaw.split(",").map(b => b.trim()).filter(Boolean) : [];
+
+    btn.disabled = true;
+    btn.textContent = "Posting...";
 
     try {
+        const payload = {
+            company: currentRecruiter ? currentRecruiter.company : "",
+            role: role,
+            required_skills: skills,
+            min_cgpa: minCgpa,
+            eligible_branches: branches
+        };
 
-        /*
-         * Do not allow the dashboard
-         * to request another recruiter's
-         * candidate list.
-         */
+        const newRecruiter = await createRecruiter(payload);
+        closePostRoleModal();
+        await loadRecruiter();
 
-        if (
-            Number(recruiterId) !==
-            Number(currentRecruiterId)
-        ) {
-
-            throw new Error(
-                "You can only access your own recruiter profile."
-            );
-
+        if (newRecruiter && newRecruiter.id) {
+            await viewCandidates(newRecruiter.id, newRecruiter.role);
         }
 
-
-        currentRecruiterId =
-            Number(recruiterId);
-
-
-        /*
-         * Backend checks:
-         *
-         * recruiter token
-         * recruiter_id
-         * company
-         * college approval
-         */
-
-        const candidates =
-            await getCandidates(
-                currentRecruiterId
-            );
+        alert("New role '" + role + "' posted successfully!");
+    } catch (err) {
+        console.error("Error creating role:", err);
+        feedback.style.display = "block";
+        feedback.style.background = "#fee2e2";
+        feedback.style.color = "#991b1b";
+        feedback.textContent = "Could not post role: " + (err.message || "Error");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Post Role";
+    }
+}
 
 
-        document.getElementById(
-            "candidatesPanel"
-        ).style.display =
-            "block";
+/* =========================
+   VIEW CANDIDATES (WITH INTERVIEW PERFORMANCE)
+========================= */
 
+async function viewCandidates(recruiterId, title) {
+    try {
+        selectedRoleId = Number(recruiterId);
+        if (companyRoles && companyRoles.length > 0) {
+            renderRolesList(companyRoles);
+        }
 
-        document.getElementById(
-            "jobTitleLabel"
-        ).textContent =
-            title;
+        const candidates = await getCandidates(selectedRoleId);
 
+        document.getElementById("candidatesPanel").style.display = "block";
+        document.getElementById("jobTitleLabel").textContent = title;
 
-        const body =
-            document.getElementById(
-                "candidatesBody"
-            );
+        const body = document.getElementById("candidatesBody");
 
-
-        if (
-            !candidates ||
-            candidates.length === 0
-        ) {
-
-            body.innerHTML =
-
-                `
+        if (!candidates || candidates.length === 0) {
+            body.innerHTML = `
                 <tr>
+                    <td colspan="7" class="empty">
+                        No approved candidates are available for this role yet.
+                    </td>
+                </tr>
+            `;
+        } else {
+            body.innerHTML = candidates.map(candidate => {
+                const interviewScore = candidate.interview_score ?? 0;
+                let interviewBadgeClass = "below";
+                if (interviewScore >= 80) interviewBadgeClass = "ready";
+                else if (interviewScore >= 60) interviewBadgeClass = "developing";
+                else interviewBadgeClass = "notready";
 
-                    <td
-                        colspan="6"
-                        class="empty"
-                    >
-
-                        No approved candidates
-                        are available for
-                        this company yet.
-
+                return `
+                <tr>
+                    <td>
+                        <strong>${escapeHtml(candidate.student_name || "Unknown Student")}</strong>
+                        <br>
+                        <span class="muted" style="font-size:12px;">
+                            Student ID: ${escapeHtml(String(candidate.student_id ?? "-"))} · Projects: <strong>${candidate.projects_count ?? 0}</strong> · Certs: <strong>${candidate.certifications_count ?? 0}</strong>
+                        </span>
                     </td>
 
+                    <td class="mono">
+                        <strong style="color:var(--indigo, #4f46e5); font-size:14px;">${candidate.match_score ?? "-"}%</strong>
+                    </td>
+
+                    <td>
+                        <span class="badge ${badgeClass(candidate.status)}">
+                            ${escapeHtml(candidate.status || "Unknown")}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge ${interviewBadgeClass}" style="display:inline-flex; align-items:center; gap:4px;" title="Interview Readiness">
+                            🎯 ${interviewScore}/100 <span style="font-size:11px; opacity:0.85;">(${escapeHtml(candidate.interview_performance || 'Evaluated')})</span>
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong>${candidate.coverage_percent ?? 0}%</strong>
+                    </td>
+
+                    <td class="muted" style="max-width:280px; font-size:12.5px; line-height:1.4;">
+                        ${escapeHtml(candidate.explanation || "No explanation available.")}
+                    </td>
+
+                    <td>
+                        ${candidate.status === "Shortlisted" ? `
+                            <button
+                                class="secondary small"
+                                onclick="doShortlist(${Number(candidate.student_id)}, this)"
+                            >
+                                Shortlist
+                            </button>
+                        ` : `
+                            <span class="muted" style="font-size:12px;">Not eligible</span>
+                        `}
+                    </td>
                 </tr>
                 `;
-
-        } else {
-
-            body.innerHTML =
-
-                candidates.map(
-                    candidate => `
-
-                    <tr>
-
-                        <td>
-
-                            <strong>
-
-                                ${escapeHtml(
-                                    candidate.student_name ||
-                                    "Unknown Student"
-                                )}
-
-                            </strong>
-
-
-                            <br>
-
-
-                            <span
-                                class="muted"
-                                style="font-size:12px;"
-                            >
-
-                                Student ID:
-                                ${escapeHtml(
-                                    String(
-                                        candidate.student_id ??
-                                        "-"
-                                    )
-                                )}
-
-                            </span>
-
-                        </td>
-
-
-                        <td class="mono">
-
-                            ${
-                                candidate.match_score ??
-                                "-"
-                            }
-
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                class="badge ${badgeClass(
-                                    candidate.status
-                                )}"
-                            >
-
-                                ${escapeHtml(
-                                    candidate.status ||
-                                    "Unknown"
-                                )}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                candidate.coverage_percent ??
-                                0
-                            }%
-
-                        </td>
-
-
-                        <td
-                            class="muted"
-                            style="max-width:280px;"
-                        >
-
-                            ${escapeHtml(
-                                candidate.explanation ||
-                                "No explanation available."
-                            )}
-
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                candidate.status ===
-                                "Shortlisted"
-
-                                ?
-
-                                `
-                                <button
-                                    class="secondary small"
-                                    onclick="doShortlist(
-                                        ${Number(
-                                            candidate.student_id
-                                        )},
-                                        this
-                                    )"
-                                >
-
-                                    Shortlist
-
-                                </button>
-                                `
-
-                                :
-
-                                `
-                                <span
-                                    class="muted"
-                                    style="font-size:12px;"
-                                >
-
-                                    Not eligible
-
-                                </span>
-                                `
-                            }
-
-                        </td>
-
-
-                    </tr>
-
-                    `
-                ).join("");
-
+            }).join("");
         }
 
-
-        document.getElementById(
-            "candidatesPanel"
-        ).scrollIntoView({
+        document.getElementById("candidatesPanel").scrollIntoView({
             behavior: "smooth"
         });
 
-
     } catch (error) {
-
         showError(error);
-
     }
-
 }
+
 
 
 /* =========================
@@ -1292,7 +1185,15 @@ async function loadCollegeApprovedApplicants() {
 
     try {
         const apps = await getApprovedJobApplications();
-        const list = Array.isArray(apps) ? apps : [];
+        const rawList = Array.isArray(apps) ? apps : [];
+
+        // Deduplicate applicants by student_id to prevent any duplicate student display
+        const seenStudentIds = new Set();
+        const list = rawList.filter(app => {
+            if (seenStudentIds.has(app.student_id)) return false;
+            seenStudentIds.add(app.student_id);
+            return true;
+        });
 
         if (badge) {
             badge.style.display = "inline-block";
@@ -1359,18 +1260,26 @@ async function loadCollegeApprovedApplicants() {
                         ${statusBadge}
                     </td>
                     <td style="text-align:right;">
-                        <div style="display:inline-flex; gap:8px; align-items:center;">
+                        <div style="display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
                             <button
                                 type="button"
-                                style="background:#16a34a; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-weight:600; font-size:12.5px; cursor:pointer; opacity:${isAccepted ? '0.6' : '1'};"
+                                style="background:#16a34a; color:#fff; border:none; padding:7px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; opacity:${isAccepted ? '0.7' : '1'};"
                                 onclick="handleRecruiterDecision(${app.id}, 'Selected', this)"
                                 title="Approve candidate and extend offer"
                             >
-                                ${isAccepted ? '✓ Approved' : '✅ Approve / Accept'}
+                                ${isAccepted ? '✓ Selected' : '✅ Select'}
                             </button>
                             <button
                                 type="button"
-                                style="background:#dc2626; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-weight:600; font-size:12.5px; cursor:pointer; opacity:${isRejected ? '0.6' : '1'};"
+                                style="background:#2563eb; color:#fff; border:none; padding:7px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer;"
+                                onclick="openRecruiterEmailModal(${app.student_id}, '${escapeHtml(app.student_name).replace(/'/g, "\\'")}', '${escapeHtml(app.job_title).replace(/'/g, "\\'")}', '${escapeHtml(app.company).replace(/'/g, "\\'")}', ${app.id})"
+                                title="Send official selection offer email directly to this student"
+                            >
+                                ✉️ Mail Student
+                            </button>
+                            <button
+                                type="button"
+                                style="background:#dc2626; color:#fff; border:none; padding:7px 12px; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; opacity:${isRejected ? '0.7' : '1'};"
                                 onclick="handleRecruiterDecision(${app.id}, 'Rejected', this)"
                                 title="Reject this application"
                             >
@@ -1410,10 +1319,12 @@ async function handleRecruiterDecision(applicationId, newStatus, btn) {
             feedback.style.display = "block";
             feedback.style.background = newStatus === "Selected" ? "#dcfce7" : "#fee2e2";
             feedback.style.color = newStatus === "Selected" ? "#166534" : "#991b1b";
-            feedback.textContent = newStatus === "Selected" ? "Candidate Accepted & Selected! 🎉" : "Candidate Rejected. ❌";
+            feedback.textContent = newStatus === "Selected" 
+                ? "Candidate Accepted & Selected! 🎉 (You can now click '✉️ Mail Student' to send their offer email)" 
+                : "Candidate Rejected. ❌";
             setTimeout(() => {
                 feedback.style.display = "none";
-            }, 3000);
+            }, 4000);
         }
 
         await loadCollegeApprovedApplicants();
@@ -1422,6 +1333,78 @@ async function handleRecruiterDecision(applicationId, newStatus, btn) {
         console.error("Decision error:", err);
         alert("Could not update decision: " + (err.message || "Error"));
         btn.disabled = false;
+    }
+}
+
+function openRecruiterEmailModal(studentId, studentName, jobTitle, company, appId) {
+    document.getElementById("modalStudentId").value = studentId;
+    document.getElementById("modalApplicationId").value = appId || "";
+    document.getElementById("modalRecipientDisplay").value = `${studentName} (ID: #${studentId})`;
+    document.getElementById("modalEmailSubject").value = `Congratulations! Official Selection Offer from ${company} for ${jobTitle}`;
+    document.getElementById("modalEmailBody").value = `Dear ${studentName},\n\nWe are delighted to inform you that you have been successfully selected for the position of '${jobTitle}' at ${company} through the CampusLink Placement Drive!\n\nOur Human Resources and Talent Acquisition team will reach out with the formal offer letter, compensation breakdown, and onboarding documentation.\n\nHeartiest congratulations on your selection!\n\nWarm regards,\n${company} Campus Recruitment Team\nCampusLink Placement Network`;
+    
+    const feedback = document.getElementById("emailSendFeedback");
+    if (feedback) feedback.style.display = "none";
+    
+    const modal = document.getElementById("recruiterEmailModal");
+    if (modal) modal.style.display = "flex";
+}
+
+function closeRecruiterEmailModal() {
+    const modal = document.getElementById("recruiterEmailModal");
+    if (modal) modal.style.display = "none";
+}
+
+async function handleSendRecruiterEmail(e) {
+    e.preventDefault();
+    const studentId = Number(document.getElementById("modalStudentId").value);
+    const appId = document.getElementById("modalApplicationId").value;
+    const subject = document.getElementById("modalEmailSubject").value.trim();
+    const message = document.getElementById("modalEmailBody").value.trim();
+    const btn = document.getElementById("modalEmailSubmitBtn");
+    const feedback = document.getElementById("emailSendFeedback");
+
+    try {
+        btn.disabled = true;
+        btn.textContent = "Sending Email...";
+
+        const res = await sendRecruiterEmailToStudent({
+            student_id: studentId,
+            application_id: appId ? Number(appId) : null,
+            subject: subject,
+            message: message
+        });
+
+        if (feedback) {
+            feedback.style.display = "block";
+            feedback.style.background = "#dcfce7";
+            feedback.style.color = "#166534";
+            feedback.textContent = `✓ ${res.message || "Selection email successfully sent to student!"}`;
+        }
+
+        setTimeout(() => {
+            closeRecruiterEmailModal();
+            const topFeedback = document.getElementById("applicantActionFeedback");
+            if (topFeedback) {
+                topFeedback.style.display = "block";
+                topFeedback.style.background = "#dbeafe";
+                topFeedback.style.color = "#1e40af";
+                topFeedback.textContent = `✉️ Official selection email successfully delivered to student!`;
+                setTimeout(() => topFeedback.style.display = "none", 4000);
+            }
+        }, 1200);
+
+    } catch (err) {
+        console.error("Email send error:", err);
+        if (feedback) {
+            feedback.style.display = "block";
+            feedback.style.background = "#fee2e2";
+            feedback.style.color = "#991b1b";
+            feedback.textContent = "Failed to send email: " + (err.message || "Error");
+        }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "🚀 Send Selection Email";
     }
 }
 

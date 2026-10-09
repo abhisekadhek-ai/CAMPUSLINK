@@ -12,10 +12,13 @@ Usage in a route:
         return db.query(Student).all()
 """
 
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = "sqlite:///./campuslink.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, "campuslink.db")
+DATABASE_URL = f"sqlite:///{DB_FILE}"
 
 engine = create_engine(
     DATABASE_URL, connect_args={"check_same_thread": False}

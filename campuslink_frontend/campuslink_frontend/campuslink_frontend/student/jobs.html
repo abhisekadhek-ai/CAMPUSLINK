@@ -598,7 +598,12 @@
 <script>
 "use strict";
 
-const JOBS_API = "http://127.0.0.1:8000/integrations/jobs";
+const JOBS_API = (function() {
+    const stored = localStorage.getItem("campuslink_backend_url");
+    if (stored) return stored.replace(/\/+$/, "");
+    if (window.location.protocol === "http:" || window.location.protocol === "https:") return window.location.origin;
+    return "http://127.0.0.1:8000";
+})() + "/integrations/jobs";
 
 const jobsContainer = document.getElementById("jobsContainer");
 const jobMessage = document.getElementById("jobMessage");
